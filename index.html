@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Chat GPT Playground</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- BEGIN PWA -->
+        <!-- Chrome -->
+        <meta name="theme-color" content="#4c4c48">
+        <!-- <link rel="manifest" href="/manifest.json"> -->
+        <!-- Safari-iOS -->
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="Chat GPT Playground">
+        <link rel="apple-touch-icon" href="meta_icon_152.png">
+        <!-- Windows -->
+        <meta name="msapplication-TileImage" content="meta_icon_152.png">
+        <meta name="msapplication-TileColor" content="#008ecc">
+        <!-- END PWA -->
+
+        <!--BEGIN Social Media-->
+        <meta name="description" content="A prototype Chat GPT playground" />
+        <meta itemprop="name" content="Chat GPT Playground" />
+        <meta itemprop="image" content="http://anyhowstep.github.io/chat-gpt-playground/meta_icon.png" />
+        <meta itemprop="description" content="A prototype Chat GPT playground" />
+        <meta name="twitter:title" content="Chat GPT Playground" />
+        <meta name="twitter:image:src" content="http://anyhowstep.github.io/chat-gpt-playground/meta_icon.png" />
+        <meta name="twitter:description" content="A prototype Chat GPT playground" />
+
+        <meta property="og:title" content="Chat GPT Playground"/>
+        <meta property="og:url" content="http://anyhowstep.github.io/chat-gpt-playground" />
+        <meta property="og:image" content="http://anyhowstep.github.io/chat-gpt-playground/meta_icon.png" />
+        <meta property="og:description" content="A prototype Chat GPT playground" />
+        <meta property="og:type" content="website"/>
+        <meta property="og:image:width" content="200"/>
+        <meta property="og:image:height" content="200"/>
+        <!--END Social Media-->
+
+        <!--<link rel="stylesheet" href="/semantic.min.css"/>-->
+        <link rel="stylesheet" href="client-public/dist/vendors.css"/>
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Karla:wght@200;300&display=swap" rel="stylesheet">
+        <style>
+            textarea {
+                font-family: 'Karla', sans-serif;
+                background-color: #4c4c48;
+                color: #ffffff;
+                font-size: 16px;
+                line-height: 24.8px;
+            }
+            mark {
+                background-color: #5c5c58;
+                color: #ffffff;
+            }
+
+            code {
+                padding: .2rem .4rem;
+                font-size: 90%;
+                color: #bd4147;
+                background-color: #f7f7f9;
+                border-radius: .25rem;
+            }
+            pre code {
+                color : inherit;
+                background-color : transparent;
+            }
+            blockquote {
+                padding: .5rem 1rem;
+                margin-bottom: 1rem;
+                font-size: 1.25rem;
+                border-left: .25rem solid #eceeef;
+                background-color: #f8f8fa;
+            }
+            h1 small, h2 small, h3 small, h4 small, h5 small, h6 small, a small {
+                font-weight: normal;
+                line-height: 1;
+                color: #777;
+            }
+            .main.text.container {
+                max-width: inherit !important;
+            }
+            .main {
+                /*padding-top: 65px;*/
+                /*min-height: 1000px;*/
+            }
+            .graph-page-node-view-container {
+                position: absolute;
+                top   : 65px;
+                left  :0px;
+                width : 100%;
+                height: -webkit-calc(100% - 65px);
+                height:    -moz-calc(100% - 65px);
+                height:         calc(100% - 65px);
+
+                background-color: rgba(255,255,255,0.9);
+                overflow: auto;
+            }
+            .mini-home-button-text {
+                display : none !important;
+            }
+            @media only screen and (max-width: 768px) {
+                .home-button-text {
+                    display : none !important;
+                }
+                .mini-home-button-text {
+                    display : initial !important;
+                }
+            }
+            .hide {
+                display : none !important;
+            }
+            .hidden {
+                display : none !important;
+            }
+            .body-height {
+                height: -webkit-calc(100% - 65px);
+                height:    -moz-calc(100% - 65px);
+                height:         calc(100% - 65px);
+            }
+            .fill-height {
+                height : 100% !important;
+                max-height : 100% !important;
+            }
+            .flex-container {
+                display: flex !important;
+                flex-flow: column !important;
+            }
+            .fill-remaining {
+                flex : 1 !important;
+            }
+            .topmost {
+                z-index : 99;
+            }
+            .center {
+                text-align : center;
+            }
+            .ui.checkbox label, .ui.checkbox+label {
+                font-size : 1.5rem;
+                cursor : pointer;
+            }
+            .ui.checkbox .box, .ui.checkbox label {
+                padding-left : 3rem;
+            }
+            .ui.checkbox {
+                line-height : 2.5rem;
+            }
+            .ui.checkbox .box:before, .ui.checkbox label:before {
+                width : 2.5rem;
+                height : 2.5rem;
+            }
+            .ui.checkbox .box:after, .ui.checkbox label:after {
+                font-size : 2.5rem;
+                width : 2.5rem;
+                height : 2.5rem;
+            }
+            .ui.checkbox input[type=checkbox], .ui.checkbox input[type=radio] {
+                width : 2.5rem;
+                height : 2.5rem;
+            }
+            .compact-item {
+                width : 20%;
+            }
+            .compact-song-item {
+                width : 20%;
+            }
+            .song-item-content {
+                display : flex;
+            }
+            .ui.extra-mini.label {
+                font-size : 0.5em;
+            }
+            @media only screen and (max-width:1199px) {
+            }
+            @media only screen and (max-width:990px) {
+                .compact-item {
+                    width : 25%;
+                }
+                .compact-song-item {
+                    width : 25%;
+                }
+            }
+            @media only screen and (max-width:767px) {
+                .ui.list .list>.item>.icon+.content, .ui.list .list>.item>.image+.content, .ui.list>.item>.icon+.content, .ui.list>.item>.image+.content {
+                    padding-left : 0px;
+                }
+                .compact-item {
+                    width : 25%;
+                }
+                .compact-song-item {
+                    width : 25%;
+                }
+                .compact-song-item .protect-text {
+                    display : none;
+                }
+                .compact-song-item .protect-button:after {
+                    content : "P";
+                }
+                .compact-song-item .veto-text {
+                    display : none;
+                }
+                .compact-song-item .veto-button:after {
+                    content : "V";
+                }
+            }
+            @media only screen and (max-width:679px) {
+                .compact-item {
+                    width : 50%;
+                }
+                .compact-song-item {
+                    width : 33%;
+                }
+                .song-item-content {
+                    display : block;
+                }
+            }
+            .dropdown.open > .menu {
+                display : block !important;
+            }
+            .ui.horizontal.list>.item {
+                margin-left : 0px;
+                padding : 0.5em !important;
+            }
+            .ui.horizontal.list:not(.celled)>.item:first-child {
+                padding : 0.5em !important;
+            }
+
+            #main-sidebar {
+                z-index : 102;
+                margin-top : 50px!important;
+                padding-bottom : 100px;
+            }
+
+            .ui.horizontal.list {
+                width : 100%;
+            }
+            ins {
+                background-color: green;
+            }
+            del {
+                background-color: red;
+            }
+
+            .temporary {
+                border: solid yellow 1px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app" style="height:100%;">
+        </div>
+    </body>
+    <script src="client-public/dist/vendors.bundle.js"></script>
+    <script src="client-public/dist/main.js"></script>
+</html>

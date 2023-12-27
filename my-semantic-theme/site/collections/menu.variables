@@ -1,0 +1,8 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+@tabularActiveBackground : #4c4c48;
+@tabularActiveColor : #ffffff;
+
+@tabularHoveredTextColor : #ffffff;

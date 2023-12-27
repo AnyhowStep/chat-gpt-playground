@@ -1,0 +1,4 @@
+@itemDescriptionColor : #ececec;
+
+@selectionListHoverBackground : #5c5c58;
+@dividedBorder : 1px solid rgba(255, 255, 255, 0.15);

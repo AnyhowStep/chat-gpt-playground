@@ -1,0 +1,30 @@
+{
+    "name" : "Chat GPT Playground",
+    "short_name" : "Chat GPT Playground",
+    "icons" : [
+        {
+            "src": "manifest-icon/progress_arcana_force_076.png",
+            "sizes": "76x76",
+            "type": "image/png"
+        },
+        {
+            "src": "manifest-icon/progress_arcana_force_152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "manifest-icon/progress_arcana_force_228.png",
+            "sizes": "228x228",
+            "type": "image/png"
+        },
+        {
+            "src": "manifest-icon/progress_arcana_force_304.png",
+            "sizes": "304x304",
+            "type": "image/png"
+        }
+    ],
+    "start_url" : "/",
+    "display" : "standalone",
+    "background_color" : "#ffffff",
+    "theme_color" : "#008ecc"
+}

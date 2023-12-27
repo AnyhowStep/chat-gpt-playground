@@ -1,0 +1,16 @@
+{
+    "extends" : "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../dist/client-public",
+        "declarationDir": "../../dist/client-public",
+        "types": [],
+        "lib": ["es2019", "DOM"]
+    },
+    "references" : [
+        { "path": "../api-openai" }
+    ],
+    "include" : [
+        "./**/*.ts",
+        "./**/*.tsx"
+    ]
+}

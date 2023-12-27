@@ -1,0 +1,4 @@
+.ui.dimmer.active:not(:focus-within) {
+    background-color:rgba(0, 0, 1, 0.85);
+    transition: background-color 0.01s;
+}

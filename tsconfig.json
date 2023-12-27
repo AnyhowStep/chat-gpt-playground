@@ -1,0 +1,9 @@
+{
+    "compilerOptions" : {
+        "strictNullChecks": true
+    },
+    "references" : [
+        { "path" : "src/client-public" }
+    ],
+    "files" : []
+}

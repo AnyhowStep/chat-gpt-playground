@@ -1,0 +1,9 @@
+/*******************************
+    User Variable Overrides
+*******************************/
+
+@background : #fff;
+@headerBackground : #fff;
+
+@color : #000;
+@headerColor : #000;

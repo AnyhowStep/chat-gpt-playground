@@ -1,0 +1,9 @@
+/*******************************
+     User Global Variables
+*******************************/
+
+@pageBackground : #4c4c48;
+@background : #4c4c48;
+@textColor : #ffffff;
+
+@inputHighlightBackground : #0f71d8;

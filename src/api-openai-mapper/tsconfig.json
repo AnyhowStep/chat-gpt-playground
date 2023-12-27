@@ -1,0 +1,13 @@
+{
+    "extends" : "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../dist/api-openai-mapper",
+        "declarationDir": "../../dist/api-openai-mapper",
+        "types": []
+    },
+    "references" : [
+    ],
+    "include" : [
+        "./**/*.ts"
+    ]
+}

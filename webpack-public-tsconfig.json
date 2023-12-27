@@ -1,0 +1,12 @@
+{
+    "compilerOptions" : {
+        "jsx": "react",
+        "noEmitOnError": false
+    },
+    "references" : [
+        { "path" : "src/client-public" }
+    ],
+    "files" : [
+        "src/client-public/config.d.ts"
+    ]
+}

@@ -1,0 +1,4 @@
+
+.ui.tabular.menu .item:hover {
+    cursor : pointer;
+}
