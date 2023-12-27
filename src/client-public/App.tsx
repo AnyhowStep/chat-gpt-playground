@@ -1,6 +1,6 @@
 import * as React from "react";
 import {useDropdown} from "./use-dropdown";
-import {BrowserRouter, Switch, Route, Link} from "react-router-dom";
+import {HashRouter, Switch, Route, Link} from "react-router-dom";
 //import {DefaultMenu} from "./DefaultMenu";
 
 import {HomePage} from "./HomePage";
@@ -24,7 +24,7 @@ export function App (_props : Props) {
     // const conversationComponent = React.useRef(() => <Conversation openAiApi={props.openAiApi}/>);
 
     return (
-        <BrowserRouter>
+        <HashRouter>
             <div id="main-sidebar" className={sidebar.className("ui sidebar inverted vertical massive menu left overlay")}>
                 <Link className="item" to="/">
                     Home
@@ -108,6 +108,6 @@ export function App (_props : Props) {
                     </div>
                 </div>*/}
             </div>
-        </BrowserRouter>
+        </HashRouter>
     );
 }

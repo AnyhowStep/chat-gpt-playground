@@ -681,7 +681,7 @@ function App(_props) {
     });
     // const storyComponent = React.useRef(() => <Story openAiApi={props.openAiApi}/>);
     // const conversationComponent = React.useRef(() => <Conversation openAiApi={props.openAiApi}/>);
-    return (React.createElement(react_router_dom_1.BrowserRouter, null,
+    return (React.createElement(react_router_dom_1.HashRouter, null,
         React.createElement("div", { id: "main-sidebar", className: sidebar.className("ui sidebar inverted vertical massive menu left overlay") },
             React.createElement(react_router_dom_1.Link, { className: "item", to: "/" }, "Home"),
             React.createElement("div", { className: "item" },

@@ -8,3 +8,4 @@ service-worker-register-site-asset-cache.js
 service-worker-register-site-asset-cache.js.map
 sql-wasm-debug.wasm
 worker-browser.js
+!client-public/dist
