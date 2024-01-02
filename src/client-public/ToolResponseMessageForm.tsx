@@ -6,8 +6,53 @@ export interface ToolResponseMessageFormProps {
     onChange : (newMessage : ToolResponseMessage, oldMessage : ToolResponseMessage) => void;
 }
 
-export function ToolResponseMessageForm (_props : ToolResponseMessageFormProps) {
+export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
+    const {
+        message,
+        onChange,
+    } = props;
+
     return <div className="ui form">
-        TODO
+        <div className="field">
+            <label>Tool Call ID</label>
+            <input
+                type="text"
+                value={message.tool_call_id}
+                placeholder="Tool Call ID"
+                onChange={(evt) => {
+                    onChange({
+                        ...message,
+                        tool_call_id : evt.target.value,
+                    }, message);
+                }}
+            />
+        </div>
+        <div className="field">
+            <label>Function Name</label>
+            <input
+                type="text"
+                value={message.name}
+                placeholder="Function Name"
+                onChange={(evt) => {
+                    onChange({
+                        ...message,
+                        name : evt.target.value,
+                    }, message);
+                }}
+            />
+        </div>
+        <div className="field">
+            <label>Content</label>
+            <textarea
+                value={message.content}
+                placeholder="Content (The result of the tool call)"
+                onChange={(evt) => {
+                    onChange({
+                        ...message,
+                        content : evt.target.value,
+                    }, message);
+                }}
+            />
+        </div>
     </div>
 }

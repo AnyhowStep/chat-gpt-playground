@@ -7,7 +7,8 @@ import { ChatRequestConfigUx } from "./ChatRequestConfigUx";
 import { FunctionToolList } from "./FunctionToolList";
 import { MessageListForm } from "./MessageListForm";
 import { FunctionTool } from "./FunctionToolForm";
-import { ChatMessage } from "../api-openai-mapper";
+import { tools as toolsMapper, chatMessage as chatMessageMapper, ChatCompleteRequestBody, ChatMessage } from "../api-openai-mapper";
+import { cleanObject } from "../json-schema-editor";
 
 function toMessage (m : ChatMessage) : localStorageUtil.Message {
     switch (m.role) {
@@ -74,6 +75,40 @@ function parseStop (str : string) : string[]|undefined {
     }
 }
 
+function parseFunctionTools (
+    conversation : localStorageUtil.Conversation,
+    functionTools : FunctionTool[],
+) : ChatCompleteRequestBody["tools"] {
+    const result = functionTools
+        .filter(f => {
+            return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
+                conversation.usedFunctions[f.uuid] ?? false :
+                false;
+        })
+        .map(f => {
+            return {
+                type : "function" as const,
+                function : {
+                    name : f.name,
+                    description : f.description,
+                    parameters : {
+                        ...cleanObject(f.parameters),
+                    },
+                },
+            };
+        });
+        
+    return result.length == 0 ?
+        undefined :
+        toolsMapper("parseFunctionTools", result);
+}
+
+function parseMessages (messages : localStorageUtil.Message[]) {
+    return messages.map((m, i) => {
+        return chatMessageMapper(`parseMessages[${i}]`, m);
+    });
+}
+
 async function submitConversation (
     openAiApi : OpenAiApi,
     conversation : localStorageUtil.Conversation,
@@ -83,26 +118,9 @@ async function submitConversation (
     const response = await openAiApi.chat.complete()
         .setBody({
             model : conversation.rawChatRequestConfig.model,
-            messages : conversation.messages,
+            messages : parseMessages(conversation.messages),
 
-            tools : functionTools
-                .filter(f => {
-                    return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
-                        conversation.usedFunctions[f.uuid] ?? false :
-                        false;
-                })
-                .map(f => {
-                    return {
-                        type : "function" as const,
-                        function : {
-                            name : f.name,
-                            description : f.description,
-                            parameters : {
-                                ...f.parameters,
-                            },
-                        },
-                    };
-                }),
+            tools : parseFunctionTools(conversation, functionTools),
             tool_choice : undefined,
 
             temperature : conversation.rawChatRequestConfig.temperature,

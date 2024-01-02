@@ -37,7 +37,7 @@ import { OpenAiApi } from "../api-openai";
 import * as localStorageUtil from "./local-storage-util";
 
 const openAiApi = new OpenAiApi({
-    domain : `${window.location.protocol}//${window.location.host}`,//SERVER_ROOT,
+    domain : OPENAI_API_DOMAIN,
     root : OPENAI_API_ROOT,
     apiKey : localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY) ?? "",
 });

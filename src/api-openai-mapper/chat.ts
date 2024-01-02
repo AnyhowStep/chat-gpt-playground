@@ -29,6 +29,7 @@ export const assistantToolCallChatMessage = tm.object({
     //content : tm.null(),
     tool_calls : tm.array(tm.object({
         id : tm.string(),
+        type : tm.literal("function"),
         function : tm.object({
             name : tm.string(),
             arguments : tm.jsonObjectString(),
@@ -70,6 +71,21 @@ export const chatMessage = tm.or(
 
 export type ChatMessage = tm2.ExpectedInputOf<typeof chatMessage>;
 
+export const tools = tm.array(tm.object({
+    type : tm.literal("function"),
+    function : tm.object({
+        name : tm.string(),
+        description : tm.string(),
+
+        /**
+         * The parameters the functions accepts, described as a JSON Schema object
+         * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
+         * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+         */
+        parameters : tm.jsonObject(),
+    })
+}));
+
 /**
  * https://platform.openai.com/docs/api-reference/chat
  */
@@ -77,20 +93,7 @@ export const chatCompleteRequestBody = tm.object({
     model : tm.string(),
     messages : tm.array(chatMessage),
 
-    tools : tm.array(tm.object({
-        type : tm.literal("function"),
-        function : tm.object({
-            name : tm.string(),
-            description : tm.string(),
-
-            /**
-             * The parameters the functions accepts, described as a JSON Schema object
-             * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-             * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-             */
-            parameters : tm.jsonObject(),
-        })
-    })).optional(),
+    tools : tools.optional(),
     tool_choice : tm.or(
         tm.literal("none", "auto"),
         tm.object({

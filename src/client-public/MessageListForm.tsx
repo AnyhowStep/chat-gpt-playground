@@ -8,17 +8,44 @@ export interface MessageListFormProps {
 }
 
 export function MessageListForm (props : MessageListFormProps) {
+    const {
+        messages,
+        onChange,
+    } = props;
     return <div className="ui segment divided selection massive list">
-        {props.messages.map(m => {
+        {messages.map((m, index) => {
             return <MessageForm
                 key={m.uuid}
                 message={m}
                 onChange={(newMessage) => {
-                    props.onChange(props.messages.map(m => {
+                    onChange(messages.map(m => {
                         return m.uuid == newMessage.uuid ?
                             newMessage :
                             m;
-                    }), props.messages);
+                    }), messages);
+                }}
+                onRemove={() => {
+                    const newMessages = [...messages];
+                    newMessages.splice(index, 1);
+                    onChange(newMessages, messages);
+                }}
+                onMoveUp={(m) => {
+                    if (index == 0) {
+                        return;
+                    }
+                    const newMessages = [...messages];
+                    newMessages.splice(index, 1);
+                    newMessages.splice(index-1, 0, m);
+                    onChange(newMessages, messages);
+                }}
+                onMoveDown={(m) => {
+                    if (index >= messages.length) {
+                        return;
+                    }
+                    const newMessages = [...messages];
+                    newMessages.splice(index, 1);
+                    newMessages.splice(index+1, 0, m);
+                    onChange(newMessages, messages);
                 }}
             />
         })}

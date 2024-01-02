@@ -88,16 +88,19 @@ export interface AssistantMessage extends MessageBase {
     content : string,
 }
 
+export interface ToolCall {
+    id : string,
+    type : "function",
+    function : {
+        name : string,
+        arguments : string,
+    },
+}
+
 export interface AssistantToolCallMessage extends MessageBase {
     messageType : "assistant_tool_call",
     role : "assistant",
-    tool_calls : {
-        id : string,
-        function : {
-            name : string,
-            arguments : string,
-        },
-    }[],
+    tool_calls : ToolCall[],
 }
 
 export interface ToolResponseMessage extends MessageBase {

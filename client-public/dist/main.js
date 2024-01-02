@@ -165,7 +165,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.chatCompleteResponseBody = exports.chatCompleteRequestBody = exports.chatMessage = exports.contentChatMessage = exports.assistantContentChatMessage = exports.assistantToolCallChatMessage = exports.toolResponseChatMessage = void 0;
+exports.chatCompleteResponseBody = exports.chatCompleteRequestBody = exports.tools = exports.chatMessage = exports.contentChatMessage = exports.assistantContentChatMessage = exports.assistantToolCallChatMessage = exports.toolResponseChatMessage = void 0;
 var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
 /**
  * https://platform.openai.com/docs/guides/function-calling
@@ -190,6 +190,7 @@ exports.assistantToolCallChatMessage = tm.object({
     //content : tm.null(),
     tool_calls: tm.array(tm.object({
         id: tm.string(),
+        type: tm.literal("function"),
         function: tm.object({
             name: tm.string(),
             arguments: tm.jsonObjectString(),
@@ -216,25 +217,26 @@ exports.contentChatMessage = tm.object({
  * https://platform.openai.com/docs/guides/chat/introduction
  */
 exports.chatMessage = tm.or(exports.contentChatMessage, exports.assistantContentChatMessage, exports.assistantToolCallChatMessage, exports.toolResponseChatMessage);
+exports.tools = tm.array(tm.object({
+    type: tm.literal("function"),
+    function: tm.object({
+        name: tm.string(),
+        description: tm.string(),
+        /**
+         * The parameters the functions accepts, described as a JSON Schema object
+         * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
+         * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+         */
+        parameters: tm.jsonObject(),
+    })
+}));
 /**
  * https://platform.openai.com/docs/api-reference/chat
  */
 exports.chatCompleteRequestBody = tm.object({
     model: tm.string(),
     messages: tm.array(exports.chatMessage),
-    tools: tm.array(tm.object({
-        type: tm.literal("function"),
-        function: tm.object({
-            name: tm.string(),
-            description: tm.string(),
-            /**
-             * The parameters the functions accepts, described as a JSON Schema object
-             * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-             * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-             */
-            parameters: tm.jsonObject(),
-        })
-    })).optional(),
+    tools: exports.tools.optional(),
     tool_choice: tm.or(tm.literal("none", "auto"), tm.object({
         type: tm.literal("function"),
         function: tm.object({
@@ -726,6 +728,42 @@ exports.App = App;
 
 /***/ }),
 
+/***/ "./src/client-public/AssistantToolCallMessageForm.tsx":
+/*!************************************************************!*\
+  !*** ./src/client-public/AssistantToolCallMessageForm.tsx ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AssistantToolCallMessageForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var ToolCallListForm_1 = __webpack_require__(/*! ./ToolCallListForm */ "./src/client-public/ToolCallListForm.tsx");
+function AssistantToolCallMessageForm(props) {
+    var message = props.message, onChange = props.onChange;
+    return React.createElement("div", { className: "ui form" },
+        React.createElement(ToolCallListForm_1.ToolCallListForm, { toolCalls: message.tool_calls, onChange: function (newToolCalls) {
+                onChange(__assign(__assign({}, message), { tool_calls: newToolCalls }), message);
+            } }));
+}
+exports.AssistantToolCallMessageForm = AssistantToolCallMessageForm;
+
+
+/***/ }),
+
 /***/ "./src/client-public/ChatRequestConfigUx.tsx":
 /*!***************************************************!*\
   !*** ./src/client-public/ChatRequestConfigUx.tsx ***!
@@ -929,6 +967,8 @@ var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/cl
 var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
 var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
 var MessageListForm_1 = __webpack_require__(/*! ./MessageListForm */ "./src/client-public/MessageListForm.tsx");
+var api_openai_mapper_1 = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+var json_schema_editor_1 = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
 function toMessage(m) {
     switch (m.role) {
         case "system": {
@@ -995,6 +1035,33 @@ function parseStop(str) {
         return undefined;
     }
 }
+function parseFunctionTools(conversation, functionTools) {
+    var result = functionTools
+        .filter(function (f) {
+        var _a;
+        return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
+            (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
+            false;
+    })
+        .map(function (f) {
+        return {
+            type: "function",
+            function: {
+                name: f.name,
+                description: f.description,
+                parameters: __assign({}, json_schema_editor_1.cleanObject(f.parameters)),
+            },
+        };
+    });
+    return result.length == 0 ?
+        undefined :
+        api_openai_mapper_1.tools("parseFunctionTools", result);
+}
+function parseMessages(messages) {
+    return messages.map(function (m, i) {
+        return api_openai_mapper_1.chatMessage("parseMessages[" + i + "]", m);
+    });
+}
 function submitConversation(openAiApi, conversation, functionTools) {
     return __awaiter(this, void 0, Promise, function () {
         var parsedStop, response, choice;
@@ -1005,24 +1072,8 @@ function submitConversation(openAiApi, conversation, functionTools) {
                     return [4 /*yield*/, openAiApi.chat.complete()
                             .setBody({
                             model: conversation.rawChatRequestConfig.model,
-                            messages: conversation.messages,
-                            tools: functionTools
-                                .filter(function (f) {
-                                var _a;
-                                return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
-                                    (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
-                                    false;
-                            })
-                                .map(function (f) {
-                                return {
-                                    type: "function",
-                                    function: {
-                                        name: f.name,
-                                        description: f.description,
-                                        parameters: __assign({}, f.parameters),
-                                    },
-                                };
-                            }),
+                            messages: parseMessages(conversation.messages),
+                            tools: parseFunctionTools(conversation, functionTools),
                             tool_choice: undefined,
                             temperature: conversation.rawChatRequestConfig.temperature,
                             top_p: conversation.rawChatRequestConfig.top_p,
@@ -1560,6 +1611,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
+var AssistantToolCallMessageForm_1 = __webpack_require__(/*! ./AssistantToolCallMessageForm */ "./src/client-public/AssistantToolCallMessageForm.tsx");
+var ToolResponseMessageForm_1 = __webpack_require__(/*! ./ToolResponseMessageForm */ "./src/client-public/ToolResponseMessageForm.tsx");
 var messageTypes = [
     "system",
     "user",
@@ -1568,8 +1621,8 @@ var messageTypes = [
     "tool_response",
 ];
 function MessageForm(props) {
-    var message = props.message, onChange = props.onChange;
-    return React.createElement("div", null,
+    var message = props.message, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown;
+    return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
                 React.createElement("div", { className: "field" },
@@ -1614,9 +1667,28 @@ function MessageForm(props) {
                             }
                         } }, messageTypes.map(function (s) {
                         return React.createElement("option", { key: s, value: s }, s);
-                    }))))),
+                    }))),
+                React.createElement("div", { className: "field button group", style: {
+                        alignSelf: "flex-end",
+                    } },
+                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(message); } },
+                        React.createElement("i", { className: "trash icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(message); } },
+                        React.createElement("i", { className: "arrow up icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(message); } },
+                        React.createElement("i", { className: "arrow down icon" }))))),
         ContentMessageForm_1.isContentMessage(message) ?
             React.createElement(ContentMessageForm_1.ContentMessageForm, { message: message, onChange: function (newMessage) {
+                    onChange(newMessage, message);
+                } }) :
+            undefined,
+        message.messageType == "assistant_tool_call" ?
+            React.createElement(AssistantToolCallMessageForm_1.AssistantToolCallMessageForm, { message: message, onChange: function (newMessage) {
+                    onChange(newMessage, message);
+                } }) :
+            undefined,
+        message.messageType == "tool_response" ?
+            React.createElement(ToolResponseMessageForm_1.ToolResponseMessageForm, { message: message, onChange: function (newMessage) {
                     onChange(newMessage, message);
                 } }) :
             undefined);
@@ -1635,22 +1707,208 @@ exports.MessageForm = MessageForm;
 
 "use strict";
 
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageListForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
 function MessageListForm(props) {
-    return React.createElement("div", { className: "ui segment divided selection massive list" }, props.messages.map(function (m) {
+    var messages = props.messages, onChange = props.onChange;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, messages.map(function (m, index) {
         return React.createElement(MessageForm_1.MessageForm, { key: m.uuid, message: m, onChange: function (newMessage) {
-                props.onChange(props.messages.map(function (m) {
+                onChange(messages.map(function (m) {
                     return m.uuid == newMessage.uuid ?
                         newMessage :
                         m;
-                }), props.messages);
+                }), messages);
+            }, onRemove: function () {
+                var newMessages = __spreadArray([], messages);
+                newMessages.splice(index, 1);
+                onChange(newMessages, messages);
+            }, onMoveUp: function (m) {
+                if (index == 0) {
+                    return;
+                }
+                var newMessages = __spreadArray([], messages);
+                newMessages.splice(index, 1);
+                newMessages.splice(index - 1, 0, m);
+                onChange(newMessages, messages);
+            }, onMoveDown: function (m) {
+                if (index >= messages.length) {
+                    return;
+                }
+                var newMessages = __spreadArray([], messages);
+                newMessages.splice(index, 1);
+                newMessages.splice(index + 1, 0, m);
+                onChange(newMessages, messages);
             } });
     }));
 }
 exports.MessageListForm = MessageListForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ToolCallForm.tsx":
+/*!********************************************!*\
+  !*** ./src/client-public/ToolCallForm.tsx ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ToolCallForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function ToolCallForm(props) {
+    var toolCall = props.toolCall, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown;
+    return React.createElement("div", { className: "item" },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "ID"),
+                    React.createElement("input", { type: "text", value: toolCall.id, placeholder: "ID", onChange: function (evt) {
+                            onChange(__assign(__assign({}, toolCall), { id: evt.target.value }), toolCall);
+                        } })),
+                React.createElement("div", { className: "field button group", style: {
+                        alignSelf: "flex-end",
+                    } },
+                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(toolCall); } },
+                        React.createElement("i", { className: "trash icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(toolCall); } },
+                        React.createElement("i", { className: "arrow up icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(toolCall); } },
+                        React.createElement("i", { className: "arrow down icon" })))),
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Function Name"),
+                React.createElement("input", { type: "text", value: toolCall.function.name, placeholder: "Function Name", onChange: function (evt) {
+                        onChange(__assign(__assign({}, toolCall), { function: __assign(__assign({}, toolCall.function), { name: evt.target.value }) }), toolCall);
+                    } })),
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Function Arguments"),
+                React.createElement("textarea", { value: toolCall.function.arguments, placeholder: "Function Arguments", onChange: function (evt) {
+                        onChange(__assign(__assign({}, toolCall), { function: __assign(__assign({}, toolCall.function), { arguments: evt.target.value }) }), toolCall);
+                    } }))));
+}
+exports.ToolCallForm = ToolCallForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ToolCallListForm.tsx":
+/*!************************************************!*\
+  !*** ./src/client-public/ToolCallListForm.tsx ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ToolCallListForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var ToolCallForm_1 = __webpack_require__(/*! ./ToolCallForm */ "./src/client-public/ToolCallForm.tsx");
+function ToolCallListForm(props) {
+    var toolCalls = props.toolCalls, onChange = props.onChange;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, toolCalls.map(function (m, index) {
+        return React.createElement(ToolCallForm_1.ToolCallForm, { key: index, toolCall: m, onChange: function (newToolCall) {
+                onChange(toolCalls.map(function (m, changedIndex) {
+                    return index == changedIndex ?
+                        newToolCall :
+                        m;
+                }), toolCalls);
+            }, onRemove: function () {
+                var newToolCalls = __spreadArray([], toolCalls);
+                newToolCalls.splice(index, 1);
+                onChange(newToolCalls, toolCalls);
+            }, onMoveUp: function (m) {
+                if (index == 0) {
+                    return;
+                }
+                var newToolCalls = __spreadArray([], toolCalls);
+                newToolCalls.splice(index, 1);
+                newToolCalls.splice(index - 1, 0, m);
+                onChange(newToolCalls, toolCalls);
+            }, onMoveDown: function (m) {
+                if (index >= toolCalls.length) {
+                    return;
+                }
+                var newToolCalls = __spreadArray([], toolCalls);
+                newToolCalls.splice(index, 1);
+                newToolCalls.splice(index + 1, 0, m);
+                onChange(newToolCalls, toolCalls);
+            } });
+    }));
+}
+exports.ToolCallListForm = ToolCallListForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ToolResponseMessageForm.tsx":
+/*!*******************************************************!*\
+  !*** ./src/client-public/ToolResponseMessageForm.tsx ***!
+  \*******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ToolResponseMessageForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function ToolResponseMessageForm(props) {
+    var message = props.message, onChange = props.onChange;
+    return React.createElement("div", { className: "ui form" },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Tool Call ID"),
+            React.createElement("input", { type: "text", value: message.tool_call_id, placeholder: "Tool Call ID", onChange: function (evt) {
+                    onChange(__assign(__assign({}, message), { tool_call_id: evt.target.value }), message);
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Function Name"),
+            React.createElement("input", { type: "text", value: message.name, placeholder: "Function Name", onChange: function (evt) {
+                    onChange(__assign(__assign({}, message), { name: evt.target.value }), message);
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Content"),
+            React.createElement("textarea", { value: message.content, placeholder: "Content (The result of the tool call)", onChange: function (evt) {
+                    onChange(__assign(__assign({}, message), { content: evt.target.value }), message);
+                } })));
+}
+exports.ToolResponseMessageForm = ToolResponseMessageForm;
 
 
 /***/ }),
@@ -1756,6 +2014,7 @@ exports.saveConversation = saveConversation;
 
 "use strict";
 
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 //Really bad BigInt polyfill
 var MyBigInt = /** @class */ (function () {
@@ -1792,10 +2051,11 @@ var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/in
 var App_1 = __webpack_require__(/*! ./App */ "./src/client-public/App.tsx");
 __webpack_require__(/*! semantic-ui-less/semantic.less */ "./node_modules/semantic-ui-less/semantic.less");
 var api_openai_1 = __webpack_require__(/*! ../api-openai */ "./src/api-openai/index.ts");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 var openAiApi = new api_openai_1.OpenAiApi({
-    domain: window.location.protocol + "//" + window.location.host,
-    root: "https://api.openai.com/v1",
-    apiKey: "",
+    domain: "https://api.openai.com",
+    root: "/",
+    apiKey: (_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : "",
 });
 ReactDOM.render(React.createElement(App_1.App, { openAiApi: openAiApi }), document.getElementById("app"));
 

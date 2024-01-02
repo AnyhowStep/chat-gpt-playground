@@ -1,10 +1,15 @@
 import * as React from "react";
 import { Message } from "./local-storage-util";
 import { ContentMessageForm, isContentMessage } from "./ContentMessageForm";
+import { AssistantToolCallMessageForm } from "./AssistantToolCallMessageForm";
+import { ToolResponseMessageForm } from "./ToolResponseMessageForm";
 
 export interface MessageFormProps {
     message : Message;
     onChange : (newMessage : Message, oldMessage : Message) => void;
+    onRemove : (message : Message) => void;
+    onMoveUp : (message : Message) => void;
+    onMoveDown : (message : Message) => void;
 }
 
 const messageTypes = [
@@ -19,8 +24,11 @@ export function MessageForm (props : MessageFormProps) {
     const {
         message,
         onChange,
+        onRemove,
+        onMoveUp,
+        onMoveDown,
     } = props;
-    return <div>
+    return <div className="item">
         <div className="ui form">
             <div className="two fields">
                 <div className="field">
@@ -101,11 +109,56 @@ export function MessageForm (props : MessageFormProps) {
                         })}
                     </select>
                 </div>
+                <div
+                    className="field button group"
+                    style={{
+                        alignSelf: "flex-end",
+                    }}
+                >
+                    <button
+                        className="ui icon red button"
+                        onClick={() => onRemove(message)}
+                    >
+                        <i className="trash icon"></i>
+                    </button>
+                    <button
+                        className="ui icon button"
+                        onClick={() => onMoveUp(message)}
+                    >
+                        <i className="arrow up icon"></i>
+                    </button>
+                    <button
+                        className="ui icon button"
+                        onClick={() => onMoveDown(message)}
+                    >
+                        <i className="arrow down icon"></i>
+                    </button>
+                </div>
             </div>
         </div>
         {
             isContentMessage(message) ?
             <ContentMessageForm
+                message={message}
+                onChange={(newMessage) => {
+                    onChange(newMessage, message);
+                }}
+            /> :
+            undefined
+        }
+        {
+            message.messageType == "assistant_tool_call" ?
+            <AssistantToolCallMessageForm
+                message={message}
+                onChange={(newMessage) => {
+                    onChange(newMessage, message);
+                }}
+            /> :
+            undefined
+        }
+        {
+            message.messageType == "tool_response" ?
+            <ToolResponseMessageForm
                 message={message}
                 onChange={(newMessage) => {
                     onChange(newMessage, message);
