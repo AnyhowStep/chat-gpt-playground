@@ -753,10 +753,12 @@ exports.AssistantToolCallMessageForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ToolCallListForm_1 = __webpack_require__(/*! ./ToolCallListForm */ "./src/client-public/ToolCallListForm.tsx");
 function AssistantToolCallMessageForm(props) {
-    var message = props.message, onChange = props.onChange;
+    var message = props.message, onChange = props.onChange, onAddResponse = props.onAddResponse;
     return React.createElement("div", { className: "ui form" },
         React.createElement(ToolCallListForm_1.ToolCallListForm, { toolCalls: message.tool_calls, onChange: function (newToolCalls) {
                 onChange(__assign(__assign({}, message), { tool_calls: newToolCalls }), message);
+            }, onAddResponse: function (toolCall) {
+                onAddResponse(toolCall);
             } }));
 }
 exports.AssistantToolCallMessageForm = AssistantToolCallMessageForm;
@@ -969,6 +971,8 @@ var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/cl
 var MessageListForm_1 = __webpack_require__(/*! ./MessageListForm */ "./src/client-public/MessageListForm.tsx");
 var api_openai_mapper_1 = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
 var json_schema_editor_1 = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
+var use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+var ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
 function toMessage(m) {
     switch (m.role) {
         case "system": {
@@ -1112,6 +1116,7 @@ function ConversationEditPage(props) {
     var functionTools = React.useMemo(function () {
         return localStorageUtil.loadFunctionTools();
     }, []);
+    var error = use_error_1.useError();
     React.useEffect(function () {
         if (conversation == undefined) {
             return;
@@ -1144,6 +1149,7 @@ function ConversationEditPage(props) {
                 setConversation(__assign(__assign({}, conversation), { messages: newMessages }));
             } }),
         React.createElement("div", { className: "ui segment" },
+            React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
             React.createElement("button", { className: "ui primary button", onClick: function () {
                     setConversation(__assign(__assign({}, conversation), { messages: __spreadArray(__spreadArray([], conversation.messages), [
                             {
@@ -1158,8 +1164,23 @@ function ConversationEditPage(props) {
                     submitConversation(props.openAiApi, conversation, functionTools)
                         .then(function (newConversation) {
                         setConversation(newConversation);
+                        error.reset();
                     }, function (err) {
+                        var _a, _b;
+                        console.log(Object.getOwnPropertyNames(err));
                         console.log(err);
+                        var responseBody = (_a = err === null || err === void 0 ? void 0 : err.sendResult) === null || _a === void 0 ? void 0 : _a.responseBody;
+                        var responseErrorMessage = (_b = responseBody === null || responseBody === void 0 ? void 0 : responseBody.error) === null || _b === void 0 ? void 0 : _b.message;
+                        var errorMessage = err === null || err === void 0 ? void 0 : err.message;
+                        if (responseErrorMessage != undefined) {
+                            error.push("negative", [responseErrorMessage]);
+                            return;
+                        }
+                        if (errorMessage != undefined) {
+                            error.push("negative", [errorMessage]);
+                            return;
+                        }
+                        error.push("negative", ["Unknown error"]);
                     });
                 } }, "Submit")),
         React.createElement("div", { className: "ui segment" },
@@ -1312,6 +1333,42 @@ function DefaultMenu(props) {
         } });
 }
 exports.DefaultMenu = DefaultMenu;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ErrorMessage.tsx":
+/*!********************************************!*\
+  !*** ./src/client-public/ErrorMessage.tsx ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ErrorMessage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+function ErrorMessage(props) {
+    var error = props.error;
+    if (error.messages.length == 0) {
+        return React.createElement("div", { className: "ui hidden message" });
+    }
+    else {
+        return (React.createElement("div", { className: "ui icon message " + error.type },
+            React.createElement("i", { className: "exclamation triangle icon" }),
+            React.createElement("div", { className: "content" },
+                React.createElement("div", { className: "header" }, error.type == "warning" ? "Warning" : "Error"),
+                React.createElement("ul", { className: "list" },
+                    error.messages.map(function (message, i) { return React.createElement("li", { key: i }, message); }),
+                    error.messages.some(function (msg) { return msg.startsWith("no such"); }) ?
+                        React.createElement("li", null,
+                            React.createElement(react_router_dom_1.Link, { to: "/" }, "Maybe peforming a local data update on the Home page will help")) :
+                        undefined))));
+    }
+}
+exports.ErrorMessage = ErrorMessage;
 
 
 /***/ }),
@@ -1525,23 +1582,12 @@ exports.HomePage = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 var local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
 var supportedLabel = function (supported) {
     return (React.createElement("span", { className: classnames("ui mini label", supported ? "green" : "red") }, supported ? "Supported" : "Not Supported"));
 };
 var HomePage = function (_props) {
-    var _a = React.useState({
-        model: ChatRequestConfigUx_1.chatModels[0],
-        temperature: 1,
-        max_tokens: 256,
-        stop: "",
-        top_p: 1,
-        frequency_penalty: 0,
-        presence_penalty: 0,
-    }), config = _a[0], setConfig = _a[1];
     return (React.createElement("div", { className: "ui main container" },
         React.createElement("h1", { className: "ui dividing header" }, "Chat GPT Playground"),
-        React.createElement(ChatRequestConfigUx_1.ChatRequestConfigUx, { config: config, onConfigChange: function (newConfig) { return setConfig(newConfig); } }),
         React.createElement("p", null),
         React.createElement("p", null),
         React.createElement("hr", null),
@@ -1610,6 +1656,7 @@ var __assign = (this && this.__assign) || function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 var ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
 var AssistantToolCallMessageForm_1 = __webpack_require__(/*! ./AssistantToolCallMessageForm */ "./src/client-public/AssistantToolCallMessageForm.tsx");
 var ToolResponseMessageForm_1 = __webpack_require__(/*! ./ToolResponseMessageForm */ "./src/client-public/ToolResponseMessageForm.tsx");
@@ -1621,7 +1668,8 @@ var messageTypes = [
     "tool_response",
 ];
 function MessageForm(props) {
-    var message = props.message, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown;
+    var _a, _b, _c;
+    var messages = props.messages, message = props.message, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, onAddResponse = props.onAddResponse;
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
@@ -1673,6 +1721,10 @@ function MessageForm(props) {
                     } },
                     React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(message); } },
                         React.createElement("i", { className: "trash icon" })),
+                    message.messageType == "assistant_tool_call" ?
+                        React.createElement("button", { className: "ui icon primary button", onClick: function () { return onAddResponse(message.tool_calls); } },
+                            React.createElement("i", { className: "reply icon" })) :
+                        undefined,
                     React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(message); } },
                         React.createElement("i", { className: "arrow up icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(message); } },
@@ -1685,10 +1737,15 @@ function MessageForm(props) {
         message.messageType == "assistant_tool_call" ?
             React.createElement(AssistantToolCallMessageForm_1.AssistantToolCallMessageForm, { message: message, onChange: function (newMessage) {
                     onChange(newMessage, message);
+                }, onAddResponse: function (toolCall) {
+                    onAddResponse([toolCall]);
                 } }) :
             undefined,
         message.messageType == "tool_response" ?
-            React.createElement(ToolResponseMessageForm_1.ToolResponseMessageForm, { message: message, onChange: function (newMessage) {
+            React.createElement(ToolResponseMessageForm_1.ToolResponseMessageForm, { message: message, functionArguments: (_c = ((_b = (_a = messages
+                    .filter(local_storage_util_1.isAssistantToolCallMessage)
+                    .flatMap(function (m) { return m.tool_calls; })
+                    .find(function (tc) { return tc.id == message.tool_call_id; })) === null || _a === void 0 ? void 0 : _a.function) === null || _b === void 0 ? void 0 : _b.arguments)) !== null && _c !== void 0 ? _c : "", onChange: function (newMessage) {
                     onChange(newMessage, message);
                 } }) :
             undefined);
@@ -1715,11 +1772,12 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageListForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 var MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
 function MessageListForm(props) {
     var messages = props.messages, onChange = props.onChange;
     return React.createElement("div", { className: "ui segment divided selection massive list" }, messages.map(function (m, index) {
-        return React.createElement(MessageForm_1.MessageForm, { key: m.uuid, message: m, onChange: function (newMessage) {
+        return React.createElement(MessageForm_1.MessageForm, { messages: messages, key: m.uuid, message: m, onChange: function (newMessage) {
                 onChange(messages.map(function (m) {
                     return m.uuid == newMessage.uuid ?
                         newMessage :
@@ -1745,6 +1803,17 @@ function MessageListForm(props) {
                 newMessages.splice(index, 1);
                 newMessages.splice(index + 1, 0, m);
                 onChange(newMessages, messages);
+            }, onAddResponse: function (toolCalls) {
+                onChange(__spreadArray(__spreadArray([], messages), toolCalls.map(function (tc) {
+                    return {
+                        uuid: uuid.v4(),
+                        messageType: "tool_response",
+                        role: "tool",
+                        tool_call_id: tc.id,
+                        name: tc.function.name,
+                        content: "",
+                    };
+                })), messages);
             } });
     }));
 }
@@ -1777,7 +1846,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolCallForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function ToolCallForm(props) {
-    var toolCall = props.toolCall, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown;
+    var toolCall = props.toolCall, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, onAddResponse = props.onAddResponse;
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
@@ -1791,6 +1860,8 @@ function ToolCallForm(props) {
                     } },
                     React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(toolCall); } },
                         React.createElement("i", { className: "trash icon" })),
+                    React.createElement("button", { className: "ui icon primary button", onClick: function () { return onAddResponse(toolCall); } },
+                        React.createElement("i", { className: "reply icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(toolCall); } },
                         React.createElement("i", { className: "arrow up icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(toolCall); } },
@@ -1830,7 +1901,7 @@ exports.ToolCallListForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var ToolCallForm_1 = __webpack_require__(/*! ./ToolCallForm */ "./src/client-public/ToolCallForm.tsx");
 function ToolCallListForm(props) {
-    var toolCalls = props.toolCalls, onChange = props.onChange;
+    var toolCalls = props.toolCalls, onChange = props.onChange, onAddResponse = props.onAddResponse;
     return React.createElement("div", { className: "ui segment divided selection massive list" }, toolCalls.map(function (m, index) {
         return React.createElement(ToolCallForm_1.ToolCallForm, { key: index, toolCall: m, onChange: function (newToolCall) {
                 onChange(toolCalls.map(function (m, changedIndex) {
@@ -1842,6 +1913,8 @@ function ToolCallListForm(props) {
                 var newToolCalls = __spreadArray([], toolCalls);
                 newToolCalls.splice(index, 1);
                 onChange(newToolCalls, toolCalls);
+            }, onAddResponse: function (toolCall) {
+                onAddResponse(toolCall);
             }, onMoveUp: function (m) {
                 if (index == 0) {
                     return;
@@ -1890,7 +1963,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolResponseMessageForm = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function ToolResponseMessageForm(props) {
-    var message = props.message, onChange = props.onChange;
+    var message = props.message, functionArguments = props.functionArguments, onChange = props.onChange;
     return React.createElement("div", { className: "ui form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Tool Call ID"),
@@ -1902,6 +1975,9 @@ function ToolResponseMessageForm(props) {
             React.createElement("input", { type: "text", value: message.name, placeholder: "Function Name", onChange: function (evt) {
                     onChange(__assign(__assign({}, message), { name: evt.target.value }), message);
                 } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Function Arguments"),
+            React.createElement("textarea", { value: functionArguments, placeholder: "Function Arguments", readOnly: true })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Content"),
             React.createElement("textarea", { value: message.content, placeholder: "Content (The result of the tool call)", onChange: function (evt) {
@@ -1923,7 +1999,7 @@ exports.ToolResponseMessageForm = ToolResponseMessageForm;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
+exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
 function localStorageSupported() {
     return ("localStorage" in self);
 }
@@ -1976,6 +2052,10 @@ function saveFunctionTools(tools) {
     return setItem(LocalStorageKey.FUNCTION_TOOLS, JSON.stringify(tools));
 }
 exports.saveFunctionTools = saveFunctionTools;
+function isAssistantToolCallMessage(m) {
+    return "tool_calls" in m;
+}
+exports.isAssistantToolCallMessage = isAssistantToolCallMessage;
 function loadConversationsMeta() {
     var _a;
     return JSON.parse((_a = getItem(LocalStorageKey.CONVERSATIONS_META)) !== null && _a !== void 0 ? _a : "[]");
@@ -2194,6 +2274,41 @@ function useDropdown(props) {
     };
 }
 exports.useDropdown = useDropdown;
+
+
+/***/ }),
+
+/***/ "./src/client-public/use-error.ts":
+/*!****************************************!*\
+  !*** ./src/client-public/use-error.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.useError = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function useError() {
+    var _a = React.useState("warning"), type = _a[0], setType = _a[1];
+    var _b = React.useState([]), messages = _b[0], setMessages = _b[1];
+    return {
+        messages: messages,
+        type: type,
+        push: function (newType, newMessage) {
+            if (newType == "negative") {
+                setType(newType);
+            }
+            setMessages(messages.concat(newMessage));
+        },
+        reset: function () {
+            setType("warning");
+            setMessages([]);
+        },
+    };
+}
+exports.useError = useError;
 
 
 /***/ }),

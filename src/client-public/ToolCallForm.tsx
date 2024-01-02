@@ -7,6 +7,7 @@ export interface ToolCallFormProps {
     onRemove : (toolCall : ToolCall) => void;
     onMoveUp : (toolCall : ToolCall) => void;
     onMoveDown : (toolCall : ToolCall) => void;
+    onAddResponse : (toolCall : ToolCall) => void;
 }
 
 export function ToolCallForm (props : ToolCallFormProps) {
@@ -16,6 +17,7 @@ export function ToolCallForm (props : ToolCallFormProps) {
         onRemove,
         onMoveUp,
         onMoveDown,
+        onAddResponse,
     } = props;
     return <div className="item">
         <div className="ui form">
@@ -45,6 +47,12 @@ export function ToolCallForm (props : ToolCallFormProps) {
                         onClick={() => onRemove(toolCall)}
                     >
                         <i className="trash icon"></i>
+                    </button>
+                    <button
+                        className="ui icon primary button"
+                        onClick={() => onAddResponse(toolCall)}
+                    >
+                        <i className="reply icon"></i>
                     </button>
                     <button
                         className="ui icon button"

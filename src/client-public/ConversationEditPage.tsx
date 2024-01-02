@@ -9,6 +9,8 @@ import { MessageListForm } from "./MessageListForm";
 import { FunctionTool } from "./FunctionToolForm";
 import { tools as toolsMapper, chatMessage as chatMessageMapper, ChatCompleteRequestBody, ChatMessage } from "../api-openai-mapper";
 import { cleanObject } from "../json-schema-editor";
+import { useError } from "./use-error";
+import { ErrorMessage } from "./ErrorMessage";
 
 function toMessage (m : ChatMessage) : localStorageUtil.Message {
     switch (m.role) {
@@ -168,6 +170,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
     const functionTools = React.useMemo(() => {
         return localStorageUtil.loadFunctionTools();
     }, []);
+    const error = useError();
 
     React.useEffect(
         () => {
@@ -211,6 +214,9 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             }}
         />
         <div className="ui segment">
+            <ErrorMessage
+                error={error}
+            />
             <button className="ui primary button" onClick={() => {
                 setConversation({
                     ...conversation,
@@ -232,9 +238,27 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     .then(
                         (newConversation) => {
                             setConversation(newConversation);
+                            error.reset();
                         },
                         (err) => {
+                            console.log(Object.getOwnPropertyNames(err));
                             console.log(err);
+
+                            const responseBody = err?.sendResult?.responseBody;
+                            const responseErrorMessage = responseBody?.error?.message;
+                            const errorMessage = err?.message;
+
+                            if (responseErrorMessage != undefined) {
+                                error.push("negative", [responseErrorMessage])
+                                return;
+                            }
+
+                            if (errorMessage != undefined) {
+                                error.push("negative", [errorMessage])
+                                return;
+                            }
+
+                            error.push("negative", ["Unknown error"])
                         }
                     );
             }}>

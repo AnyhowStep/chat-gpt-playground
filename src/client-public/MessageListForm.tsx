@@ -1,6 +1,7 @@
 import * as React from "react";
+import * as uuid from "uuid";
 import { MessageForm } from "./MessageForm";
-import { Message } from "./local-storage-util";
+import { Message, ToolResponseMessage } from "./local-storage-util";
 
 export interface MessageListFormProps {
     messages : readonly Message[];
@@ -15,6 +16,7 @@ export function MessageListForm (props : MessageListFormProps) {
     return <div className="ui segment divided selection massive list">
         {messages.map((m, index) => {
             return <MessageForm
+                messages={messages}
                 key={m.uuid}
                 message={m}
                 onChange={(newMessage) => {
@@ -46,6 +48,21 @@ export function MessageListForm (props : MessageListFormProps) {
                     newMessages.splice(index, 1);
                     newMessages.splice(index+1, 0, m);
                     onChange(newMessages, messages);
+                }}
+                onAddResponse={(toolCalls) => {
+                    onChange([
+                        ...messages,
+                        ...toolCalls.map((tc) : ToolResponseMessage => {
+                            return {
+                                uuid : uuid.v4(),
+                                messageType : "tool_response",
+                                role : "tool",
+                                tool_call_id : tc.id,
+                                name : tc.function.name,
+                                content : "",
+                            };
+                        })
+                    ], messages)
                 }}
             />
         })}

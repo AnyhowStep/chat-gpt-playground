@@ -103,6 +103,10 @@ export interface AssistantToolCallMessage extends MessageBase {
     tool_calls : ToolCall[],
 }
 
+export function isAssistantToolCallMessage (m : Message) : m is AssistantToolCallMessage {
+    return "tool_calls" in m;
+}
+
 export interface ToolResponseMessage extends MessageBase {
     messageType : "tool_response",
     role : "tool",

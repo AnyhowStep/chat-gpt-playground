@@ -5,12 +5,14 @@ import { ToolCall } from "./local-storage-util";
 export interface ToolCallListFormProps {
     toolCalls : readonly ToolCall[];
     onChange : (newToolCalls : ToolCall[], oldToolCalls : readonly ToolCall[]) => void;
+    onAddResponse : (toolCall : ToolCall) => void;
 }
 
 export function ToolCallListForm (props : ToolCallListFormProps) {
     const {
         toolCalls,
         onChange,
+        onAddResponse,
     } = props;
     return <div className="ui segment divided selection massive list">
         {toolCalls.map((m, index) => {
@@ -28,6 +30,9 @@ export function ToolCallListForm (props : ToolCallListFormProps) {
                     const newToolCalls = [...toolCalls];
                     newToolCalls.splice(index, 1);
                     onChange(newToolCalls, toolCalls);
+                }}
+                onAddResponse={(toolCall) => {
+                    onAddResponse(toolCall);
                 }}
                 onMoveUp={(m) => {
                     if (index == 0) {

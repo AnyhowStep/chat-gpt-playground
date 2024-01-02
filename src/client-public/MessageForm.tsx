@@ -1,15 +1,17 @@
 import * as React from "react";
-import { Message } from "./local-storage-util";
+import { Message, ToolCall, isAssistantToolCallMessage } from "./local-storage-util";
 import { ContentMessageForm, isContentMessage } from "./ContentMessageForm";
 import { AssistantToolCallMessageForm } from "./AssistantToolCallMessageForm";
 import { ToolResponseMessageForm } from "./ToolResponseMessageForm";
 
 export interface MessageFormProps {
+    messages : readonly Message[];
     message : Message;
     onChange : (newMessage : Message, oldMessage : Message) => void;
     onRemove : (message : Message) => void;
     onMoveUp : (message : Message) => void;
     onMoveDown : (message : Message) => void;
+    onAddResponse : (toolCalls : ToolCall[]) => void;
 }
 
 const messageTypes = [
@@ -22,11 +24,13 @@ const messageTypes = [
 
 export function MessageForm (props : MessageFormProps) {
     const {
+        messages,
         message,
         onChange,
         onRemove,
         onMoveUp,
         onMoveDown,
+        onAddResponse,
     } = props;
     return <div className="item">
         <div className="ui form">
@@ -121,6 +125,16 @@ export function MessageForm (props : MessageFormProps) {
                     >
                         <i className="trash icon"></i>
                     </button>
+                    {
+                        message.messageType == "assistant_tool_call" ?
+                        <button
+                            className="ui icon primary button"
+                            onClick={() => onAddResponse(message.tool_calls)}
+                        >
+                            <i className="reply icon"></i>
+                        </button> :
+                        undefined
+                    }
                     <button
                         className="ui icon button"
                         onClick={() => onMoveUp(message)}
@@ -153,6 +167,9 @@ export function MessageForm (props : MessageFormProps) {
                 onChange={(newMessage) => {
                     onChange(newMessage, message);
                 }}
+                onAddResponse={(toolCall) => {
+                    onAddResponse([toolCall]);
+                }}
             /> :
             undefined
         }
@@ -160,6 +177,13 @@ export function MessageForm (props : MessageFormProps) {
             message.messageType == "tool_response" ?
             <ToolResponseMessageForm
                 message={message}
+                functionArguments={(messages
+                    .filter(isAssistantToolCallMessage)
+                    .flatMap(m => m.tool_calls)
+                    .find(tc => tc.id == message.tool_call_id)
+                    ?.function
+                    ?.arguments) ?? ""
+                }
                 onChange={(newMessage) => {
                     onChange(newMessage, message);
                 }}

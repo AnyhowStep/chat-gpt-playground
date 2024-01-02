@@ -3,12 +3,14 @@ import { ToolResponseMessage } from "./local-storage-util";
 
 export interface ToolResponseMessageFormProps {
     message : ToolResponseMessage;
+    functionArguments : string|undefined;
     onChange : (newMessage : ToolResponseMessage, oldMessage : ToolResponseMessage) => void;
 }
 
 export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
     const {
         message,
+        functionArguments,
         onChange,
     } = props;
 
@@ -39,6 +41,14 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
                         name : evt.target.value,
                     }, message);
                 }}
+            />
+        </div>
+        <div className="field">
+            <label>Function Arguments</label>
+            <textarea
+                value={functionArguments}
+                placeholder="Function Arguments"
+                readOnly={true}
             />
         </div>
         <div className="field">
