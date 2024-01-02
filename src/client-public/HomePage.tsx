@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as classnames from "classnames";
 import {localStorageSupported, kbUsed} from "./local-storage-util";
+import { ChatRequestConfigUx, RawChatRequestConfig, chatModels } from "./ChatRequestConfigUx";
 
 const supportedLabel = (supported : boolean) => {
     return (
@@ -16,9 +17,20 @@ export interface HomePageProps {
 }
 
 export const HomePage = (_props : HomePageProps) => {
+    const [config, setConfig] = React.useState<RawChatRequestConfig>({
+        model : chatModels[0],
+        temperature  :1,
+        max_tokens : 256,
+        stop : "",
+        top_p : 1,
+        frequency_penalty : 0,
+        presence_penalty : 0,
+    });
     return (
         <div className="ui main container">
             <h1 className="ui dividing header">Chat GPT Playground</h1>
+
+            <ChatRequestConfigUx config={config} onConfigChange={(newConfig) => setConfig(newConfig)}/>
 
             <p>
                 

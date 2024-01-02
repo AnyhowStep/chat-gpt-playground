@@ -1,14 +1,12 @@
 {
     "extends" : "../../tsconfig-base.json",
     "compilerOptions": {
-        "outDir": "../../dist/client-public",
-        "declarationDir": "../../dist/client-public",
+        "outDir": "../../dist/json-schema-editor",
+        "declarationDir": "../../dist/json-schema-editor",
         "types": [],
         "lib": ["es2019", "DOM"]
     },
     "references" : [
-        { "path": "../api-openai" },
-        { "path": "../json-schema-editor" }
     ],
     "include" : [
         "./**/*.ts",

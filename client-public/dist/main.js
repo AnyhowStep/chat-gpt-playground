@@ -165,34 +165,8 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.chatCompleteResponseBody = exports.chatCompleteRequestBody = exports.chatMessage = exports.contentChatMessage = exports.assistantContentChatMessage = exports.assistantToolCallChatMessage = exports.toolResponseChatMessage = exports.assistantFunctionCallChatMessage = exports.functionResponseChatMessage = void 0;
+exports.chatCompleteResponseBody = exports.chatCompleteRequestBody = exports.chatMessage = exports.contentChatMessage = exports.assistantContentChatMessage = exports.assistantToolCallChatMessage = exports.toolResponseChatMessage = void 0;
 var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
-exports.functionResponseChatMessage = tm.object({
-    role: tm.literal("function"),
-    /**
-     * The name of the author of this message.
-     * name is required if role is function,
-     * and it should be the name of the function whose response is in the content.
-     * May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
-     */
-    name: tm.string(),
-    /**
-     * The contents of the message.
-     * content is required for all messages except assistant messages with function calls.
-     */
-    content: tm.string(),
-});
-/**
- * https://platform.openai.com/docs/guides/chat/introduction
- */
-exports.assistantFunctionCallChatMessage = tm.object({
-    role: tm.literal("assistant"),
-    content: tm.null(),
-    function_call: tm.object({
-        name: tm.string(),
-        arguments: tm.jsonObjectString(),
-    }),
-});
 /**
  * https://platform.openai.com/docs/guides/function-calling
  */
@@ -213,7 +187,7 @@ exports.toolResponseChatMessage = tm.object({
  */
 exports.assistantToolCallChatMessage = tm.object({
     role: tm.literal("assistant"),
-    content: tm.null(),
+    //content : tm.null(),
     tool_calls: tm.array(tm.object({
         id: tm.string(),
         function: tm.object({
@@ -241,7 +215,7 @@ exports.contentChatMessage = tm.object({
 /**
  * https://platform.openai.com/docs/guides/chat/introduction
  */
-exports.chatMessage = tm.or(exports.contentChatMessage, exports.assistantContentChatMessage, exports.assistantFunctionCallChatMessage, exports.functionResponseChatMessage, exports.assistantToolCallChatMessage, exports.toolResponseChatMessage);
+exports.chatMessage = tm.or(exports.contentChatMessage, exports.assistantContentChatMessage, exports.assistantToolCallChatMessage, exports.toolResponseChatMessage);
 /**
  * https://platform.openai.com/docs/api-reference/chat
  */
@@ -268,16 +242,16 @@ exports.chatCompleteRequestBody = tm.object({
         }),
     })).optional(),
     /** @deprecated use tools */
-    functions: tm.array(tm.object({
-        name: tm.string(),
-        description: tm.string().optional(),
-        /**
-         * The parameters the functions accepts, described as a JSON Schema object
-         * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-         * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-         */
-        parameters: tm.jsonObject(),
-    })).optional(),
+    // functions : tm.array(tm.object({
+    //     name : tm.string(),
+    //     description : tm.string().optional(),
+    //     /**
+    //      * The parameters the functions accepts, described as a JSON Schema object
+    //      * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
+    //      * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+    //      */
+    //     parameters : tm.jsonObject(),
+    // })).optional(),
     /** @deprecated use tool_choice */
     /**
      * Controls how the model responds to function calls.
@@ -286,9 +260,12 @@ exports.chatCompleteRequestBody = tm.object({
      * Specifying a particular function via {"name":\ "my_function"} forces the model to call that function.
      * "none" is the default when no functions are present. "auto" is the default if functions are present.
      */
-    function_call: tm.or(tm.literal("none", "auto"), tm.object({
-        name: tm.string(),
-    })).optional(),
+    // function_call : tm.or(
+    //     tm.literal("none", "auto"),
+    //     tm.object({
+    //         name : tm.string(),
+    //     })
+    // ).optional(),
     temperature: tm.range({
         gtEq: 0.0,
         ltEq: 1.0,
@@ -657,6 +634,38 @@ exports.TokenizerApi = rc.toAxiosApi({
 
 /***/ }),
 
+/***/ "./src/client-public/ApiKeyPage.tsx":
+/*!******************************************!*\
+  !*** ./src/client-public/ApiKeyPage.tsx ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ApiKeyPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+function ApiKeyPage() {
+    var _a;
+    var _b = React.useState((_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : ""), openAiApiKey = _b[0], setOpenAiApikey = _b[1];
+    return React.createElement("div", { className: "ui main container form" },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Open AI API Key"),
+            React.createElement("input", { type: "text", value: openAiApiKey, onChange: function (evt) {
+                    setOpenAiApikey(evt.target.value);
+                } })),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                localStorageUtil.setItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY, openAiApiKey);
+                alert("Saved API Key");
+            } }, "Save"));
+}
+exports.ApiKeyPage = ApiKeyPage;
+
+
+/***/ }),
+
 /***/ "./src/client-public/App.tsx":
 /*!***********************************!*\
   !*** ./src/client-public/App.tsx ***!
@@ -674,6 +683,11 @@ var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_mod
 //import {DefaultMenu} from "./DefaultMenu";
 var HomePage_1 = __webpack_require__(/*! ./HomePage */ "./src/client-public/HomePage.tsx");
 var DefaultMenu_1 = __webpack_require__(/*! ./DefaultMenu */ "./src/client-public/DefaultMenu.tsx");
+var ApiKeyPage_1 = __webpack_require__(/*! ./ApiKeyPage */ "./src/client-public/ApiKeyPage.tsx");
+var FunctionToolListPage_1 = __webpack_require__(/*! ./FunctionToolListPage */ "./src/client-public/FunctionToolListPage.tsx");
+var FunctionToolEditPage_1 = __webpack_require__(/*! ./FunctionToolEditPage */ "./src/client-public/FunctionToolEditPage.tsx");
+var ConversationListPage_1 = __webpack_require__(/*! ./ConversationListPage */ "./src/client-public/ConversationListPage.tsx");
+var ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
 function App(_props) {
     var sidebar = use_dropdown_1.useDropdown({
         openClassName: "uncover visible",
@@ -690,13 +704,508 @@ function App(_props) {
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/list" }, "All Lists"))),
             React.createElement("div", { className: "item" },
                 "Search",
-                React.createElement("div", { className: "menu" }))),
+                React.createElement("div", { className: "menu" })),
+            React.createElement("div", { className: "item" },
+                "Settings",
+                React.createElement("div", { className: "menu" },
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/api-key" }, "API Key"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/function-tool" }, "Function Tools"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/conversation" }, "Conversations")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
             React.createElement(react_router_dom_1.Switch, null,
+                React.createElement(react_router_dom_1.Route, { path: "/api-key", component: ApiKeyPage_1.ApiKeyPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/function-tool/:uuid/edit", component: FunctionToolEditPage_1.FunctionToolEditPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/function-tool", component: FunctionToolListPage_1.FunctionToolListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/conversation/:uuid/edit", component: function () { return React.createElement(ConversationEditPage_1.ConversationEditPage, { openAiApi: _props.openAiApi }); } }),
+                React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
 }
 exports.App = App;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ChatRequestConfigUx.tsx":
+/*!***************************************************!*\
+  !*** ./src/client-public/ChatRequestConfigUx.tsx ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ChatRequestConfigUx = exports.chatModels = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+exports.chatModels = [
+    "gpt-3.5-turbo-1106",
+    "gpt-4-1106-preview",
+    "gpt-4-1106-vision-preview",
+];
+function ChatRequestConfigUx(props) {
+    var config = props.config, onConfigChange = props.onConfigChange;
+    return React.createElement("div", { className: "ui form" },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Model"),
+            React.createElement("select", { value: config.model, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { model: evt.target.value }));
+                } }, exports.chatModels.map(function (chatModel) {
+                return React.createElement("option", { key: chatModel, value: chatModel }, chatModel);
+            }))),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Temperature"),
+            React.createElement("small", null,
+                "What sampling temperature to use, between 0 and 2.",
+                React.createElement("br", null),
+                "Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
+                React.createElement("br", null),
+                "We generally recommend altering this or top_p but not both."),
+            React.createElement("input", { type: "number", min: "0", max: "2", step: "0.01", value: config.temperature, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { temperature: Number(evt.target.value) }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Max Output Tokens"),
+            React.createElement("small", null, "The maximum number of tokens that can be generated in the chat completion."),
+            React.createElement("input", { type: "number", min: "1", max: "4096", step: "1", value: config.max_tokens, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { max_tokens: Number(evt.target.value) }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Stop Sequences"),
+            React.createElement("small", null, "Up to 4 sequences where the API will stop generating further tokens."),
+            React.createElement("input", { type: "text", placeholder: "A JSON string or JSON array: \"test\" or [\"day\", \"night\"]", value: config.stop, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { stop: evt.target.value }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Top P"),
+            React.createElement("small", null,
+                "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass.",
+                React.createElement("br", null),
+                "So 0.1 means only the tokens comprising the top 10% probability mass are considered.",
+                React.createElement("br", null),
+                "We generally recommend altering this or temperature but not both."),
+            React.createElement("input", { type: "number", min: "0", max: "1", step: "0.01", value: config.top_p, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { top_p: Number(evt.target.value) }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Frequency Penalty"),
+            React.createElement("small", null, "Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim."),
+            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.frequency_penalty, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { frequency_penalty: Number(evt.target.value) }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Presence Penalty"),
+            React.createElement("small", null, "Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics."),
+            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.presence_penalty, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { presence_penalty: Number(evt.target.value) }));
+                } })));
+}
+exports.ChatRequestConfigUx = ChatRequestConfigUx;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ContentMessageForm.tsx":
+/*!**************************************************!*\
+  !*** ./src/client-public/ContentMessageForm.tsx ***!
+  \**************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ContentMessageForm = exports.isContentMessage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var contentMessageTypes = [
+    "system",
+    "user",
+    "assistant",
+];
+function isContentMessage(m) {
+    return contentMessageTypes.includes(m.messageType);
+}
+exports.isContentMessage = isContentMessage;
+function ContentMessageForm(props) {
+    return React.createElement("div", { className: "ui form" },
+        React.createElement("textarea", { value: props.message.content, onChange: function (evt) {
+                props.onChange(__assign(__assign({}, props.message), { content: evt.target.value }), props.message);
+            } }));
+}
+exports.ContentMessageForm = ContentMessageForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ConversationEditPage.tsx":
+/*!****************************************************!*\
+  !*** ./src/client-public/ConversationEditPage.tsx ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConversationEditPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
+var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
+var MessageListForm_1 = __webpack_require__(/*! ./MessageListForm */ "./src/client-public/MessageListForm.tsx");
+function toMessage(m) {
+    switch (m.role) {
+        case "system": {
+            return {
+                uuid: uuid.v4(),
+                messageType: "system",
+                role: m.role,
+                content: m.content,
+            };
+        }
+        case "user": {
+            return {
+                uuid: uuid.v4(),
+                messageType: "user",
+                role: m.role,
+                content: m.content,
+            };
+        }
+        case "assistant": {
+            if ("tool_calls" in m) {
+                return {
+                    uuid: uuid.v4(),
+                    messageType: "assistant_tool_call",
+                    role: m.role,
+                    tool_calls: m.tool_calls,
+                };
+            }
+            else {
+                return {
+                    uuid: uuid.v4(),
+                    messageType: "assistant",
+                    role: m.role,
+                    content: m.content,
+                };
+            }
+        }
+        case "tool": {
+            return {
+                uuid: uuid.v4(),
+                messageType: "tool_response",
+                role: m.role,
+                tool_call_id: m.tool_call_id,
+                name: m.name,
+                content: m.content,
+            };
+        }
+    }
+}
+function parseStop(str) {
+    if (str.trim() == "") {
+        return undefined;
+    }
+    try {
+        var result = JSON.parse(str);
+        if (typeof result == "string") {
+            return [result];
+        }
+        else {
+            return result;
+        }
+    }
+    catch (err) {
+        console.warn(err);
+        return undefined;
+    }
+}
+function submitConversation(openAiApi, conversation, functionTools) {
+    return __awaiter(this, void 0, Promise, function () {
+        var parsedStop, response, choice;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    parsedStop = parseStop(conversation.rawChatRequestConfig.stop);
+                    return [4 /*yield*/, openAiApi.chat.complete()
+                            .setBody({
+                            model: conversation.rawChatRequestConfig.model,
+                            messages: conversation.messages,
+                            tools: functionTools
+                                .filter(function (f) {
+                                var _a;
+                                return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
+                                    (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
+                                    false;
+                            })
+                                .map(function (f) {
+                                return {
+                                    type: "function",
+                                    function: {
+                                        name: f.name,
+                                        description: f.description,
+                                        parameters: __assign({}, f.parameters),
+                                    },
+                                };
+                            }),
+                            tool_choice: undefined,
+                            temperature: conversation.rawChatRequestConfig.temperature,
+                            top_p: conversation.rawChatRequestConfig.top_p,
+                            /**
+                             * How many chat completion choices to generate for each input message.
+                             * Note that you will be charged based on the number of generated tokens across all of the choices.
+                             * Keep n as 1 to minimize costs.
+                             */
+                            n: undefined,
+                            stream: false,
+                            stop: parsedStop,
+                            max_tokens: conversation.rawChatRequestConfig.max_tokens,
+                            presence_penalty: conversation.rawChatRequestConfig.presence_penalty,
+                            frequency_penalty: conversation.rawChatRequestConfig.frequency_penalty,
+                            logit_bias: undefined,
+                            user: undefined,
+                        })
+                            .send()];
+                case 1:
+                    response = _a.sent();
+                    if (response.responseBody.choices.length != 1) {
+                        console.error(response.responseBody);
+                        throw new Error("Expected 1 choice, found " + response.responseBody.choices.length);
+                    }
+                    choice = response.responseBody.choices[0];
+                    return [2 /*return*/, __assign(__assign({}, conversation), { messages: __spreadArray(__spreadArray([], conversation.messages), [
+                                toMessage(choice.message),
+                            ]) })];
+            }
+        });
+    });
+}
+function ConversationEditPage(props) {
+    var routeParams = reactRouter.useParams();
+    var _a = React.useState(localStorageUtil.loadConversation(routeParams.uuid)), conversation = _a[0], setConversation = _a[1];
+    var functionTools = React.useMemo(function () {
+        return localStorageUtil.loadFunctionTools();
+    }, []);
+    React.useEffect(function () {
+        if (conversation == undefined) {
+            return;
+        }
+        var timer = setTimeout(function () {
+            //localStorageUtil.loadConversation(conversation.uuid);
+            localStorageUtil.saveConversation(conversation);
+            var meta = localStorageUtil.loadConversationsMeta().map(function (m) {
+                return m.uuid == conversation.uuid ?
+                    {
+                        uuid: conversation.uuid,
+                        name: conversation.name,
+                        description: conversation.description,
+                        lastMessage: "TODO",
+                    } :
+                    m;
+            });
+            localStorageUtil.saveConversationsMeta(meta);
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [conversation]);
+    if (conversation == undefined) {
+        return React.createElement("div", { className: "ui main container" },
+            "Conversation ",
+            routeParams.uuid,
+            " not found");
+    }
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement(MessageListForm_1.MessageListForm, { messages: conversation.messages, onChange: function (newMessages) {
+                setConversation(__assign(__assign({}, conversation), { messages: newMessages }));
+            } }),
+        React.createElement("div", { className: "ui segment" },
+            React.createElement("button", { className: "ui primary button", onClick: function () {
+                    setConversation(__assign(__assign({}, conversation), { messages: __spreadArray(__spreadArray([], conversation.messages), [
+                            {
+                                uuid: uuid.v4(),
+                                messageType: "user",
+                                role: "user",
+                                content: "",
+                            }
+                        ]) }));
+                } }, "Add Message"),
+            React.createElement("button", { className: "ui primary button", onClick: function () {
+                    submitConversation(props.openAiApi, conversation, functionTools)
+                        .then(function (newConversation) {
+                        setConversation(newConversation);
+                    }, function (err) {
+                        console.log(err);
+                    });
+                } }, "Submit")),
+        React.createElement("div", { className: "ui segment" },
+            React.createElement(ChatRequestConfigUx_1.ChatRequestConfigUx, { config: conversation.rawChatRequestConfig, onConfigChange: function (rawChatRequestConfig) {
+                    setConversation(__assign(__assign({}, conversation), { rawChatRequestConfig: rawChatRequestConfig }));
+                } })),
+        React.createElement("div", { className: "ui segment" }, React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: false, rightFloatedContent: function (f) {
+                var _a;
+                return React.createElement("div", { className: "ui checkbox", key: f.uuid },
+                    React.createElement("input", { type: "checkbox", checked: Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
+                            (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
+                            false, onChange: function (evt) {
+                            var _a;
+                            setConversation(__assign(__assign({}, conversation), { usedFunctions: __assign(__assign({}, conversation.usedFunctions), (_a = {}, _a[f.uuid] = evt.target.checked, _a)) }));
+                        } }),
+                    React.createElement("label", null));
+            } })));
+}
+exports.ConversationEditPage = ConversationEditPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/ConversationListPage.tsx":
+/*!****************************************************!*\
+  !*** ./src/client-public/ConversationListPage.tsx ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConversationListPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
+//import { Conversation } from "./ConversationForm";
+function ConversationListPage() {
+    var history = reactRouter.useHistory();
+    var _a = React.useState(localStorageUtil.loadConversationsMeta()), conversations = _a[0], setConversations = _a[1];
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment divided selection massive list" }, conversations.map(function (f) {
+            return React.createElement("div", { className: "item", key: f.uuid, onClick: function () {
+                    history.push("/conversation/" + f.uuid + "/edit");
+                } },
+                React.createElement("div", { className: "content" },
+                    React.createElement("div", { className: "header" }, f.name.trim() == "" ?
+                        "Conversation " + f.uuid :
+                        f.name),
+                    React.createElement("div", { className: "ui mini label" }, f.uuid),
+                    f.description.trim() == "" ?
+                        React.createElement("small", { className: "description" }, "There is no description for this conversation") :
+                        React.createElement("div", { className: "description" }, f.description),
+                    f.lastMessage.trim() == "" ?
+                        undefined :
+                        React.createElement("div", { className: "description" }, f.lastMessage)));
+        })),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                var conversations = localStorageUtil.loadConversationsMeta();
+                var meta = {
+                    uuid: uuid.v4(),
+                    name: "",
+                    description: "",
+                    lastMessage: "",
+                };
+                var newConversations = __spreadArray(__spreadArray([], conversations), [
+                    meta,
+                ]);
+                localStorageUtil.saveConversationsMeta(newConversations);
+                localStorageUtil.saveConversation({
+                    uuid: meta.uuid,
+                    name: meta.name,
+                    description: meta.description,
+                    rawChatRequestConfig: {
+                        model: ChatRequestConfigUx_1.chatModels[0],
+                        temperature: 1,
+                        max_tokens: 256,
+                        stop: "",
+                        top_p: 1,
+                        frequency_penalty: 0,
+                        presence_penalty: 0,
+                    },
+                    messages: [],
+                    usedFunctions: {},
+                });
+                setConversations(newConversations);
+            } }, "Create Conversation"));
+}
+exports.ConversationListPage = ConversationListPage;
 
 
 /***/ }),
@@ -756,6 +1265,201 @@ exports.DefaultMenu = DefaultMenu;
 
 /***/ }),
 
+/***/ "./src/client-public/FunctionToolEditPage.tsx":
+/*!****************************************************!*\
+  !*** ./src/client-public/FunctionToolEditPage.tsx ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionToolEditPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var FunctionToolForm_1 = __webpack_require__(/*! ./FunctionToolForm */ "./src/client-public/FunctionToolForm.tsx");
+function FunctionToolEditPage() {
+    var history = reactRouter.useHistory();
+    var routeParams = reactRouter.useParams();
+    var _a = React.useState(localStorageUtil.loadFunctionTools().find(function (f) { return f.uuid == routeParams.uuid; })), functionTool = _a[0], setFunctionTool = _a[1];
+    if (functionTool == undefined) {
+        return React.createElement("div", { className: "ui main container" },
+            "Function Tool ",
+            routeParams.uuid,
+            " not found");
+    }
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment" },
+            React.createElement(FunctionToolForm_1.FunctionToolForm, { functionTool: functionTool, onChange: setFunctionTool })),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                var functionTools = localStorageUtil.loadFunctionTools();
+                var newFunctionTools = functionTools.map(function (f) {
+                    return f.uuid == routeParams.uuid ?
+                        functionTool :
+                        f;
+                });
+                localStorageUtil.saveFunctionTools(newFunctionTools);
+                history.push("/function-tool");
+            } }, "Save"));
+}
+exports.FunctionToolEditPage = FunctionToolEditPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/FunctionToolForm.tsx":
+/*!************************************************!*\
+  !*** ./src/client-public/FunctionToolForm.tsx ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionToolForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var jsonSchemaEditor = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
+function FunctionToolForm(props) {
+    var functionTool = props.functionTool, onChange = props.onChange;
+    return React.createElement("div", { className: "ui form" },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Name"),
+            React.createElement("small", null, "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."),
+            React.createElement("input", { type: "text", value: functionTool.name, onChange: function (evt) {
+                    onChange(__assign(__assign({}, functionTool), { name: evt.target.value }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Description"),
+            React.createElement("small", null, "A description of what the function does, used by the model to choose when and how to call the function."),
+            React.createElement("input", { type: "text", value: functionTool.description, onChange: function (evt) {
+                    onChange(__assign(__assign({}, functionTool), { description: evt.target.value }));
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Parameters"),
+            React.createElement("small", null,
+                "The parameters the functions accepts, described as a JSON Schema object. See the",
+                React.createElement("a", { href: "https://platform.openai.com/docs/guides/text-generation/function-calling" }, "guide"),
+                "for examples, and the",
+                React.createElement("a", { href: "https://json-schema.org/understanding-json-schema/" }, "JSON Schema reference"),
+                "for documentation about the format. Omitting parameters defines a function with an empty parameter list."),
+            React.createElement(jsonSchemaEditor.ObjectEditor, { object: functionTool.parameters, onChange: function (object) {
+                    onChange(__assign(__assign({}, functionTool), { parameters: object }));
+                } })));
+}
+exports.FunctionToolForm = FunctionToolForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/FunctionToolList.tsx":
+/*!************************************************!*\
+  !*** ./src/client-public/FunctionToolList.tsx ***!
+  \************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionToolList = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+function FunctionToolList(props) {
+    var history = reactRouter.useHistory();
+    var functionTools = props.functionTools, editOnClick = props.editOnClick, leftFloatedContent = props.leftFloatedContent, rightFloatedContent = props.rightFloatedContent;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, functionTools.map(function (f) {
+        return React.createElement("div", { className: "item", key: f.uuid, onClick: function () {
+                if (!editOnClick) {
+                    return;
+                }
+                history.push("/function-tool/" + f.uuid + "/edit");
+            } },
+            leftFloatedContent == undefined ?
+                undefined :
+                React.createElement("div", { className: "left floated content" }, leftFloatedContent(f)),
+            rightFloatedContent == undefined ?
+                undefined :
+                React.createElement("div", { className: "right floated content" }, rightFloatedContent(f)),
+            React.createElement("div", { className: "content" },
+                React.createElement("div", { className: "header" }, f.name.trim() == "" ?
+                    "Function " + f.uuid :
+                    f.name),
+                React.createElement("div", { className: "ui mini label" }, f.uuid),
+                f.parameters.properties.map(function (p) {
+                    return React.createElement("div", { key: p.propertyName, className: classNames("ui mini label", p.propertyRequired ? "red" : "yellow") }, p.propertyName);
+                }),
+                f.description.trim() == "" ?
+                    React.createElement("small", { className: "description" }, "There is no description for this function") :
+                    React.createElement("div", { className: "description" }, f.description)));
+    }));
+}
+exports.FunctionToolList = FunctionToolList;
+
+
+/***/ }),
+
+/***/ "./src/client-public/FunctionToolListPage.tsx":
+/*!****************************************************!*\
+  !*** ./src/client-public/FunctionToolListPage.tsx ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FunctionToolListPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
+function FunctionToolListPage() {
+    var _a = React.useState(localStorageUtil.loadFunctionTools()), functionTools = _a[0], setFunctionTools = _a[1];
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: true }),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                var functionTools = localStorageUtil.loadFunctionTools();
+                var newFunctionTools = __spreadArray(__spreadArray([], functionTools), [
+                    {
+                        uuid: uuid.v4(),
+                        name: "",
+                        description: "",
+                        parameters: {
+                            type: "object",
+                            required: [],
+                            properties: [],
+                        },
+                    },
+                ]);
+                localStorageUtil.saveFunctionTools(newFunctionTools);
+                setFunctionTools(newFunctionTools);
+            } }, "Create Function Tool"));
+}
+exports.FunctionToolListPage = FunctionToolListPage;
+
+
+/***/ }),
+
 /***/ "./src/client-public/HomePage.tsx":
 /*!****************************************!*\
   !*** ./src/client-public/HomePage.tsx ***!
@@ -770,12 +1474,23 @@ exports.HomePage = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 var local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
 var supportedLabel = function (supported) {
     return (React.createElement("span", { className: classnames("ui mini label", supported ? "green" : "red") }, supported ? "Supported" : "Not Supported"));
 };
 var HomePage = function (_props) {
+    var _a = React.useState({
+        model: ChatRequestConfigUx_1.chatModels[0],
+        temperature: 1,
+        max_tokens: 256,
+        stop: "",
+        top_p: 1,
+        frequency_penalty: 0,
+        presence_penalty: 0,
+    }), config = _a[0], setConfig = _a[1];
     return (React.createElement("div", { className: "ui main container" },
         React.createElement("h1", { className: "ui dividing header" }, "Chat GPT Playground"),
+        React.createElement(ChatRequestConfigUx_1.ChatRequestConfigUx, { config: config, onConfigChange: function (newConfig) { return setConfig(newConfig); } }),
         React.createElement("p", null),
         React.createElement("p", null),
         React.createElement("hr", null),
@@ -821,6 +1536,125 @@ exports.HomePage = HomePage;
 
 /***/ }),
 
+/***/ "./src/client-public/MessageForm.tsx":
+/*!*******************************************!*\
+  !*** ./src/client-public/MessageForm.tsx ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MessageForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
+var messageTypes = [
+    "system",
+    "user",
+    "assistant",
+    "assistant_tool_call",
+    "tool_response",
+];
+function MessageForm(props) {
+    var message = props.message, onChange = props.onChange;
+    return React.createElement("div", null,
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Message Type"),
+                    React.createElement("select", { value: message.messageType, onChange: function (evt) {
+                            var messageType = evt.target.value;
+                            switch (messageType) {
+                                case "system": {
+                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "system", content: "content" in message ?
+                                            message.content :
+                                            "" }), message);
+                                    break;
+                                }
+                                case "user": {
+                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "user", content: "content" in message ?
+                                            message.content :
+                                            "" }), message);
+                                    break;
+                                }
+                                case "assistant": {
+                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "assistant", content: "content" in message ?
+                                            message.content :
+                                            "" }), message);
+                                    break;
+                                }
+                                case "assistant_tool_call": {
+                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "assistant", tool_calls: "tool_calls" in message ?
+                                            message.tool_calls :
+                                            [] }), message);
+                                    break;
+                                }
+                                case "tool_response": {
+                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "tool", tool_call_id: "tool_call_id" in message ?
+                                            message.tool_call_id :
+                                            "", name: "name" in message ?
+                                            message.name :
+                                            "", content: "content" in message ?
+                                            message.content :
+                                            "" }), message);
+                                    break;
+                                }
+                            }
+                        } }, messageTypes.map(function (s) {
+                        return React.createElement("option", { key: s, value: s }, s);
+                    }))))),
+        ContentMessageForm_1.isContentMessage(message) ?
+            React.createElement(ContentMessageForm_1.ContentMessageForm, { message: message, onChange: function (newMessage) {
+                    onChange(newMessage, message);
+                } }) :
+            undefined);
+}
+exports.MessageForm = MessageForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/MessageListForm.tsx":
+/*!***********************************************!*\
+  !*** ./src/client-public/MessageListForm.tsx ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.MessageListForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
+function MessageListForm(props) {
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, props.messages.map(function (m) {
+        return React.createElement(MessageForm_1.MessageForm, { key: m.uuid, message: m, onChange: function (newMessage) {
+                props.onChange(props.messages.map(function (m) {
+                    return m.uuid == newMessage.uuid ?
+                        newMessage :
+                        m;
+                }), props.messages);
+            } });
+    }));
+}
+exports.MessageListForm = MessageListForm;
+
+
+/***/ }),
+
 /***/ "./src/client-public/local-storage-util.ts":
 /*!*************************************************!*\
   !*** ./src/client-public/local-storage-util.ts ***!
@@ -831,7 +1665,7 @@ exports.HomePage = HomePage;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.kbUsed = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
+exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
 function localStorageSupported() {
     return ("localStorage" in self);
 }
@@ -868,6 +1702,47 @@ function kbUsed() {
     return totalKb;
 }
 exports.kbUsed = kbUsed;
+var LocalStorageKey;
+(function (LocalStorageKey) {
+    LocalStorageKey["OPEN_AI_API_KEY"] = "OPEN_AI_API_KEY";
+    LocalStorageKey["FUNCTION_TOOLS"] = "FUNCTION_TOOLS";
+    LocalStorageKey["CONVERSATIONS_META"] = "CONVERSATIONS_META";
+    LocalStorageKey["CONVERSATION"] = "CONVERSATION";
+})(LocalStorageKey = exports.LocalStorageKey || (exports.LocalStorageKey = {}));
+function loadFunctionTools() {
+    var _a;
+    return JSON.parse((_a = getItem(LocalStorageKey.FUNCTION_TOOLS)) !== null && _a !== void 0 ? _a : "[]");
+}
+exports.loadFunctionTools = loadFunctionTools;
+function saveFunctionTools(tools) {
+    return setItem(LocalStorageKey.FUNCTION_TOOLS, JSON.stringify(tools));
+}
+exports.saveFunctionTools = saveFunctionTools;
+function loadConversationsMeta() {
+    var _a;
+    return JSON.parse((_a = getItem(LocalStorageKey.CONVERSATIONS_META)) !== null && _a !== void 0 ? _a : "[]");
+}
+exports.loadConversationsMeta = loadConversationsMeta;
+function saveConversationsMeta(conversationsMeta) {
+    return setItem(LocalStorageKey.CONVERSATIONS_META, JSON.stringify(conversationsMeta));
+}
+exports.saveConversationsMeta = saveConversationsMeta;
+function loadConversation(uuid) {
+    var _a, _b;
+    var str = getItem(LocalStorageKey.CONVERSATION + "_" + uuid);
+    if (str == undefined) {
+        return undefined;
+    }
+    var result = JSON.parse(str);
+    result.messages = (_a = result.messages) !== null && _a !== void 0 ? _a : [];
+    result.usedFunctions = (_b = result.usedFunctions) !== null && _b !== void 0 ? _b : {};
+    return result;
+}
+exports.loadConversation = loadConversation;
+function saveConversation(conversation) {
+    return setItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid, JSON.stringify(conversation));
+}
+exports.saveConversation = saveConversation;
 
 
 /***/ }),
@@ -1059,6 +1934,218 @@ function useDropdown(props) {
     };
 }
 exports.useDropdown = useDropdown;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/index.tsx":
+/*!******************************************!*\
+  !*** ./src/json-schema-editor/index.tsx ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cleanObject = exports.cleanProperty = exports.ObjectEditor = exports.PropertyEditor = exports.dataTypes = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+exports.dataTypes = [
+    "string",
+    "number",
+    "boolean",
+    "integer",
+    "object",
+    "array",
+];
+function PropertyEditor(props) {
+    var property = props.property, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, hidePropertyName = props.hidePropertyName, hideRequired = props.hideRequired, hideControls = props.hideControls, style = props.style;
+    return React.createElement("div", { style: style },
+        React.createElement("div", { className: "five fields", style: {
+                paddingLeft: "32px"
+            } },
+            (hidePropertyName !== null && hidePropertyName !== void 0 ? hidePropertyName : false) ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Property Name"),
+                    React.createElement("input", { type: "text", value: property.propertyName, placeholder: "Property Name", onChange: function (evt) {
+                            onChange(__assign(__assign({}, property), { propertyName: evt.target.value }), property);
+                        } })),
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Data Type"),
+                React.createElement("select", { value: property.type, onChange: function (evt) {
+                        var type = evt.target.value;
+                        if (type == "object") {
+                            if ("properties" in property) {
+                                onChange(__assign(__assign({}, property), { type: type }), property);
+                            }
+                            else {
+                                onChange(__assign(__assign({}, property), { type: type, required: [], properties: [] }), property);
+                            }
+                        }
+                        else if (type == "array") {
+                            if ("items" in property) {
+                                onChange(__assign(__assign({}, property), { type: type }), property);
+                            }
+                            else {
+                                onChange(__assign(__assign({}, property), { type: type, items: {
+                                        type: "string",
+                                        propertyName: "item",
+                                        propertyRequired: true,
+                                        description: "",
+                                    } }), property);
+                            }
+                        }
+                        else {
+                            onChange(__assign(__assign({}, property), { type: type }), property);
+                        }
+                    } }, exports.dataTypes.map(function (s) {
+                    return React.createElement("option", { key: s, value: s }, s);
+                }))),
+            (hideRequired !== null && hideRequired !== void 0 ? hideRequired : false) ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Required"),
+                    React.createElement("div", { className: "ui checkbox" },
+                        React.createElement("input", { type: "checkbox", checked: property.propertyRequired, onChange: function (evt) {
+                                onChange(__assign(__assign({}, property), { propertyRequired: evt.target.checked }), property);
+                            } }),
+                        React.createElement("label", null, "Required"))),
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Description"),
+                React.createElement("input", { type: "text", value: property.description, placeholder: "Description", onChange: function (evt) {
+                        onChange(__assign(__assign({}, property), { description: evt.target.value }), property);
+                    } })),
+            (hideControls !== null && hideControls !== void 0 ? hideControls : false) ?
+                undefined :
+                React.createElement("div", { className: "field button group", style: {
+                        alignSelf: "flex-end",
+                    } },
+                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(property); } },
+                        React.createElement("i", { className: "trash icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(property); } },
+                        React.createElement("i", { className: "arrow up icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(property); } },
+                        React.createElement("i", { className: "arrow down icon" })))),
+        property.type == "object" ?
+            React.createElement(ObjectEditor, { object: property, onChange: function (objectProperty, oldObjectProperty) {
+                    onChange(objectProperty, oldObjectProperty);
+                }, style: {
+                    paddingLeft: "32px",
+                }, name: property.propertyName })
+            : undefined,
+        property.type == "array" ?
+            React.createElement(PropertyEditor, { property: property.items, onChange: function (propertyItems) {
+                    onChange(__assign(__assign({}, property), { items: propertyItems }), property);
+                }, onRemove: function () { }, onMoveUp: function () { }, onMoveDown: function () { }, hidePropertyName: true, hideRequired: true, hideControls: true, style: {
+                    paddingLeft: "32px",
+                } })
+            : undefined);
+}
+exports.PropertyEditor = PropertyEditor;
+function deriveRequired(properties) {
+    return properties
+        .filter(function (p) { return p.propertyRequired; })
+        .map(function (p) { return p.propertyName; });
+}
+function ObjectEditor(props) {
+    var object = props.object, onChange = props.onChange, style = props.style, name = props.name;
+    return React.createElement("div", { className: "fields", style: style },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null,
+                name,
+                " Properties"),
+            object.properties.map(function (property, index) {
+                return React.createElement(PropertyEditor, { key: index, property: property, onRemove: function () {
+                        var newProperties = __spreadArray([], object.properties);
+                        newProperties.splice(index, 1);
+                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
+                    }, onChange: function (newProperty) {
+                        var newProperties = __spreadArray([], object.properties);
+                        newProperties.splice(index, 1, newProperty);
+                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
+                    }, onMoveUp: function () {
+                        if (index == 0) {
+                            return;
+                        }
+                        var newProperties = __spreadArray([], object.properties);
+                        newProperties.splice(index, 1);
+                        newProperties.splice(index - 1, 0, property);
+                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
+                    }, onMoveDown: function () {
+                        if (index >= object.properties.length) {
+                            return;
+                        }
+                        var newProperties = __spreadArray([], object.properties);
+                        newProperties.splice(index, 1);
+                        newProperties.splice(index + 1, 0, property);
+                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
+                    } });
+            })),
+        React.createElement("div", { className: "field button group", style: {
+                alignSelf: "flex-start",
+            } },
+            React.createElement("button", { className: "ui icon red button", onClick: function () { return onChange(__assign(__assign({}, object), { required: __spreadArray(__spreadArray([], object.required), [
+                        "property_" + object.properties.length,
+                    ]), properties: __spreadArray(__spreadArray([], object.properties), [
+                        {
+                            propertyName: "property_" + object.properties.length,
+                            type: "string",
+                            propertyRequired: true,
+                            description: "",
+                        }
+                    ]) }), object); } },
+                React.createElement("i", { className: "plus icon" }))));
+}
+exports.ObjectEditor = ObjectEditor;
+function cleanProperty(property) {
+    if (property.type == "object") {
+        return {
+            type: property.type,
+            description: property.description,
+            required: deriveRequired(property.properties),
+            properties: Object.fromEntries(property.properties.map(function (p) { return [p.propertyName, cleanProperty(p)]; })),
+        };
+    }
+    else if (property.type == "array") {
+        return {
+            type: property.type,
+            description: property.description,
+            items: cleanProperty(property.items),
+        };
+    }
+    else {
+        return {
+            type: property.type,
+            description: property.description,
+        };
+    }
+}
+exports.cleanProperty = cleanProperty;
+function cleanObject(object) {
+    return {
+        type: object.type,
+        required: deriveRequired(object.properties),
+        properties: Object.fromEntries(object.properties.map(function (p) { return [p.propertyName, cleanProperty(p)]; })),
+    };
+}
+exports.cleanObject = cleanObject;
 
 
 /***/ })

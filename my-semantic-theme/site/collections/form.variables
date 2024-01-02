@@ -4,3 +4,4 @@
 @inputBorder : 1px solid rgba(255, 255, 255, 0.15);
 @textAreaFontSize : 16px;
 @textAreaLineHeight : 24.8px;
+@selectColor : #000;

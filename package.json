@@ -21,6 +21,7 @@
     "extract-text-webpack-plugin": "3.0.2",
     "file-loader": "6.2.0",
     "gpt-3-encoder": "1.1.4",
+    "json-schema-editor-visual": "^2.0.0",
     "less": "2.7.3",
     "less-loader": "7.3.0",
     "mini-css-extract-plugin": "1.6.0",

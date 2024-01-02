@@ -1,37 +1,6 @@
 import * as tm from "type-mapping/fluent";
 import * as tm2 from "type-mapping";
 
-export const functionResponseChatMessage = tm.object({
-    role : tm.literal("function"),
-
-    /**
-     * The name of the author of this message.
-     * name is required if role is function,
-     * and it should be the name of the function whose response is in the content.
-     * May contain a-z, A-Z, 0-9, and underscores, with a maximum length of 64 characters.
-     */
-    name : tm.string(),
-
-    /**
-     * The contents of the message.
-     * content is required for all messages except assistant messages with function calls.
-     */
-    content : tm.string(),
-});
-
-/**
- * https://platform.openai.com/docs/guides/chat/introduction
- */
-export const assistantFunctionCallChatMessage = tm.object({
-    role : tm.literal("assistant"),
-
-    content : tm.null(),
-    function_call : tm.object({
-        name : tm.string(),
-        arguments : tm.jsonObjectString(),
-    }),
-});
-
 /**
  * https://platform.openai.com/docs/guides/function-calling
  */
@@ -57,7 +26,7 @@ export const toolResponseChatMessage = tm.object({
 export const assistantToolCallChatMessage = tm.object({
     role : tm.literal("assistant"),
 
-    content : tm.null(),
+    //content : tm.null(),
     tool_calls : tm.array(tm.object({
         id : tm.string(),
         function : tm.object({
@@ -95,8 +64,6 @@ export const contentChatMessage = tm.object({
 export const chatMessage = tm.or(
     contentChatMessage,
     assistantContentChatMessage,
-    assistantFunctionCallChatMessage,
-    functionResponseChatMessage,
     assistantToolCallChatMessage,
     toolResponseChatMessage,
 );
@@ -135,17 +102,17 @@ export const chatCompleteRequestBody = tm.object({
     ).optional(),
 
     /** @deprecated use tools */
-    functions : tm.array(tm.object({
-        name : tm.string(),
-        description : tm.string().optional(),
+    // functions : tm.array(tm.object({
+    //     name : tm.string(),
+    //     description : tm.string().optional(),
 
-        /**
-         * The parameters the functions accepts, described as a JSON Schema object
-         * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
-         * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
-         */
-        parameters : tm.jsonObject(),
-    })).optional(),
+    //     /**
+    //      * The parameters the functions accepts, described as a JSON Schema object
+    //      * See the [guide](https://platform.openai.com/docs/guides/gpt/function-calling) for examples,
+    //      * and the JSON Schema [reference](https://json-schema.org/understanding-json-schema/) for documentation about the format.
+    //      */
+    //     parameters : tm.jsonObject(),
+    // })).optional(),
 
     /** @deprecated use tool_choice */
     /**
@@ -155,12 +122,12 @@ export const chatCompleteRequestBody = tm.object({
      * Specifying a particular function via {"name":\ "my_function"} forces the model to call that function.
      * "none" is the default when no functions are present. "auto" is the default if functions are present.
      */
-    function_call : tm.or(
-        tm.literal("none", "auto"),
-        tm.object({
-            name : tm.string(),
-        })
-    ).optional(),
+    // function_call : tm.or(
+    //     tm.literal("none", "auto"),
+    //     tm.object({
+    //         name : tm.string(),
+    //     })
+    // ).optional(),
 
     temperature : tm.range({
         gtEq : 0.0,

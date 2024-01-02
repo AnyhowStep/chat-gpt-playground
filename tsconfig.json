@@ -3,6 +3,7 @@
         "strictNullChecks": true
     },
     "references" : [
+        { "path": "src/json-schema-editor" },
         { "path" : "src/client-public" }
     ],
     "files" : []

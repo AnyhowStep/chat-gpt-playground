@@ -7,6 +7,11 @@ import {HomePage} from "./HomePage";
 //import { Conversation, Story } from "./route";
 import { OpenAiApi } from "../api-openai";
 import { DefaultMenu } from "./DefaultMenu";
+import { ApiKeyPage } from "./ApiKeyPage";
+import { FunctionToolListPage } from "./FunctionToolListPage";
+import { FunctionToolEditPage } from "./FunctionToolEditPage";
+import { ConversationListPage } from "./ConversationListPage";
+import { ConversationEditPage } from "./ConversationEditPage";
 
 
 export interface Props {
@@ -78,12 +83,14 @@ export function App (_props : Props) {
                         </Link> */}
                     </div>
                 </div>
-                {/* <div className="item">
-                    Articles
+                <div className="item">
+                    Settings
                     <div className="menu">
-                        <Link className="ui item" to={`/to-do`}>TODO</Link>
+                        <Link className="ui item" to={`/api-key`}>API Key</Link>
+                        <Link className="ui item" to={`/function-tool`}>Function Tools</Link>
+                        <Link className="ui item" to={`/conversation`}>Conversations</Link>
                     </div>
-                </div> */}
+                </div>
             </div>
             <div className="" style={{height:"100%"}}>
                 <DefaultMenu
@@ -93,6 +100,11 @@ export function App (_props : Props) {
                     {/* <Route path="/story" component={storyComponent.current}/>
                     <Route path="/conversation" component={conversationComponent.current}/> */}
 
+                    <Route path="/api-key" component={ApiKeyPage}/>
+                    <Route path="/function-tool/:uuid/edit" component={FunctionToolEditPage}/>
+                    <Route path="/function-tool" component={FunctionToolListPage}/>
+                    <Route path="/conversation/:uuid/edit" component={() => <ConversationEditPage openAiApi={_props.openAiApi}/>}/>
+                    <Route path="/conversation" component={ConversationListPage}/>
                     <Route path="/" component={HomePage}/>
                 </Switch>
                 {/*<div className="ui vertical footer segment">
