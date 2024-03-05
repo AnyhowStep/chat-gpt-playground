@@ -1,6 +1,7 @@
 import { AxiosApiArgs } from "route-client";
 import { ChatApi } from "./chat";
 import { EmbeddingApi } from "./embedding";
+import { ModelApi } from "./model";
 import { TextGenerationApi } from "./text-generation";
 import { TokenizerApi } from "./tokenizer";
 
@@ -11,6 +12,7 @@ export interface OpenAiApiArgs extends AxiosApiArgs {
 export class OpenAiApi {
     readonly chat : ChatApi;
     readonly embedding : EmbeddingApi;
+    readonly model : ModelApi;
     readonly textGeneration : TextGenerationApi;
     readonly tokenizer : TokenizerApi;
 
@@ -28,6 +30,8 @@ export class OpenAiApi {
         this.chat.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.embedding = new EmbeddingApi(myArgs);
         this.embedding.sender.axiosInstance.defaults.timeout = defaultTimeout;
+        this.model = new ModelApi(myArgs);
+        this.model.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.textGeneration = new TextGenerationApi(myArgs);
         this.textGeneration.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.tokenizer = new TokenizerApi(myArgs);

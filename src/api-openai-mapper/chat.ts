@@ -156,6 +156,9 @@ export const chatCompleteRequestBody = tm.object({
         ltEq : 2.0,
     }).optional(),
     logit_bias : tm.jsonObject().optional(),
+    response_format : tm.object({
+        type : tm.literal("text", "json_object"),
+    }).optional(),
 
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.

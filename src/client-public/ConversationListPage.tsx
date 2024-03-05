@@ -2,7 +2,6 @@ import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
 import * as localStorageUtil from "./local-storage-util";
-import { chatModels } from "./ChatRequestConfigUx";
 //import { Conversation } from "./ConversationForm";
 
 export function ConversationListPage () {
@@ -14,33 +13,77 @@ export function ConversationListPage () {
 
     return <div className="ui main container">
         <div className="ui segment divided selection massive list">
-            {conversations.map(f => {
-                return <div className="item" key={f.uuid} onClick={() => {
-                    history.push(`/conversation/${f.uuid}/edit`);
+            {conversations.map(meta => {
+                const displayName = meta.name.trim() == "" ?
+                    `Conversation ${meta.uuid}` :
+                    meta.name;
+                return <div className="item" key={meta.uuid} onClick={() => {
+                    history.push(`/conversation/${meta.uuid}/edit`);
                 }}>
+                    <div className="extra right floated">
+                        <div className="ui icon secondary button" onClick={(evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Copy ${displayName}?`)) {
+                                const existingConversation = localStorageUtil.loadConversation(meta.uuid);
+                                if (existingConversation == undefined) {
+                                    alert(`Cannot find ${displayName} / ${meta.uuid}`);
+                                    return;
+                                }
+                                const newUuid = uuid.v4();
+                                const newConversation = {
+                                    ...existingConversation,
+                                    uuid : newUuid,
+                                    name : `Copy of ${displayName}`,
+                                };
+                                const newConversations = [
+                                    ...localStorageUtil.loadConversationsMeta(),
+                                    {
+                                        ...meta,
+                                        uuid : newUuid,
+                                        name : `Copy of ${displayName}`,
+                                    },
+                                ];
+                                setConversations(newConversations);
+                                localStorageUtil.saveConversationsMeta(newConversations);
+                                localStorageUtil.saveConversation(newConversation);
+                            }
+                        }}>
+                            <i className="copy icon"></i>
+                        </div>
+                        <div className="ui icon red button" onClick={(evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Delete ${displayName}?`)) {
+                                const newConversations = localStorageUtil.loadConversationsMeta()
+                                    .filter(m => m.uuid != meta.uuid);
+                                setConversations(newConversations);
+                                localStorageUtil.saveConversationsMeta(newConversations);
+                                localStorageUtil.deleteConversation(meta);
+                            }
+                        }}>
+                            <i className="trash icon"></i>
+                        </div>
+                    </div>
                     <div className="content">
                         <div className="header">
-                            {
-                                f.name.trim() == "" ?
-                                `Conversation ${f.uuid}` :
-                                f.name
-                            }
+                            {displayName}
                         </div>
-                        <div className="ui mini label">{f.uuid}</div>
+                        <div className="ui mini label">{meta.uuid}</div>
                         {
-                            f.description.trim() == "" ?
+                            meta.description.trim() == "" ?
                             <small className="description">
                                 There is no description for this conversation
                             </small> :
                             <div className="description">
-                                {f.description}
+                                {meta.description}
                             </div>
                         }
                         {
-                            f.lastMessage.trim() == "" ?
+                            meta.lastMessage.trim() == "" ?
                             undefined :
-                            <div className="description">
-                                {f.lastMessage}
+                            <div className="description one-line-ellipsis small-description">
+                                Last Message: {meta.lastMessage}
                             </div>
                         }
                     </div>
@@ -48,6 +91,7 @@ export function ConversationListPage () {
             })}
         </div>
         <button className="ui primary button" onClick={() => {
+            const models = localStorageUtil.loadModels().filter(model => model.id.startsWith("gpt"));
             const conversations = localStorageUtil.loadConversationsMeta();
             const meta = {
                 uuid : uuid.v4(),
@@ -65,13 +109,18 @@ export function ConversationListPage () {
                 name : meta.name,
                 description : meta.description,
                 rawChatRequestConfig : {
-                    model : chatModels[0],
+                    model : models.length > 0 ?
+                        models[0].id :
+                        "",
                     temperature  :1,
                     max_tokens : 256,
                     stop : "",
                     top_p : 1,
                     frequency_penalty : 0,
                     presence_penalty : 0,
+                    response_format : {
+                        type : "text",
+                    },
                 },
                 messages : [],
                 usedFunctions : {},

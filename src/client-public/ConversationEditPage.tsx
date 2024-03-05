@@ -1,6 +1,7 @@
 import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
+import * as classNames from "classnames";
 import { OpenAiApi } from "../api-openai";
 import * as localStorageUtil from "./local-storage-util";
 import { ChatRequestConfigUx } from "./ChatRequestConfigUx";
@@ -11,6 +12,7 @@ import { tools as toolsMapper, chatMessage as chatMessageMapper, ChatCompleteReq
 import { cleanObject } from "../json-schema-editor";
 import { useError } from "./use-error";
 import { ErrorMessage } from "./ErrorMessage";
+import { handleError } from "./error-handling";
 
 function toMessage (m : ChatMessage) : localStorageUtil.Message {
     switch (m.role) {
@@ -140,6 +142,7 @@ async function submitConversation (
             presence_penalty : conversation.rawChatRequestConfig.presence_penalty,
             frequency_penalty : conversation.rawChatRequestConfig.frequency_penalty,
             logit_bias : undefined,
+            response_format : conversation.rawChatRequestConfig.response_format,
             user : undefined,
         })
         .send();
@@ -170,6 +173,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
     const functionTools = React.useMemo(() => {
         return localStorageUtil.loadFunctionTools();
     }, []);
+    const [isLoading, setIsLoading] = React.useState(false);
     const error = useError();
 
     React.useEffect(
@@ -180,13 +184,20 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             const timer = setTimeout(() => {
                 //localStorageUtil.loadConversation(conversation.uuid);
                 localStorageUtil.saveConversation(conversation);
+                const lastMessage = conversation.messages.length > 0 ?
+                    conversation.messages[conversation.messages.length-1] :
+                    undefined;
                 const meta = localStorageUtil.loadConversationsMeta().map((m) : localStorageUtil.ConversationMeta => {
                     return m.uuid == conversation.uuid ?
                         {
                             uuid : conversation.uuid,
                             name : conversation.name,
                             description : conversation.description,
-                            lastMessage : `TODO`,
+                            lastMessage : lastMessage == undefined ?
+                                "" :
+                                "content" in lastMessage ?
+                                lastMessage.content.substring(0, 100) :
+                                lastMessage.messageType,
                         } :
                         m
                 });
@@ -204,6 +215,36 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
     }
 
     return <div className="ui main container">
+        <div className="ui form">
+            <div className="two fields">
+                <div className="field">
+                    <label>Title</label>
+                    <input
+                        placeholder="Enter a Conversation Title"
+                        value={conversation.name}
+                        onChange={(evt) => {
+                            setConversation({
+                                ...conversation,
+                                name : evt.target.value,
+                            });
+                        }}
+                    />
+                </div>
+                <div className="field">
+                    <label>Descriptio</label>
+                    <input
+                        placeholder="Enter a Conversation Description"
+                        value={conversation.description}
+                        onChange={(evt) => {
+                            setConversation({
+                                ...conversation,
+                                description : evt.target.value,
+                            });
+                        }}
+                    />
+                </div>
+            </div>
+        </div>
         <MessageListForm
             messages={conversation.messages}
             onChange={(newMessages) => {
@@ -233,32 +274,24 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             }}>
                 Add Message
             </button>
-            <button className="ui primary button" onClick={() => {
+            <button className={classNames(
+                "ui primary button",
+                isLoading ? "loading" : undefined,
+            )} onClick={() => {
+                if (isLoading) {
+                    return;
+                }
+                setIsLoading(true);
                 submitConversation(props.openAiApi, conversation, functionTools)
                     .then(
                         (newConversation) => {
+                            setIsLoading(false);
                             setConversation(newConversation);
                             error.reset();
                         },
                         (err) => {
-                            console.log(Object.getOwnPropertyNames(err));
-                            console.log(err);
-
-                            const responseBody = err?.sendResult?.responseBody;
-                            const responseErrorMessage = responseBody?.error?.message;
-                            const errorMessage = err?.message;
-
-                            if (responseErrorMessage != undefined) {
-                                error.push("negative", [responseErrorMessage])
-                                return;
-                            }
-
-                            if (errorMessage != undefined) {
-                                error.push("negative", [errorMessage])
-                                return;
-                            }
-
-                            error.push("negative", ["Unknown error"])
+                            setIsLoading(false);
+                            handleError(error, err);
                         }
                     );
             }}>

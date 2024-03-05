@@ -14,7 +14,7 @@ export function ErrorMessage (props : ErrorMessageProps) {
         return <div className="ui hidden message"></div>;
     } else {
         return (
-            <div className={"ui icon message " + error.type}>
+            <div className={"ui icon message " + error.type} style={{ display : "flex" }}>
                 <i className="exclamation triangle icon"></i>
                 <div className="content">
                     <div className="header">{error.type == "warning" ? "Warning" : "Error"}</div>

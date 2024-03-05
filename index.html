@@ -272,6 +272,20 @@
                 background-color: #222!important;
                 color: #aaa!important;
             }
+
+            .one-line-ellipsis {
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+
+            .small-description {
+                font-size: 0.6em;
+            }
+
+            .ui.message .list:not(.ui) li:before {
+                content : "+";
+            }
         </style>
         <link rel="stylesheet" href="client-public/json-schema-editor-main.css"/>
     </head>

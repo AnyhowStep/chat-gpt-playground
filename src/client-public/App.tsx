@@ -12,6 +12,7 @@ import { FunctionToolListPage } from "./FunctionToolListPage";
 import { FunctionToolEditPage } from "./FunctionToolEditPage";
 import { ConversationListPage } from "./ConversationListPage";
 import { ConversationEditPage } from "./ConversationEditPage";
+import { ModelListPage } from "./ModelListPage";
 
 
 export interface Props {
@@ -88,6 +89,7 @@ export function App (_props : Props) {
                     <div className="menu">
                         <Link className="ui item" to={`/api-key`}>API Key</Link>
                         <Link className="ui item" to={`/function-tool`}>Function Tools</Link>
+                        <Link className="ui item" to={`/model`}>Models</Link>
                         <Link className="ui item" to={`/conversation`}>Conversations</Link>
                     </div>
                 </div>
@@ -103,6 +105,7 @@ export function App (_props : Props) {
                     <Route path="/api-key" component={ApiKeyPage}/>
                     <Route path="/function-tool/:uuid/edit" component={FunctionToolEditPage}/>
                     <Route path="/function-tool" component={FunctionToolListPage}/>
+                    <Route path="/model" component={() => <ModelListPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/conversation/:uuid/edit" component={() => <ConversationEditPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/conversation" component={ConversationListPage}/>
                     <Route path="/" component={HomePage}/>

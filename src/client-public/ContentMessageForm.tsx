@@ -24,6 +24,10 @@ export interface ContentMessageFormProps {
 export function ContentMessageForm (props : ContentMessageFormProps) {
     return <div className="ui form">
         <textarea
+            style={{
+                minHeight : "8em",
+                maxHeight : "48em",
+            }}
             value={props.message.content}
             onChange={(evt) => {
                 props.onChange({

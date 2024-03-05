@@ -21,6 +21,12 @@ export function setItem (key : string, value : string) : void {
     }
 }
 
+export function removeItem (key : string) : void {
+    if (localStorageSupported()) {
+        localStorage.removeItem(key);
+    }
+}
+
 /**
  * https://stackoverflow.com/questions/4391575/how-to-find-the-size-of-localstorage
  * @returns 
@@ -46,6 +52,7 @@ export enum LocalStorageKey {
     FUNCTION_TOOLS = "FUNCTION_TOOLS",
     CONVERSATIONS_META = "CONVERSATIONS_META",
     CONVERSATION = "CONVERSATION",
+    MODELS = "MODELS",
 }
 
 export function loadFunctionTools () : FunctionTool[] {
@@ -156,6 +163,10 @@ export function loadConversation (uuid : string) : Conversation|undefined {
     const result = JSON.parse(str) as Conversation;
     result.messages = result.messages ?? [];
     result.usedFunctions = result.usedFunctions ?? {};
+    result.rawChatRequestConfig.response_format = result.rawChatRequestConfig.response_format
+        ?? {
+            type : "text",
+        };
     return result;
 }
 
@@ -163,5 +174,34 @@ export function saveConversation (conversation : Conversation) {
     return setItem(
         `${LocalStorageKey.CONVERSATION}_${conversation.uuid}`,
         JSON.stringify(conversation)
+    );
+}
+
+export function deleteConversation (conversation : Pick<Conversation, "uuid">) {
+    return removeItem(
+        `${LocalStorageKey.CONVERSATION}_${conversation.uuid}`
+    );
+}
+
+interface Model {
+    id : string,
+    object : "model",
+    created : number,
+    owned_by : string,
+}
+
+export function loadModels () : Model[] {
+    const str = getItem(LocalStorageKey.MODELS);
+    if (str == undefined) {
+        return [];
+    }
+    const result = JSON.parse(str) as Model[];
+    return result;
+}
+
+export function saveModels (models : Model[]) {
+    return setItem(
+        LocalStorageKey.MODELS,
+        JSON.stringify(models)
     );
 }

@@ -292,6 +292,9 @@ exports.chatCompleteRequestBody = tm.object({
         ltEq: 2.0,
     }).optional(),
     logit_bias: tm.jsonObject().optional(),
+    response_format: tm.object({
+        type: tm.literal("text", "json_object"),
+    }).optional(),
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.
      */
@@ -375,8 +378,38 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(__webpack_require__(/*! ./chat */ "./src/api-openai-mapper/chat.ts"), exports);
 __exportStar(__webpack_require__(/*! ./embedding */ "./src/api-openai-mapper/embedding.ts"), exports);
+__exportStar(__webpack_require__(/*! ./model */ "./src/api-openai-mapper/model.ts"), exports);
 __exportStar(__webpack_require__(/*! ./text-generation */ "./src/api-openai-mapper/text-generation.ts"), exports);
 __exportStar(__webpack_require__(/*! ./tokenizer */ "./src/api-openai-mapper/tokenizer.ts"), exports);
+
+
+/***/ }),
+
+/***/ "./src/api-openai-mapper/model.ts":
+/*!****************************************!*\
+  !*** ./src/api-openai-mapper/model.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.modelListResponseBody = exports.model = void 0;
+var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
+/**
+ * https://platform.openai.com/docs/api-reference/models/object
+ */
+exports.model = tm.object({
+    id: tm.string(),
+    created: tm.finiteNumber(),
+    object: tm.literal("model"),
+    owned_by: tm.string(),
+});
+exports.modelListResponseBody = tm.object({
+    object: tm.literal("list"),
+    data: tm.array(exports.model),
+});
 
 
 /***/ }),
@@ -530,6 +563,33 @@ __exportStar(__webpack_require__(/*! ./text-generation */ "./src/api-openai/text
 
 /***/ }),
 
+/***/ "./src/api-openai/model.ts":
+/*!*********************************!*\
+  !*** ./src/api-openai/model.ts ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ModelApi = void 0;
+var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+/**
+ * https://platform.openai.com/docs/api-reference/models/list
+ */
+var list = rd.route()
+    .append("/v1/models")
+    .setResponse(m.modelListResponseBody);
+exports.ModelApi = rc.toAxiosApi({
+    list: list,
+});
+
+
+/***/ }),
+
 /***/ "./src/api-openai/openai-api.ts":
 /*!**************************************!*\
   !*** ./src/api-openai/openai-api.ts ***!
@@ -554,6 +614,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenAiApi = void 0;
 var chat_1 = __webpack_require__(/*! ./chat */ "./src/api-openai/chat.ts");
 var embedding_1 = __webpack_require__(/*! ./embedding */ "./src/api-openai/embedding.ts");
+var model_1 = __webpack_require__(/*! ./model */ "./src/api-openai/model.ts");
 var text_generation_1 = __webpack_require__(/*! ./text-generation */ "./src/api-openai/text-generation.ts");
 var tokenizer_1 = __webpack_require__(/*! ./tokenizer */ "./src/api-openai/tokenizer.ts");
 var OpenAiApi = /** @class */ (function () {
@@ -568,6 +629,8 @@ var OpenAiApi = /** @class */ (function () {
         this.chat.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.embedding = new embedding_1.EmbeddingApi(myArgs);
         this.embedding.sender.axiosInstance.defaults.timeout = defaultTimeout;
+        this.model = new model_1.ModelApi(myArgs);
+        this.model.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.textGeneration = new text_generation_1.TextGenerationApi(myArgs);
         this.textGeneration.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.tokenizer = new tokenizer_1.TokenizerApi(myArgs);
@@ -690,6 +753,7 @@ var FunctionToolListPage_1 = __webpack_require__(/*! ./FunctionToolListPage */ "
 var FunctionToolEditPage_1 = __webpack_require__(/*! ./FunctionToolEditPage */ "./src/client-public/FunctionToolEditPage.tsx");
 var ConversationListPage_1 = __webpack_require__(/*! ./ConversationListPage */ "./src/client-public/ConversationListPage.tsx");
 var ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+var ModelListPage_1 = __webpack_require__(/*! ./ModelListPage */ "./src/client-public/ModelListPage.tsx");
 function App(_props) {
     var sidebar = use_dropdown_1.useDropdown({
         openClassName: "uncover visible",
@@ -712,6 +776,7 @@ function App(_props) {
                 React.createElement("div", { className: "menu" },
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/api-key" }, "API Key"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/function-tool" }, "Function Tools"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/model" }, "Models"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/conversation" }, "Conversations")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
@@ -719,6 +784,7 @@ function App(_props) {
                 React.createElement(react_router_dom_1.Route, { path: "/api-key", component: ApiKeyPage_1.ApiKeyPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/function-tool/:uuid/edit", component: FunctionToolEditPage_1.FunctionToolEditPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/function-tool", component: FunctionToolListPage_1.FunctionToolListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/model", component: function () { return React.createElement(ModelListPage_1.ModelListPage, { openAiApi: _props.openAiApi }); } }),
                 React.createElement(react_router_dom_1.Route, { path: "/conversation/:uuid/edit", component: function () { return React.createElement(ConversationEditPage_1.ConversationEditPage, { openAiApi: _props.openAiApi }); } }),
                 React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
@@ -787,23 +853,54 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ChatRequestConfigUx = exports.chatModels = void 0;
+exports.ChatRequestConfigUx = exports.responseFormatTypes = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-exports.chatModels = [
-    "gpt-3.5-turbo-1106",
-    "gpt-4-1106-preview",
-    "gpt-4-1106-vision-preview",
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+exports.responseFormatTypes = [
+    "text",
+    "json_object",
 ];
 function ChatRequestConfigUx(props) {
     var config = props.config, onConfigChange = props.onConfigChange;
+    var models = React.useState(function () {
+        return localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
+    })[0];
     return React.createElement("div", { className: "ui form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Model"),
             React.createElement("select", { value: config.model, onChange: function (evt) {
                     onConfigChange(__assign(__assign({}, config), { model: evt.target.value }));
-                } }, exports.chatModels.map(function (chatModel) {
-                return React.createElement("option", { key: chatModel, value: chatModel }, chatModel);
-            }))),
+                } },
+                React.createElement("option", { key: "none", value: "", disabled: true }, "Select a Model"),
+                models.map(function (model) {
+                    return React.createElement("option", { key: model.id, value: model.id },
+                        model.id,
+                        " - (",
+                        new Date(model.created * 1000).toISOString(),
+                        ")");
+                }))),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", { "data-tooltip": "When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message.", "data-position": "top left", "data-inverted": true },
+                "Response Format ",
+                React.createElement("i", { className: "question circle icon" })),
+            React.createElement("select", { value: config.response_format.type, onChange: function (evt) {
+                    onConfigChange(__assign(__assign({}, config), { response_format: {
+                            type: evt.target.value,
+                        } }));
+                } }, exports.responseFormatTypes.map(function (responeFormatType) {
+                return React.createElement("option", { key: responeFormatType, value: responeFormatType }, responeFormatType);
+            })),
+            config.response_format.type == "json_object" ?
+                React.createElement(ErrorMessage_1.ErrorMessage, { error: {
+                        messages: [
+                            "When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message.",
+                            "Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly \"stuck\" request.",
+                            "Also note that the message content may be partially cut off if finish_reason=\"length\", which indicates the generation exceeded max_tokens or the conversation exceeded the max context length.",
+                        ],
+                        type: "warning",
+                    } }) :
+                undefined),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Temperature"),
             React.createElement("small", null,
@@ -890,7 +987,10 @@ function isContentMessage(m) {
 exports.isContentMessage = isContentMessage;
 function ContentMessageForm(props) {
     return React.createElement("div", { className: "ui form" },
-        React.createElement("textarea", { value: props.message.content, onChange: function (evt) {
+        React.createElement("textarea", { style: {
+                minHeight: "8em",
+                maxHeight: "48em",
+            }, value: props.message.content, onChange: function (evt) {
                 props.onChange(__assign(__assign({}, props.message), { content: evt.target.value }), props.message);
             } }));
 }
@@ -965,6 +1065,7 @@ exports.ConversationEditPage = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
 var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
@@ -973,6 +1074,7 @@ var api_openai_mapper_1 = __webpack_require__(/*! ../api-openai-mapper */ "./src
 var json_schema_editor_1 = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
 var use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
 var ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+var error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
 function toMessage(m) {
     switch (m.role) {
         case "system": {
@@ -1093,6 +1195,7 @@ function submitConversation(openAiApi, conversation, functionTools) {
                             presence_penalty: conversation.rawChatRequestConfig.presence_penalty,
                             frequency_penalty: conversation.rawChatRequestConfig.frequency_penalty,
                             logit_bias: undefined,
+                            response_format: conversation.rawChatRequestConfig.response_format,
                             user: undefined,
                         })
                             .send()];
@@ -1116,6 +1219,7 @@ function ConversationEditPage(props) {
     var functionTools = React.useMemo(function () {
         return localStorageUtil.loadFunctionTools();
     }, []);
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
     var error = use_error_1.useError();
     React.useEffect(function () {
         if (conversation == undefined) {
@@ -1124,13 +1228,20 @@ function ConversationEditPage(props) {
         var timer = setTimeout(function () {
             //localStorageUtil.loadConversation(conversation.uuid);
             localStorageUtil.saveConversation(conversation);
+            var lastMessage = conversation.messages.length > 0 ?
+                conversation.messages[conversation.messages.length - 1] :
+                undefined;
             var meta = localStorageUtil.loadConversationsMeta().map(function (m) {
                 return m.uuid == conversation.uuid ?
                     {
                         uuid: conversation.uuid,
                         name: conversation.name,
                         description: conversation.description,
-                        lastMessage: "TODO",
+                        lastMessage: lastMessage == undefined ?
+                            "" :
+                            "content" in lastMessage ?
+                                lastMessage.content.substring(0, 100) :
+                                lastMessage.messageType,
                     } :
                     m;
             });
@@ -1145,6 +1256,18 @@ function ConversationEditPage(props) {
             " not found");
     }
     return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Title"),
+                    React.createElement("input", { placeholder: "Enter a Conversation Title", value: conversation.name, onChange: function (evt) {
+                            setConversation(__assign(__assign({}, conversation), { name: evt.target.value }));
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Descriptio"),
+                    React.createElement("input", { placeholder: "Enter a Conversation Description", value: conversation.description, onChange: function (evt) {
+                            setConversation(__assign(__assign({}, conversation), { description: evt.target.value }));
+                        } })))),
         React.createElement(MessageListForm_1.MessageListForm, { messages: conversation.messages, onChange: function (newMessages) {
                 setConversation(__assign(__assign({}, conversation), { messages: newMessages }));
             } }),
@@ -1160,27 +1283,19 @@ function ConversationEditPage(props) {
                             }
                         ]) }));
                 } }, "Add Message"),
-            React.createElement("button", { className: "ui primary button", onClick: function () {
+            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+                    if (isLoading) {
+                        return;
+                    }
+                    setIsLoading(true);
                     submitConversation(props.openAiApi, conversation, functionTools)
                         .then(function (newConversation) {
+                        setIsLoading(false);
                         setConversation(newConversation);
                         error.reset();
                     }, function (err) {
-                        var _a, _b;
-                        console.log(Object.getOwnPropertyNames(err));
-                        console.log(err);
-                        var responseBody = (_a = err === null || err === void 0 ? void 0 : err.sendResult) === null || _a === void 0 ? void 0 : _a.responseBody;
-                        var responseErrorMessage = (_b = responseBody === null || responseBody === void 0 ? void 0 : responseBody.error) === null || _b === void 0 ? void 0 : _b.message;
-                        var errorMessage = err === null || err === void 0 ? void 0 : err.message;
-                        if (responseErrorMessage != undefined) {
-                            error.push("negative", [responseErrorMessage]);
-                            return;
-                        }
-                        if (errorMessage != undefined) {
-                            error.push("negative", [errorMessage]);
-                            return;
-                        }
-                        error.push("negative", ["Unknown error"]);
+                        setIsLoading(false);
+                        error_handling_1.handleError(error, err);
                     });
                 } }, "Submit")),
         React.createElement("div", { className: "ui segment" },
@@ -1213,6 +1328,17 @@ exports.ConversationEditPage = ConversationEditPage;
 
 "use strict";
 
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
         to[j] = from[i];
@@ -1224,29 +1350,65 @@ var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
 //import { Conversation } from "./ConversationForm";
 function ConversationListPage() {
     var history = reactRouter.useHistory();
     var _a = React.useState(localStorageUtil.loadConversationsMeta()), conversations = _a[0], setConversations = _a[1];
     return React.createElement("div", { className: "ui main container" },
-        React.createElement("div", { className: "ui segment divided selection massive list" }, conversations.map(function (f) {
-            return React.createElement("div", { className: "item", key: f.uuid, onClick: function () {
-                    history.push("/conversation/" + f.uuid + "/edit");
+        React.createElement("div", { className: "ui segment divided selection massive list" }, conversations.map(function (meta) {
+            var displayName = meta.name.trim() == "" ?
+                "Conversation " + meta.uuid :
+                meta.name;
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: function () {
+                    history.push("/conversation/" + meta.uuid + "/edit");
                 } },
+                React.createElement("div", { className: "extra right floated" },
+                    React.createElement("div", { className: "ui icon secondary button", onClick: function (evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm("Copy " + displayName + "?")) {
+                                var existingConversation = localStorageUtil.loadConversation(meta.uuid);
+                                if (existingConversation == undefined) {
+                                    alert("Cannot find " + displayName + " / " + meta.uuid);
+                                    return;
+                                }
+                                var newUuid = uuid.v4();
+                                var newConversation = __assign(__assign({}, existingConversation), { uuid: newUuid, name: "Copy of " + displayName });
+                                var newConversations = __spreadArray(__spreadArray([], localStorageUtil.loadConversationsMeta()), [
+                                    __assign(__assign({}, meta), { uuid: newUuid, name: "Copy of " + displayName }),
+                                ]);
+                                setConversations(newConversations);
+                                localStorageUtil.saveConversationsMeta(newConversations);
+                                localStorageUtil.saveConversation(newConversation);
+                            }
+                        } },
+                        React.createElement("i", { className: "copy icon" })),
+                    React.createElement("div", { className: "ui icon red button", onClick: function (evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm("Delete " + displayName + "?")) {
+                                var newConversations = localStorageUtil.loadConversationsMeta()
+                                    .filter(function (m) { return m.uuid != meta.uuid; });
+                                setConversations(newConversations);
+                                localStorageUtil.saveConversationsMeta(newConversations);
+                                localStorageUtil.deleteConversation(meta);
+                            }
+                        } },
+                        React.createElement("i", { className: "trash icon" }))),
                 React.createElement("div", { className: "content" },
-                    React.createElement("div", { className: "header" }, f.name.trim() == "" ?
-                        "Conversation " + f.uuid :
-                        f.name),
-                    React.createElement("div", { className: "ui mini label" }, f.uuid),
-                    f.description.trim() == "" ?
+                    React.createElement("div", { className: "header" }, displayName),
+                    React.createElement("div", { className: "ui mini label" }, meta.uuid),
+                    meta.description.trim() == "" ?
                         React.createElement("small", { className: "description" }, "There is no description for this conversation") :
-                        React.createElement("div", { className: "description" }, f.description),
-                    f.lastMessage.trim() == "" ?
+                        React.createElement("div", { className: "description" }, meta.description),
+                    meta.lastMessage.trim() == "" ?
                         undefined :
-                        React.createElement("div", { className: "description" }, f.lastMessage)));
+                        React.createElement("div", { className: "description one-line-ellipsis small-description" },
+                            "Last Message: ",
+                            meta.lastMessage)));
         })),
         React.createElement("button", { className: "ui primary button", onClick: function () {
+                var models = localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
                 var conversations = localStorageUtil.loadConversationsMeta();
                 var meta = {
                     uuid: uuid.v4(),
@@ -1263,13 +1425,18 @@ function ConversationListPage() {
                     name: meta.name,
                     description: meta.description,
                     rawChatRequestConfig: {
-                        model: ChatRequestConfigUx_1.chatModels[0],
+                        model: models.length > 0 ?
+                            models[0].id :
+                            "",
                         temperature: 1,
                         max_tokens: 256,
                         stop: "",
                         top_p: 1,
                         frequency_penalty: 0,
                         presence_penalty: 0,
+                        response_format: {
+                            type: "text",
+                        },
                     },
                     messages: [],
                     usedFunctions: {},
@@ -1356,7 +1523,7 @@ function ErrorMessage(props) {
         return React.createElement("div", { className: "ui hidden message" });
     }
     else {
-        return (React.createElement("div", { className: "ui icon message " + error.type },
+        return (React.createElement("div", { className: "ui icon message " + error.type, style: { display: "flex" } },
             React.createElement("i", { className: "exclamation triangle icon" }),
             React.createElement("div", { className: "content" },
                 React.createElement("div", { className: "header" }, error.type == "warning" ? "Warning" : "Error"),
@@ -1822,6 +1989,67 @@ exports.MessageListForm = MessageListForm;
 
 /***/ }),
 
+/***/ "./src/client-public/ModelListPage.tsx":
+/*!*********************************************!*\
+  !*** ./src/client-public/ModelListPage.tsx ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ModelListPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+var use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+var error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
+function ModelListPage(props) {
+    var _a = React.useState(localStorageUtil.loadModels()), models = _a[0], setModels = _a[1];
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment divided selection massive list" }, models.map(function (f) {
+            return React.createElement("div", { className: "item", key: f.id },
+                React.createElement("div", { className: "content" },
+                    React.createElement("div", { className: "header" }, f.id),
+                    React.createElement("div", { className: "ui mini label" }, f.created),
+                    React.createElement("div", { className: "ui mini label" }, new Date(f.created * 1000).toISOString()),
+                    React.createElement("div", { className: "ui mini label" }, f.owned_by)));
+        })),
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+                if (isLoading) {
+                    return;
+                }
+                setIsLoading(true);
+                props.openAiApi.model.list()
+                    .send()
+                    .then(function (res) {
+                    var arr = __spreadArray([], res.responseBody.data);
+                    arr.sort(function (a, b) {
+                        return b.created - a.created;
+                    });
+                    setIsLoading(false);
+                    setModels(arr);
+                    localStorageUtil.saveModels(arr);
+                    error.reset();
+                }, function (err) {
+                    setIsLoading(false);
+                    error_handling_1.handleError(error, err);
+                });
+            } }, "Update"));
+}
+exports.ModelListPage = ModelListPage;
+
+
+/***/ }),
+
 /***/ "./src/client-public/ToolCallForm.tsx":
 /*!********************************************!*\
   !*** ./src/client-public/ToolCallForm.tsx ***!
@@ -1989,6 +2217,49 @@ exports.ToolResponseMessageForm = ToolResponseMessageForm;
 
 /***/ }),
 
+/***/ "./src/client-public/error-handling.ts":
+/*!*********************************************!*\
+  !*** ./src/client-public/error-handling.ts ***!
+  \*********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handleError = void 0;
+function handleError(error, err) {
+    var _a, _b;
+    console.log(Object.getOwnPropertyNames(err));
+    console.log(err);
+    var propertyErrors = err === null || err === void 0 ? void 0 : err.propertyErrors;
+    if (propertyErrors instanceof Array) {
+        for (var _i = 0, propertyErrors_1 = propertyErrors; _i < propertyErrors_1.length; _i++) {
+            var propertyError = propertyErrors_1[_i];
+            error.push("negative", [
+                String(propertyError) + " (" + propertyError.actualValue + ")"
+            ]);
+        }
+        return;
+    }
+    var responseBody = (_a = err === null || err === void 0 ? void 0 : err.sendResult) === null || _a === void 0 ? void 0 : _a.responseBody;
+    var responseErrorMessage = (_b = responseBody === null || responseBody === void 0 ? void 0 : responseBody.error) === null || _b === void 0 ? void 0 : _b.message;
+    var errorMessage = err === null || err === void 0 ? void 0 : err.message;
+    if (responseErrorMessage != undefined) {
+        error.push("negative", [responseErrorMessage]);
+        return;
+    }
+    if (errorMessage != undefined) {
+        error.push("negative", [errorMessage]);
+        return;
+    }
+    error.push("negative", ["Unknown error"]);
+}
+exports.handleError = handleError;
+
+
+/***/ }),
+
 /***/ "./src/client-public/local-storage-util.ts":
 /*!*************************************************!*\
   !*** ./src/client-public/local-storage-util.ts ***!
@@ -1999,7 +2270,7 @@ exports.ToolResponseMessageForm = ToolResponseMessageForm;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
+exports.saveModels = exports.loadModels = exports.deleteConversation = exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.removeItem = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
 function localStorageSupported() {
     return ("localStorage" in self);
 }
@@ -2016,6 +2287,12 @@ function setItem(key, value) {
     }
 }
 exports.setItem = setItem;
+function removeItem(key) {
+    if (localStorageSupported()) {
+        localStorage.removeItem(key);
+    }
+}
+exports.removeItem = removeItem;
 /**
  * https://stackoverflow.com/questions/4391575/how-to-find-the-size-of-localstorage
  * @returns
@@ -2042,6 +2319,7 @@ var LocalStorageKey;
     LocalStorageKey["FUNCTION_TOOLS"] = "FUNCTION_TOOLS";
     LocalStorageKey["CONVERSATIONS_META"] = "CONVERSATIONS_META";
     LocalStorageKey["CONVERSATION"] = "CONVERSATION";
+    LocalStorageKey["MODELS"] = "MODELS";
 })(LocalStorageKey = exports.LocalStorageKey || (exports.LocalStorageKey = {}));
 function loadFunctionTools() {
     var _a;
@@ -2066,7 +2344,7 @@ function saveConversationsMeta(conversationsMeta) {
 }
 exports.saveConversationsMeta = saveConversationsMeta;
 function loadConversation(uuid) {
-    var _a, _b;
+    var _a, _b, _c;
     var str = getItem(LocalStorageKey.CONVERSATION + "_" + uuid);
     if (str == undefined) {
         return undefined;
@@ -2074,6 +2352,9 @@ function loadConversation(uuid) {
     var result = JSON.parse(str);
     result.messages = (_a = result.messages) !== null && _a !== void 0 ? _a : [];
     result.usedFunctions = (_b = result.usedFunctions) !== null && _b !== void 0 ? _b : {};
+    result.rawChatRequestConfig.response_format = (_c = result.rawChatRequestConfig.response_format) !== null && _c !== void 0 ? _c : {
+        type: "text",
+    };
     return result;
 }
 exports.loadConversation = loadConversation;
@@ -2081,6 +2362,23 @@ function saveConversation(conversation) {
     return setItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid, JSON.stringify(conversation));
 }
 exports.saveConversation = saveConversation;
+function deleteConversation(conversation) {
+    return removeItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid);
+}
+exports.deleteConversation = deleteConversation;
+function loadModels() {
+    var str = getItem(LocalStorageKey.MODELS);
+    if (str == undefined) {
+        return [];
+    }
+    var result = JSON.parse(str);
+    return result;
+}
+exports.loadModels = loadModels;
+function saveModels(models) {
+    return setItem(LocalStorageKey.MODELS, JSON.stringify(models));
+}
+exports.saveModels = saveModels;
 
 
 /***/ }),

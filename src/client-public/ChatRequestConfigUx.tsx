@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as localStorageUtil from "./local-storage-util";
+import { ErrorMessage } from "./ErrorMessage";
 //import * as openAiMapper from "../api-openai-mapper";
 
 export interface RawChatRequestConfig {
@@ -9,13 +11,15 @@ export interface RawChatRequestConfig {
     top_p : number,
     frequency_penalty : number,
     presence_penalty : number,
+    response_format : {
+        type : typeof responseFormatTypes[number],
+    },
 }
 
-export const chatModels = [
-    "gpt-3.5-turbo-1106",
-    "gpt-4-1106-preview",
-    "gpt-4-1106-vision-preview",
-];
+export const responseFormatTypes = [
+    "text",
+    "json_object",
+] as const;
 
 export interface ChatRequestConfigUxProps {
     config : RawChatRequestConfig;
@@ -28,6 +32,12 @@ export function ChatRequestConfigUx (props : ChatRequestConfigUxProps) {
         config,
         onConfigChange,
     } = props;
+    const [
+        models,
+        //setModels,
+    ] = React.useState(() => {
+        return localStorageUtil.loadModels().filter(model => model.id.startsWith("gpt"));
+    });
 
     return <div className="ui form">
         <div className="field">
@@ -41,12 +51,55 @@ export function ChatRequestConfigUx (props : ChatRequestConfigUxProps) {
                     });
                 }}
             >
-                {chatModels.map(chatModel => {
-                    return <option key={chatModel} value={chatModel}>
-                        {chatModel}
+                <option key={"none"} value={""} disabled>
+                    Select a Model
+                </option>
+                {models.map(model => {
+                    return <option key={model.id} value={model.id}>
+                        {model.id} - ({new Date(model.created * 1000).toISOString()})
                     </option>
                 })}
             </select>
+        </div>
+        <div className="field">
+            <label
+                data-tooltip="When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message."
+                data-position="top left"
+                data-inverted
+            >
+                Response Format <i className="question circle icon"></i>
+            </label>
+            <select
+                value={config.response_format.type}
+                onChange={(evt) => {
+                    onConfigChange({
+                        ...config,
+                        response_format : {
+                            type : evt.target.value as typeof responseFormatTypes[number],
+                        },
+                    });
+                }}
+            >
+                {responseFormatTypes.map(responeFormatType => {
+                    return <option key={responeFormatType} value={responeFormatType}>
+                        {responeFormatType}
+                    </option>
+                })}
+            </select>
+            {
+                config.response_format.type == "json_object" ?
+                <ErrorMessage
+                    error={{
+                        messages : [
+                            "When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message.",
+                            "Without this, the model may generate an unending stream of whitespace until the generation reaches the token limit, resulting in a long-running and seemingly \"stuck\" request.",
+                            "Also note that the message content may be partially cut off if finish_reason=\"length\", which indicates the generation exceeded max_tokens or the conversation exceeded the max context length.",
+                        ],
+                        type : "warning",
+                    }}
+                /> :
+                undefined
+            }
         </div>
         <div className="field">
             <label>Temperature</label>
