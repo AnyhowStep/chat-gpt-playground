@@ -754,6 +754,8 @@ var FunctionToolEditPage_1 = __webpack_require__(/*! ./FunctionToolEditPage */ "
 var ConversationListPage_1 = __webpack_require__(/*! ./ConversationListPage */ "./src/client-public/ConversationListPage.tsx");
 var ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
 var ModelListPage_1 = __webpack_require__(/*! ./ModelListPage */ "./src/client-public/ModelListPage.tsx");
+var SelfDiscoverListPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverListPage */ "./src/client-public/self-discover/SelfDiscoverListPage.tsx");
+var SelfDiscoverEditPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverEditPage */ "./src/client-public/self-discover/SelfDiscoverEditPage.tsx");
 function App(_props) {
     var sidebar = use_dropdown_1.useDropdown({
         openClassName: "uncover visible",
@@ -777,7 +779,8 @@ function App(_props) {
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/api-key" }, "API Key"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/function-tool" }, "Function Tools"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/model" }, "Models"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/conversation" }, "Conversations")))),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/conversation" }, "Conversations"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/self-discover" }, "Self-Discovers")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
             React.createElement(react_router_dom_1.Switch, null,
@@ -787,6 +790,8 @@ function App(_props) {
                 React.createElement(react_router_dom_1.Route, { path: "/model", component: function () { return React.createElement(ModelListPage_1.ModelListPage, { openAiApi: _props.openAiApi }); } }),
                 React.createElement(react_router_dom_1.Route, { path: "/conversation/:uuid/edit", component: function () { return React.createElement(ConversationEditPage_1.ConversationEditPage, { openAiApi: _props.openAiApi }); } }),
                 React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/self-discover/:uuid/edit", component: function () { return React.createElement(SelfDiscoverEditPage_1.SelfDiscoverEditPage, { openAiApi: _props.openAiApi }); } }),
+                React.createElement(react_router_dom_1.Route, { path: "/self-discover", component: SelfDiscoverListPage_1.SelfDiscoverListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
 }
 exports.App = App;
@@ -1061,7 +1066,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from) {
     return to;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConversationEditPage = void 0;
+exports.ConversationEditPage = exports.submitConversation = void 0;
 var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
@@ -1213,6 +1218,7 @@ function submitConversation(openAiApi, conversation, functionTools) {
         });
     });
 }
+exports.submitConversation = submitConversation;
 function ConversationEditPage(props) {
     var routeParams = reactRouter.useParams();
     var _a = React.useState(localStorageUtil.loadConversation(routeParams.uuid)), conversation = _a[0], setConversation = _a[1];
@@ -1264,7 +1270,7 @@ function ConversationEditPage(props) {
                             setConversation(__assign(__assign({}, conversation), { name: evt.target.value }));
                         } })),
                 React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Descriptio"),
+                    React.createElement("label", null, "Description"),
                     React.createElement("input", { placeholder: "Enter a Conversation Description", value: conversation.description, onChange: function (evt) {
                             setConversation(__assign(__assign({}, conversation), { description: evt.target.value }));
                         } })))),
@@ -1408,39 +1414,13 @@ function ConversationListPage() {
                             meta.lastMessage)));
         })),
         React.createElement("button", { className: "ui primary button", onClick: function () {
-                var models = localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
                 var conversations = localStorageUtil.loadConversationsMeta();
-                var meta = {
-                    uuid: uuid.v4(),
-                    name: "",
-                    description: "",
-                    lastMessage: "",
-                };
+                var _a = localStorageUtil.makeConversation(), meta = _a.meta, conversation = _a.conversation;
                 var newConversations = __spreadArray(__spreadArray([], conversations), [
                     meta,
                 ]);
                 localStorageUtil.saveConversationsMeta(newConversations);
-                localStorageUtil.saveConversation({
-                    uuid: meta.uuid,
-                    name: meta.name,
-                    description: meta.description,
-                    rawChatRequestConfig: {
-                        model: models.length > 0 ?
-                            models[0].id :
-                            "",
-                        temperature: 1,
-                        max_tokens: 256,
-                        stop: "",
-                        top_p: 1,
-                        frequency_penalty: 0,
-                        presence_penalty: 0,
-                        response_format: {
-                            type: "text",
-                        },
-                    },
-                    messages: [],
-                    usedFunctions: {},
-                });
+                localStorageUtil.saveConversation(conversation);
                 setConversations(newConversations);
             } }, "Create Conversation"));
 }
@@ -2269,8 +2249,20 @@ exports.handleError = handleError;
 
 "use strict";
 
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveModels = exports.loadModels = exports.deleteConversation = exports.saveConversation = exports.loadConversation = exports.saveConversationsMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.removeItem = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
+exports.saveModels = exports.loadModels = exports.deleteSelfDiscover = exports.deleteConversation = exports.saveSelfDiscover = exports.saveConversation = exports.loadSelfDiscover = exports.loadConversation = exports.makeSelfDiscoverTask = exports.makeSelfDiscover = exports.makeConversation = exports.saveSelfDiscoversMeta = exports.saveConversationsMeta = exports.loadSelfDiscoversMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.removeItem = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 function localStorageSupported() {
     return ("localStorage" in self);
 }
@@ -2320,6 +2312,8 @@ var LocalStorageKey;
     LocalStorageKey["CONVERSATIONS_META"] = "CONVERSATIONS_META";
     LocalStorageKey["CONVERSATION"] = "CONVERSATION";
     LocalStorageKey["MODELS"] = "MODELS";
+    LocalStorageKey["SELF_DISCOVERS_META"] = "SELF_DISCOVERS_META";
+    LocalStorageKey["SELF_DISCOVER"] = "SELF_DISCOVER";
 })(LocalStorageKey = exports.LocalStorageKey || (exports.LocalStorageKey = {}));
 function loadFunctionTools() {
     var _a;
@@ -2339,10 +2333,92 @@ function loadConversationsMeta() {
     return JSON.parse((_a = getItem(LocalStorageKey.CONVERSATIONS_META)) !== null && _a !== void 0 ? _a : "[]");
 }
 exports.loadConversationsMeta = loadConversationsMeta;
+function loadSelfDiscoversMeta() {
+    var _a;
+    return JSON.parse((_a = getItem(LocalStorageKey.SELF_DISCOVERS_META)) !== null && _a !== void 0 ? _a : "[]");
+}
+exports.loadSelfDiscoversMeta = loadSelfDiscoversMeta;
 function saveConversationsMeta(conversationsMeta) {
     return setItem(LocalStorageKey.CONVERSATIONS_META, JSON.stringify(conversationsMeta));
 }
 exports.saveConversationsMeta = saveConversationsMeta;
+function saveSelfDiscoversMeta(selfDiscoversMeta) {
+    return setItem(LocalStorageKey.SELF_DISCOVERS_META, JSON.stringify(selfDiscoversMeta));
+}
+exports.saveSelfDiscoversMeta = saveSelfDiscoversMeta;
+function makeConversation(customUuid) {
+    if (customUuid === void 0) { customUuid = undefined; }
+    var models = loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
+    var meta = {
+        uuid: customUuid !== null && customUuid !== void 0 ? customUuid : uuid.v4(),
+        name: "",
+        description: "",
+        lastMessage: "",
+    };
+    var conversation = {
+        uuid: meta.uuid,
+        name: meta.name,
+        description: meta.description,
+        rawChatRequestConfig: {
+            model: models.length > 0 ?
+                models[0].id :
+                "",
+            temperature: 1,
+            max_tokens: 256,
+            stop: "",
+            top_p: 1,
+            frequency_penalty: 0,
+            presence_penalty: 0,
+            response_format: {
+                type: "text",
+            },
+        },
+        messages: [],
+        usedFunctions: {},
+    };
+    return {
+        conversation: conversation,
+        meta: meta,
+    };
+}
+exports.makeConversation = makeConversation;
+function makeSelfDiscover() {
+    var meta = {
+        uuid: uuid.v4(),
+        name: "",
+        description: "",
+    };
+    var models = loadModels().filter(function (model) { return model.id.startsWith("gpt-4"); });
+    var selfDiscover = {
+        uuid: meta.uuid,
+        name: meta.name,
+        description: meta.description,
+        model: models.length > 0 ?
+            models[0].id :
+            "",
+        tasks: [],
+        selectConversation: undefined,
+        adaptConversation: undefined,
+        implementConversation: undefined,
+        selectResult: undefined,
+    };
+    loadOrMakeSelfDiscoverConversations(selfDiscover);
+    return {
+        selfDiscover: selfDiscover,
+        meta: meta,
+    };
+}
+exports.makeSelfDiscover = makeSelfDiscover;
+function makeSelfDiscoverTask(selfDiscoverUuid) {
+    var taskUuid = uuid.v4();
+    return {
+        uuid: taskUuid,
+        useAsExample: true,
+        problemStatement: "",
+        executeConversation: makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscoverUuid + "_task_" + taskUuid + "_execute").conversation,
+    };
+}
+exports.makeSelfDiscoverTask = makeSelfDiscoverTask;
 function loadConversation(uuid) {
     var _a, _b, _c;
     var str = getItem(LocalStorageKey.CONVERSATION + "_" + uuid);
@@ -2358,14 +2434,69 @@ function loadConversation(uuid) {
     return result;
 }
 exports.loadConversation = loadConversation;
+function loadOrMakeSelfDiscoverConversations(selfDiscover) {
+    var _a, _b, _c, _d;
+    selfDiscover.selectConversation = ((_a = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_select")) !== null && _a !== void 0 ? _a : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_select").conversation);
+    selfDiscover.adaptConversation = ((_b = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_adapt")) !== null && _b !== void 0 ? _b : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_adapt").conversation);
+    selfDiscover.implementConversation = ((_c = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_implement")) !== null && _c !== void 0 ? _c : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_implement").conversation);
+    for (var _i = 0, _e = selfDiscover.tasks; _i < _e.length; _i++) {
+        var task = _e[_i];
+        task.executeConversation = ((_d = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_task_" + task.uuid + "_execute")) !== null && _d !== void 0 ? _d : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_task_" + task.uuid + "_execute").conversation);
+    }
+}
+function loadSelfDiscover(uuid) {
+    var str = getItem(LocalStorageKey.SELF_DISCOVER + "_" + uuid);
+    if (str == undefined) {
+        return undefined;
+    }
+    var result = JSON.parse(str);
+    loadOrMakeSelfDiscoverConversations(result);
+    for (var _i = 0, _a = result.tasks; _i < _a.length; _i++) {
+        var task = _a[_i];
+        if (task.useAsExample == undefined) {
+            task.useAsExample = task.includeInPrompt;
+        }
+    }
+    return result;
+}
+exports.loadSelfDiscover = loadSelfDiscover;
 function saveConversation(conversation) {
     return setItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid, JSON.stringify(conversation));
 }
 exports.saveConversation = saveConversation;
+function saveSelfDiscover(selfDiscover) {
+    saveConversation(selfDiscover.selectConversation);
+    saveConversation(selfDiscover.adaptConversation);
+    saveConversation(selfDiscover.implementConversation);
+    for (var _i = 0, _a = selfDiscover.tasks; _i < _a.length; _i++) {
+        var task = _a[_i];
+        saveConversation(task.executeConversation);
+    }
+    var minSelfDiscover = __assign(__assign({}, selfDiscover), { selectConversation: undefined, adaptConversation: undefined, implementConversation: undefined, tasks: selfDiscover.tasks.map(function (t) {
+            return __assign(__assign({}, t), { executeConversation: undefined });
+        }) });
+    return setItem(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid, JSON.stringify(minSelfDiscover));
+}
+exports.saveSelfDiscover = saveSelfDiscover;
 function deleteConversation(conversation) {
     return removeItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid);
 }
 exports.deleteConversation = deleteConversation;
+function deleteSelfDiscover(self_discover_id) {
+    var selfDiscover = loadSelfDiscover(self_discover_id.uuid);
+    if (selfDiscover == undefined) {
+        return;
+    }
+    deleteConversation(selfDiscover.selectConversation);
+    deleteConversation(selfDiscover.adaptConversation);
+    deleteConversation(selfDiscover.implementConversation);
+    for (var _i = 0, _a = selfDiscover.tasks; _i < _a.length; _i++) {
+        var task = _a[_i];
+        deleteConversation(task.executeConversation);
+    }
+    return removeItem(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid);
+}
+exports.deleteSelfDiscover = deleteSelfDiscover;
 function loadModels() {
     var str = getItem(LocalStorageKey.MODELS);
     if (str == undefined) {
@@ -2436,6 +2567,1178 @@ var openAiApi = new api_openai_1.OpenAiApi({
     apiKey: (_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : "",
 });
 ReactDOM.render(React.createElement(App_1.App, { openAiApi: openAiApi }), document.getElementById("app"));
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx":
+/*!******************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverAdaptTab = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+function SelfDiscoverAdaptTab(props) {
+    var _this = this;
+    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    var history = reactRouter.useHistory();
+    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    React.useEffect(function () {
+        var timer = setTimeout(function () {
+            setPrompt(buildPrompt(selfDiscover));
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [selfDiscover]);
+    return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Prompt"),
+                React.createElement("textarea", { value: prompt, readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } })),
+            selfDiscover.adaptResult == undefined ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Adapted Reasoning Modules"),
+                    React.createElement("textarea", { value: JSON.stringify(selfDiscover.adaptResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
+        React.createElement("br", null),
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
+                var conversationA, conversationB, conversationC, conversationD, lastMessage, parsed, validated, err_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (isLoading) {
+                                return [2 /*return*/];
+                            }
+                            conversationA = __assign(__assign({}, selfDiscover.adaptConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.adaptConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
+                                        type: "text",
+                                    }, temperature: 0, max_tokens: 1024 }), messages: [
+                                    {
+                                        uuid: uuid.v4(),
+                                        messageType: "user",
+                                        role: "user",
+                                        content: prompt,
+                                    },
+                                ] });
+                            setIsLoading(true);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 4, , 5]);
+                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
+                        case 2:
+                            conversationB = _a.sent();
+                            conversationC = __assign(__assign({}, conversationB), { rawChatRequestConfig: __assign(__assign({}, conversationB.rawChatRequestConfig), { response_format: {
+                                        type: "json_object",
+                                    } }), messages: __spreadArray(__spreadArray([], conversationB.messages), [
+                                    {
+                                        uuid: uuid.v4(),
+                                        messageType: "user",
+                                        role: "user",
+                                        content: convertPrompt,
+                                    },
+                                ]) });
+                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationC, [])];
+                        case 3:
+                            conversationD = _a.sent();
+                            setIsLoading(false);
+                            lastMessage = conversationD.messages[conversationD.messages.length - 1];
+                            if (lastMessage.role != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
+                                return [2 /*return*/];
+                            }
+                            if (lastMessage.messageType != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
+                                return [2 /*return*/];
+                            }
+                            parsed = {};
+                            try {
+                                parsed = JSON.parse(lastMessage.content);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            validated = void 0;
+                            try {
+                                validated = adaptResultMapper("result", parsed);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { adaptConversation: conversationD, adaptResult: validated }));
+                            error.reset();
+                            return [3 /*break*/, 5];
+                        case 4:
+                            err_1 = _a.sent();
+                            setIsLoading(false);
+                            error_handling_1.handleError(error, err_1);
+                            return [3 /*break*/, 5];
+                        case 5: return [2 /*return*/];
+                    }
+                });
+            }); } }, "Adapt Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                history.push("/conversation/" + selfDiscover.adaptConversation.uuid + "/edit");
+            } }, "View Conversation"));
+}
+exports.SelfDiscoverAdaptTab = SelfDiscoverAdaptTab;
+function buildPrompt(selfDiscover) {
+    var _a;
+    var exampleTasks = selfDiscover.tasks
+        .filter(function (t) { return t.useAsExample; })
+        .filter(function (t) { return t.problemStatement.trim() != ""; })
+        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+        .join("\n\n");
+    var selectedModules = (_a = selfDiscover.selectResult) === null || _a === void 0 ? void 0 : _a.selected_reasoning_modules.map(function (i) { return "+ " + i; }).join("\n");
+    return "Rephrase and specify each reasoning module so that it better helps with solving the task:\n\n### Selected module descriptions\n\n" + selectedModules + "\n\n" + exampleTasks + "\n\n### Instructions\n\nAdapt each reasoning module description to better solve the tasks";
+}
+var convertPrompt = "Convert your response into a JSON object with the following properties,\n+ reasoning_modules : ReasoningModule[] - an array containing the rephrased and specified reasoning modules\n\ninterface ReasoningModule {\n  name : string;\n  description : string;\n}";
+var adaptResultMapper = tm.object({
+    reasoning_modules: tm.array(tm.object({
+        name: tm.string(),
+        description: tm.string(),
+    })),
+});
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverEditPage.tsx":
+/*!******************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverEditPage.tsx ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverEditPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+var ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+var SelfDiscoverTaskTab_1 = __webpack_require__(/*! ./SelfDiscoverTaskTab */ "./src/client-public/self-discover/SelfDiscoverTaskTab.tsx");
+var SelfDiscoverSelectTab_1 = __webpack_require__(/*! ./SelfDiscoverSelectTab */ "./src/client-public/self-discover/SelfDiscoverSelectTab.tsx");
+var SelfDiscoverAdaptTab_1 = __webpack_require__(/*! ./SelfDiscoverAdaptTab */ "./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx");
+var SelfDiscoverImplementTab_1 = __webpack_require__(/*! ./SelfDiscoverImplementTab */ "./src/client-public/self-discover/SelfDiscoverImplementTab.tsx");
+var SelfDiscoverExecuteTab_1 = __webpack_require__(/*! ./SelfDiscoverExecuteTab */ "./src/client-public/self-discover/SelfDiscoverExecuteTab.tsx");
+var TabType;
+(function (TabType) {
+    TabType["Tasks"] = "Tasks";
+    TabType["Select"] = "Select";
+    TabType["Adapt"] = "Adapt";
+    TabType["Implement"] = "Implement";
+    TabType["Execute"] = "Execute";
+})(TabType || (TabType = {}));
+function SelfDiscoverEditPage(props) {
+    var openAiApi = props.openAiApi;
+    var routeParams = reactRouter.useParams();
+    var _a = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid)), selfDiscover = _a[0], setSelfDiscover = _a[1];
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    var _c = React.useState(TabType.Tasks), tapType = _c[0], setTabType = _c[1];
+    var models = React.useState(function () {
+        return localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
+    })[0];
+    React.useEffect(function () {
+        if (selfDiscover == undefined) {
+            return;
+        }
+        var timer = setTimeout(function () {
+            localStorageUtil.saveSelfDiscover(selfDiscover);
+            var meta = localStorageUtil.loadSelfDiscoversMeta().map(function (m) {
+                return m.uuid == selfDiscover.uuid ?
+                    {
+                        uuid: selfDiscover.uuid,
+                        name: selfDiscover.name,
+                        description: selfDiscover.description,
+                    } :
+                    m;
+            });
+            localStorageUtil.saveSelfDiscoversMeta(meta);
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [selfDiscover]);
+    if (selfDiscover == undefined) {
+        return React.createElement("div", { className: "ui main container" },
+            "Self-Discover ",
+            routeParams.uuid,
+            " not found");
+    }
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Title"),
+                    React.createElement("input", { placeholder: "Enter a Self-Discover Title", value: selfDiscover.name, onChange: function (evt) {
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { name: evt.target.value }));
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Description"),
+                    React.createElement("input", { placeholder: "Enter a Self-Discover Description", value: selfDiscover.description, onChange: function (evt) {
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { description: evt.target.value }));
+                        } })))),
+        React.createElement("div", { className: "ui top attached tabular menu" }, [
+            TabType.Tasks,
+            TabType.Select,
+            TabType.Adapt,
+            TabType.Implement,
+            TabType.Execute,
+        ].map(function (t) {
+            return React.createElement("div", { key: t, className: classNames("item", tapType == t ? "active" : undefined), onClick: function () { return setTabType(t); } }, t);
+        })),
+        React.createElement(SelfDiscoverTaskTab_1.SelfDiscoverTaskTab, { active: tapType == TabType.Tasks, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
+        React.createElement(SelfDiscoverSelectTab_1.SelfDiscoverSelectTab, { openAiApi: openAiApi, active: tapType == TabType.Select, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
+        React.createElement(SelfDiscoverAdaptTab_1.SelfDiscoverAdaptTab, { openAiApi: openAiApi, active: tapType == TabType.Adapt, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
+        React.createElement(SelfDiscoverImplementTab_1.SelfDiscoverImplementTab, { openAiApi: openAiApi, active: tapType == TabType.Implement, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
+        React.createElement(SelfDiscoverExecuteTab_1.SelfDiscoverExecuteTab, { openAiApi: openAiApi, active: tapType == TabType.Execute, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
+        React.createElement("div", { className: "ui segment" },
+            React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
+            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+                    if (isLoading) {
+                        return;
+                    }
+                    setIsLoading(true);
+                } }, "Submit")),
+        React.createElement("div", { className: "ui segment" },
+            React.createElement("div", { className: "ui form" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Model"),
+                    React.createElement("select", { value: selfDiscover.model, onChange: function (evt) {
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { model: evt.target.value }));
+                        } },
+                        React.createElement("option", { key: "none", value: "", disabled: true }, "Select a Model"),
+                        models.map(function (model) {
+                            return React.createElement("option", { key: model.id, value: model.id },
+                                model.id,
+                                " - (",
+                                new Date(model.created * 1000).toISOString(),
+                                ")");
+                        }))))));
+}
+exports.SelfDiscoverEditPage = SelfDiscoverEditPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverExecuteTab.tsx":
+/*!********************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverExecuteTab.tsx ***!
+  \********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverExecuteTab = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+var SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
+var ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+function SelfDiscoverExecuteTab(props) {
+    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
+        selfDiscover.implementResult == undefined ?
+            React.createElement(ErrorMessage_1.ErrorMessage, { error: {
+                    type: "negative",
+                    messages: [
+                        "No Implement Result found",
+                    ],
+                } }) :
+            React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: function (newTasks) {
+                    setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: newTasks }));
+                }, executeConfig: {
+                    openAiApi: openAiApi,
+                    implementResult: selfDiscover.implementResult,
+                    model: selfDiscover.model,
+                } }),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: __spreadArray(__spreadArray([], selfDiscover.tasks), [
+                        localStorageUtil.makeSelfDiscoverTask(selfDiscover.uuid),
+                    ]) }));
+            } }, "Add Task"));
+}
+exports.SelfDiscoverExecuteTab = SelfDiscoverExecuteTab;
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverImplementTab.tsx":
+/*!**********************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverImplementTab.tsx ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverImplementTab = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+function SelfDiscoverImplementTab(props) {
+    var _this = this;
+    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    var history = reactRouter.useHistory();
+    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    React.useEffect(function () {
+        var timer = setTimeout(function () {
+            setPrompt(buildPrompt(selfDiscover));
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [selfDiscover]);
+    return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Prompt"),
+                React.createElement("textarea", { value: prompt, readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } })),
+            selfDiscover.implementResult == undefined ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Implemented Reasoning Modules"),
+                    React.createElement("textarea", { value: JSON.stringify(selfDiscover.implementResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
+        React.createElement("br", null),
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
+                var conversationA, conversationB, lastMessage, parsed, validated, err_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (isLoading) {
+                                return [2 /*return*/];
+                            }
+                            conversationA = __assign(__assign({}, selfDiscover.implementConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.implementConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
+                                        type: "json_object",
+                                    }, temperature: 0, max_tokens: 1024 }), messages: [
+                                    {
+                                        uuid: uuid.v4(),
+                                        messageType: "user",
+                                        role: "user",
+                                        content: prompt,
+                                    },
+                                ] });
+                            setIsLoading(true);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
+                        case 2:
+                            conversationB = _a.sent();
+                            setIsLoading(false);
+                            lastMessage = conversationB.messages[conversationB.messages.length - 1];
+                            if (lastMessage.role != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
+                                return [2 /*return*/];
+                            }
+                            if (lastMessage.messageType != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
+                                return [2 /*return*/];
+                            }
+                            parsed = {};
+                            try {
+                                parsed = JSON.parse(lastMessage.content);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            validated = void 0;
+                            try {
+                                validated = implementResultMapper("result", parsed);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { implementConversation: conversationB, implementResult: validated }));
+                            error.reset();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            err_1 = _a.sent();
+                            setIsLoading(false);
+                            error_handling_1.handleError(error, err_1);
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/];
+                    }
+                });
+            }); } }, "Implement Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                history.push("/conversation/" + selfDiscover.implementConversation.uuid + "/edit");
+            } }, "View Conversation"));
+}
+exports.SelfDiscoverImplementTab = SelfDiscoverImplementTab;
+function buildPrompt(selfDiscover) {
+    var _a;
+    var exampleTasks = selfDiscover.tasks
+        .filter(function (t) { return t.useAsExample; })
+        .filter(function (t) { return t.problemStatement.trim() != ""; })
+        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+        .join("\n\n");
+    var adaptedModules = (_a = selfDiscover.adaptResult) === null || _a === void 0 ? void 0 : _a.reasoning_modules.map(function (i) { return "#### " + i.name + "\n" + i.description; }).join("\n\n");
+    return "Operationalize the reasoning modules into a step-by-step reasoning plan in JSON format:\n\n### Adapted module description\n\n" + adaptedModules + "\n\n" + exampleTasks + "\n\n### Instructions\n\nImplement a reasoning structure for solvers to follow step-by-step and arrive at correct answers.\n\nThe JSON object should have properties,\n- steps : Step[] - The steps to follow to solve the task\n\ninterface Step {\n  instructions : string;\n}";
+}
+var implementResultMapper = tm.object({
+    steps: tm.array(tm.object({
+        instructions: tm.string(),
+    })),
+});
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverListPage.tsx":
+/*!******************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverListPage.tsx ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverListPage = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+//import { SelfDiscover } from "./SelfDiscoverForm";
+function SelfDiscoverListPage() {
+    var history = reactRouter.useHistory();
+    var _a = React.useState(localStorageUtil.loadSelfDiscoversMeta()), selfDiscovers = _a[0], setSelfDiscovers = _a[1];
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment divided selection massive list" }, selfDiscovers.map(function (meta) {
+            var displayName = meta.name.trim() == "" ?
+                "Self-Discover " + meta.uuid :
+                meta.name;
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: function () {
+                    history.push("/self-discover/" + meta.uuid + "/edit");
+                } },
+                React.createElement("div", { className: "extra right floated" },
+                    React.createElement("div", { className: "ui icon secondary button", onClick: function (evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm("Copy " + displayName + "?")) {
+                                var existingSelfDiscover = localStorageUtil.loadSelfDiscover(meta.uuid);
+                                if (existingSelfDiscover == undefined) {
+                                    alert("Cannot find " + displayName + " / " + meta.uuid);
+                                    return;
+                                }
+                                var newUuid = uuid.v4();
+                                var newSelfDiscover = __assign(__assign({}, existingSelfDiscover), { uuid: newUuid, name: "Copy of " + displayName });
+                                var newSelfDiscovers = __spreadArray(__spreadArray([], localStorageUtil.loadSelfDiscoversMeta()), [
+                                    __assign(__assign({}, meta), { uuid: newUuid, name: "Copy of " + displayName }),
+                                ]);
+                                setSelfDiscovers(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscover(newSelfDiscover);
+                            }
+                        } },
+                        React.createElement("i", { className: "copy icon" })),
+                    React.createElement("div", { className: "ui icon red button", onClick: function (evt) {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm("Delete " + displayName + "?")) {
+                                var newSelfDiscovers = localStorageUtil.loadSelfDiscoversMeta()
+                                    .filter(function (m) { return m.uuid != meta.uuid; });
+                                setSelfDiscovers(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+                                localStorageUtil.deleteSelfDiscover(meta);
+                            }
+                        } },
+                        React.createElement("i", { className: "trash icon" }))),
+                React.createElement("div", { className: "content" },
+                    React.createElement("div", { className: "header" }, displayName),
+                    React.createElement("div", { className: "ui mini label" }, meta.uuid),
+                    meta.description.trim() == "" ?
+                        React.createElement("small", { className: "description" }, "There is no description for this self-discover") :
+                        React.createElement("div", { className: "description" }, meta.description)));
+        })),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                var selfDiscovers = localStorageUtil.loadSelfDiscoversMeta();
+                var _a = localStorageUtil.makeSelfDiscover(), meta = _a.meta, selfDiscover = _a.selfDiscover;
+                var newSelfDiscovers = __spreadArray(__spreadArray([], selfDiscovers), [
+                    meta,
+                ]);
+                localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+                localStorageUtil.saveSelfDiscover(selfDiscover);
+                setSelfDiscovers(newSelfDiscovers);
+            } }, "Create Self-Discover"));
+}
+exports.SelfDiscoverListPage = SelfDiscoverListPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverSelectTab.tsx":
+/*!*******************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverSelectTab.tsx ***!
+  \*******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverSelectTab = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+function SelfDiscoverSelectTab(props) {
+    var _this = this;
+    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    var history = reactRouter.useHistory();
+    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    React.useEffect(function () {
+        var timer = setTimeout(function () {
+            setPrompt(buildPrompt(selfDiscover));
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [selfDiscover]);
+    return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Prompt"),
+                React.createElement("textarea", { value: prompt, readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } })),
+            selfDiscover.selectResult == undefined ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Selected Reasoning Modules"),
+                    React.createElement("textarea", { value: JSON.stringify(selfDiscover.selectResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
+        React.createElement("br", null),
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
+                var conversationA, conversationB, conversationC, conversationD, lastMessage, parsed, validated, err_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            if (isLoading) {
+                                return [2 /*return*/];
+                            }
+                            conversationA = __assign(__assign({}, selfDiscover.selectConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.selectConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
+                                        type: "text",
+                                    }, temperature: 0, max_tokens: 1024 }), messages: [
+                                    {
+                                        uuid: uuid.v4(),
+                                        messageType: "user",
+                                        role: "user",
+                                        content: prompt,
+                                    },
+                                ] });
+                            setIsLoading(true);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 4, , 5]);
+                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
+                        case 2:
+                            conversationB = _a.sent();
+                            conversationC = __assign(__assign({}, conversationB), { rawChatRequestConfig: __assign(__assign({}, conversationB.rawChatRequestConfig), { response_format: {
+                                        type: "json_object",
+                                    } }), messages: __spreadArray(__spreadArray([], conversationB.messages), [
+                                    {
+                                        uuid: uuid.v4(),
+                                        messageType: "user",
+                                        role: "user",
+                                        content: convertPrompt,
+                                    },
+                                ]) });
+                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationC, [])];
+                        case 3:
+                            conversationD = _a.sent();
+                            setIsLoading(false);
+                            lastMessage = conversationD.messages[conversationD.messages.length - 1];
+                            if (lastMessage.role != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
+                                return [2 /*return*/];
+                            }
+                            if (lastMessage.messageType != "assistant") {
+                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
+                                return [2 /*return*/];
+                            }
+                            parsed = {};
+                            try {
+                                parsed = JSON.parse(lastMessage.content);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            validated = void 0;
+                            try {
+                                validated = selectResultMapper("result", parsed);
+                            }
+                            catch (err) {
+                                error_handling_1.handleError(error, err);
+                                return [2 /*return*/];
+                            }
+                            setSelfDiscover(__assign(__assign({}, selfDiscover), { selectConversation: conversationD, selectResult: validated }));
+                            error.reset();
+                            return [3 /*break*/, 5];
+                        case 4:
+                            err_1 = _a.sent();
+                            setIsLoading(false);
+                            error_handling_1.handleError(error, err_1);
+                            return [3 /*break*/, 5];
+                        case 5: return [2 /*return*/];
+                    }
+                });
+            }); } }, "Select Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                history.push("/conversation/" + selfDiscover.selectConversation.uuid + "/edit");
+            } }, "View Conversation"));
+}
+exports.SelfDiscoverSelectTab = SelfDiscoverSelectTab;
+function buildPrompt(selfDiscover) {
+    var exampleTasks = selfDiscover.tasks
+        .filter(function (t) { return t.useAsExample; })
+        .filter(function (t) { return t.problemStatement.trim() != ""; })
+        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+        .join("\n\n");
+    return "Select several reasoning modules that are crucial to utilize in order to solve the given task:\n\n### All reasoning module descriptions\n\n+ How could I devise an experiment to help solve that problem?\n+ Make a list of ideas for solving this problem, and apply them one by one to the problem to see if any progress can be made.\n+ How could I measure progress on this problem?\n+ How can I simplify the problem so that it is easier to solve?\n+ What are the key assumptions underlying this problem?\n+ What are the potential risks and drawbacks of each solution?\n+ What are the alternative perspectives or viewpoints on this problem?\n+ What are the long-term implications of this problem and its solutions?\n+ How can I break down this problem into smaller, more manageable parts?\n+ Critical Thinking: This style involves analyzing the problem from different perspectives, questioning assumptions, and evaluating\nthe evidence or information available. It focuses on logical reasoning, evidence-based decision-making, and identifying\npotential biases or flaws in thinking.\n+ Try creative thinking, generate innovative and out-of-the-box ideas to solve the problem. Explore unconventional solutions,\nthinking beyond traditional boundaries, and encouraging imagination and originality.\n+ Seek input and collaboration from others to solve the problem. Emphasize teamwork, open communication, and leveraging the\ndiverse perspectives and expertise of a group to come up with effective solutions.\n+ Use systems thinking: Consider the problem as part of a larger system and understanding the interconnectedness of various elements.\nFocuses on identifying the underlying causes, feedback loops, and interdependencies that influence the problem, and developing holistic\nsolutions that address the system as a whole.\n+ Use Risk Analysis: Evaluate potential risks, uncertainties, and tradeoffs associated with different solutions or approaches to a\nproblem. Emphasize assessing the potential consequences and likelihood of success or failure, and making informed decisions based\non a balanced analysis of risks and benefits.\n+ Use Reflective Thinking: Step back from the problem, take the time for introspection and self-reflection. Examine personal biases,\nassumptions, and mental models that may influence problem-solving, and being open to learning from past experiences to improve\nfuture approaches.\n+ What is the core issue or problem that needs to be addressed?\n+ What are the underlying causes or factors contributing to the problem?\n+ Are there any potential solutions or strategies that have been tried before? If yes, what were the outcomes and lessons learned?\n+ What are the potential obstacles or challenges that might arise in solving this problem?\n+ Are there any relevant data or information that can provide insights into the problem? If yes, what data sources are available,\nand how can they be analyzed?\n+ Are there any stakeholders or individuals who are directly affected by the problem? What are their perspectives and needs?\n+ What resources (financial, human, technological, etc.) are needed to tackle the problem effectively?\n+ How can progress or success in solving the problem be measured or evaluated?\n+ What indicators or metrics can be used?\n+ Is the problem a technical or practical one that requires a specific expertise or skill set? Or is it more of a conceptual or\ntheoretical problem?\n+ Does the problem involve a physical constraint, such as limited resources, infrastructure, or space?\n+ Is the problem related to human behavior, such as a social, cultural, or psychological issue?\n+ Does the problem involve decision-making or planning, where choices need to be made under uncertainty or with competing\nobjectives?\n+ Is the problem an analytical one that requires data analysis, modeling, or optimization techniques?\n+ Is the problem a design challenge that requires creative solutions and innovation?\n+ Does the problem require addressing systemic or structural issues rather than just individual instances?\n+ Is the problem time-sensitive or urgent, requiring immediate attention and action?\n+ What kinds of solution typically are produced for this kind of problem specification?\n+ Given the problem specification and the current best solution, have a guess about other possible solutions.\n+ Let\u2019s imagine the current best solution is totally wrong, what other ways are there to think about the problem specification?\n+ What is the best way to modify this current best solution, given what you know about these kinds of problem specification?\n+ Ignoring the current best solution, create an entirely new solution to the problem.\n+ Let\u2019s think step by step.\n+ Let\u2019s make a step by step plan and implement it with good notion and explanation.\n\n" + exampleTasks + "\n\n### Instructions\n\nSelect several modules that are crucial for solving the tasks above.";
+}
+var convertPrompt = "Convert your response into a JSON object with the following properties,\n+ selected_reasoning_modules : string[] - an array containing the names of the selected reasoning modules\n+ rationale : string - A plain language explanation for why these modules were selecteds";
+var selectResultMapper = tm.object({
+    selected_reasoning_modules: tm.array(tm.string()),
+    rationale: tm.string(),
+});
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverTaskForm.tsx":
+/*!******************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverTaskForm.tsx ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverTaskForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+function SelfDiscoverTaskForm(props) {
+    var _this = this;
+    var task = props.task, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, executeConfig = props.executeConfig;
+    var _a = React.useState(function () { return executeConfig == undefined ? "" : buildPrompt(task, executeConfig); }), prompt = _a[0], setPrompt = _a[1];
+    var history = reactRouter.useHistory();
+    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
+    var error = use_error_1.useError();
+    React.useEffect(function () {
+        var timer = setTimeout(function () {
+            if (executeConfig == undefined) {
+                setPrompt("");
+                return;
+            }
+            setPrompt(buildPrompt(task, executeConfig));
+        }, 1000);
+        return function () { return clearTimeout(timer); };
+    }, [executeConfig]);
+    return React.createElement("div", { className: "item" },
+        React.createElement("div", { className: "header" },
+            "Task ",
+            task.uuid),
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" }, executeConfig == undefined ?
+                    React.createElement(React.Fragment, null,
+                        React.createElement("label", null, "Use as Example"),
+                        React.createElement("div", { className: "ui checkbox" },
+                            React.createElement("input", { type: "checkbox", checked: task.useAsExample, onChange: function (evt) {
+                                    onChange(__assign(__assign({}, task), { useAsExample: evt.target.checked }), task);
+                                } }),
+                            React.createElement("label", null, "Use as Example"))) :
+                    React.createElement(React.Fragment, null,
+                        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
+                                var conversationA, conversationB, lastMessage, parsed, validated, err_1;
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0:
+                                            if (isLoading) {
+                                                return [2 /*return*/];
+                                            }
+                                            conversationA = __assign(__assign({}, task.executeConversation), { rawChatRequestConfig: __assign(__assign({}, task.executeConversation.rawChatRequestConfig), { model: executeConfig.model, response_format: {
+                                                        type: "json_object",
+                                                    }, temperature: 0, max_tokens: 1024 }), messages: [
+                                                    {
+                                                        uuid: uuid.v4(),
+                                                        messageType: "user",
+                                                        role: "user",
+                                                        content: prompt,
+                                                    },
+                                                ] });
+                                            setIsLoading(true);
+                                            _a.label = 1;
+                                        case 1:
+                                            _a.trys.push([1, 3, , 4]);
+                                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(executeConfig.openAiApi, conversationA, [])];
+                                        case 2:
+                                            conversationB = _a.sent();
+                                            setIsLoading(false);
+                                            lastMessage = conversationB.messages[conversationB.messages.length - 1];
+                                            if (lastMessage.role != "assistant") {
+                                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
+                                                return [2 /*return*/];
+                                            }
+                                            if (lastMessage.messageType != "assistant") {
+                                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
+                                                return [2 /*return*/];
+                                            }
+                                            parsed = {};
+                                            try {
+                                                parsed = JSON.parse(lastMessage.content);
+                                            }
+                                            catch (err) {
+                                                error_handling_1.handleError(error, err);
+                                                return [2 /*return*/];
+                                            }
+                                            validated = void 0;
+                                            try {
+                                                validated = executeResultMapper("result", parsed);
+                                            }
+                                            catch (err) {
+                                                error_handling_1.handleError(error, err);
+                                                return [2 /*return*/];
+                                            }
+                                            onChange(__assign(__assign({}, task), { executeConversation: conversationB, executeResult: validated }), task);
+                                            error.reset();
+                                            return [3 /*break*/, 4];
+                                        case 3:
+                                            err_1 = _a.sent();
+                                            setIsLoading(false);
+                                            error_handling_1.handleError(error, err_1);
+                                            return [3 /*break*/, 4];
+                                        case 4: return [2 /*return*/];
+                                    }
+                                });
+                            }); } }, "Execute"),
+                        React.createElement("button", { className: "ui primary button", onClick: function () {
+                                history.push("/conversation/" + task.executeConversation.uuid + "/edit");
+                            } }, "View Conversation"))),
+                React.createElement("div", { className: "field button group", style: {
+                        alignSelf: "flex-end",
+                    } },
+                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(task); } },
+                        React.createElement("i", { className: "trash icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(task); } },
+                        React.createElement("i", { className: "arrow up icon" })),
+                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(task); } },
+                        React.createElement("i", { className: "arrow down icon" }))))),
+        React.createElement("div", { className: "ui form" },
+            React.createElement("textarea", { style: {
+                    minHeight: "8em",
+                    maxHeight: "48em",
+                }, value: task.problemStatement, onChange: function (evt) {
+                    props.onChange(__assign(__assign({}, task), { problemStatement: evt.target.value }), task);
+                } }),
+            executeConfig == undefined || prompt == "" ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Prompt"),
+                    React.createElement("textarea", { value: prompt, readOnly: true, style: { minHeight: "8em", maxHeight: "84em" } })),
+            executeConfig == undefined || task.executeResult == undefined ?
+                undefined :
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Execute Result"),
+                    React.createElement("textarea", { value: JSON.stringify(task.executeResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))));
+}
+exports.SelfDiscoverTaskForm = SelfDiscoverTaskForm;
+function buildPrompt(task, executeConfig) {
+    var reasoningPlan = executeConfig.implementResult.steps
+        .map(function (step, index) { return index + 1 + ". " + step.instructions; })
+        .join("\n");
+    return "Follow the step-by-step reasoning plan to arrive at correct answers.\n\n### Reasoning Plan\n" + reasoningPlan + "\n\n### Task\n" + task.problemStatement.trim() + "\n\n### Instructions\n\nFollow the reasoning structure to arrive at the correct answer for the task.\n\nOutput a JSON object with properties,\n+ steps : Step[] - The result of following each step in the reasoning structure\n+ answer : string - The answer in easy-to-understand plain language\n\ninterface Step {\n  result : string;\n}";
+}
+var executeResultMapper = tm.object({
+    steps: tm.array(tm.object({
+        result: tm.string(),
+    })),
+    answer: tm.string(),
+});
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx":
+/*!**********************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverTaskListForm = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var SelfDiscoverTaskForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskForm */ "./src/client-public/self-discover/SelfDiscoverTaskForm.tsx");
+function SelfDiscoverTaskListForm(props) {
+    var tasks = props.tasks, onChange = props.onChange, executeConfig = props.executeConfig;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, tasks.map(function (t, index) {
+        return React.createElement(SelfDiscoverTaskForm_1.SelfDiscoverTaskForm, { tasks: tasks, key: t.uuid, task: t, onChange: function (newSelfDiscoverTask) {
+                onChange(tasks.map(function (m) {
+                    return m.uuid == newSelfDiscoverTask.uuid ?
+                        newSelfDiscoverTask :
+                        m;
+                }), tasks);
+            }, onRemove: function () {
+                if (!confirm("Delete task " + t.uuid + "?")) {
+                    return;
+                }
+                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                newSelfDiscoverTasks.splice(index, 1);
+                onChange(newSelfDiscoverTasks, tasks);
+            }, onMoveUp: function (t) {
+                if (index == 0) {
+                    return;
+                }
+                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                newSelfDiscoverTasks.splice(index, 1);
+                newSelfDiscoverTasks.splice(index - 1, 0, t);
+                onChange(newSelfDiscoverTasks, tasks);
+            }, onMoveDown: function (t) {
+                if (index >= tasks.length) {
+                    return;
+                }
+                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                newSelfDiscoverTasks.splice(index, 1);
+                newSelfDiscoverTasks.splice(index + 1, 0, t);
+                onChange(newSelfDiscoverTasks, tasks);
+            }, executeConfig: executeConfig });
+    }));
+}
+exports.SelfDiscoverTaskListForm = SelfDiscoverTaskListForm;
+
+
+/***/ }),
+
+/***/ "./src/client-public/self-discover/SelfDiscoverTaskTab.tsx":
+/*!*****************************************************************!*\
+  !*** ./src/client-public/self-discover/SelfDiscoverTaskTab.tsx ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __assign = (this && this.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var __spreadArray = (this && this.__spreadArray) || function (to, from) {
+    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
+        to[j] = from[i];
+    return to;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SelfDiscoverTaskTab = void 0;
+var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+var SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
+function SelfDiscoverTaskTab(props) {
+    var active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
+        React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: function (newTasks) {
+                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: newTasks }));
+            }, executeConfig: undefined }),
+        React.createElement("button", { className: "ui primary button", onClick: function () {
+                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: __spreadArray(__spreadArray([], selfDiscover.tasks), [
+                        localStorageUtil.makeSelfDiscoverTask(selfDiscover.uuid),
+                    ]) }));
+            } }, "Add Task"));
+}
+exports.SelfDiscoverTaskTab = SelfDiscoverTaskTab;
 
 
 /***/ }),

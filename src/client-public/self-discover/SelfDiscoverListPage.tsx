@@ -1,52 +1,52 @@
 import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
-import * as localStorageUtil from "./local-storage-util";
-//import { Conversation } from "./ConversationForm";
+import * as localStorageUtil from "../local-storage-util";
+//import { SelfDiscover } from "./SelfDiscoverForm";
 
-export function ConversationListPage () {
+export function SelfDiscoverListPage () {
     const history = reactRouter.useHistory();
     const [
-        conversations,
-        setConversations,
-    ] = React.useState(localStorageUtil.loadConversationsMeta());
+        selfDiscovers,
+        setSelfDiscovers,
+    ] = React.useState(localStorageUtil.loadSelfDiscoversMeta());
 
     return <div className="ui main container">
         <div className="ui segment divided selection massive list">
-            {conversations.map(meta => {
+            {selfDiscovers.map(meta => {
                 const displayName = meta.name.trim() == "" ?
-                    `Conversation ${meta.uuid}` :
+                    `Self-Discover ${meta.uuid}` :
                     meta.name;
                 return <div className="item" key={meta.uuid} onClick={() => {
-                    history.push(`/conversation/${meta.uuid}/edit`);
+                    history.push(`/self-discover/${meta.uuid}/edit`);
                 }}>
                     <div className="extra right floated">
                         <div className="ui icon secondary button" onClick={(evt) => {
                             evt.preventDefault();
                             evt.stopPropagation();
                             if (confirm(`Copy ${displayName}?`)) {
-                                const existingConversation = localStorageUtil.loadConversation(meta.uuid);
-                                if (existingConversation == undefined) {
+                                const existingSelfDiscover = localStorageUtil.loadSelfDiscover(meta.uuid);
+                                if (existingSelfDiscover == undefined) {
                                     alert(`Cannot find ${displayName} / ${meta.uuid}`);
                                     return;
                                 }
                                 const newUuid = uuid.v4();
-                                const newConversation = {
-                                    ...existingConversation,
+                                const newSelfDiscover = {
+                                    ...existingSelfDiscover,
                                     uuid : newUuid,
                                     name : `Copy of ${displayName}`,
                                 };
-                                const newConversations = [
-                                    ...localStorageUtil.loadConversationsMeta(),
+                                const newSelfDiscovers = [
+                                    ...localStorageUtil.loadSelfDiscoversMeta(),
                                     {
                                         ...meta,
                                         uuid : newUuid,
                                         name : `Copy of ${displayName}`,
                                     },
                                 ];
-                                setConversations(newConversations);
-                                localStorageUtil.saveConversationsMeta(newConversations);
-                                localStorageUtil.saveConversation(newConversation);
+                                setSelfDiscovers(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscover(newSelfDiscover);
                             }
                         }}>
                             <i className="copy icon"></i>
@@ -55,11 +55,11 @@ export function ConversationListPage () {
                             evt.preventDefault();
                             evt.stopPropagation();
                             if (confirm(`Delete ${displayName}?`)) {
-                                const newConversations = localStorageUtil.loadConversationsMeta()
+                                const newSelfDiscovers = localStorageUtil.loadSelfDiscoversMeta()
                                     .filter(m => m.uuid != meta.uuid);
-                                setConversations(newConversations);
-                                localStorageUtil.saveConversationsMeta(newConversations);
-                                localStorageUtil.deleteConversation(meta);
+                                setSelfDiscovers(newSelfDiscovers);
+                                localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+                                localStorageUtil.deleteSelfDiscover(meta);
                             }
                         }}>
                             <i className="trash icon"></i>
@@ -73,17 +73,10 @@ export function ConversationListPage () {
                         {
                             meta.description.trim() == "" ?
                             <small className="description">
-                                There is no description for this conversation
+                                There is no description for this self-discover
                             </small> :
                             <div className="description">
                                 {meta.description}
-                            </div>
-                        }
-                        {
-                            meta.lastMessage.trim() == "" ?
-                            undefined :
-                            <div className="description one-line-ellipsis small-description">
-                                Last Message: {meta.lastMessage}
                             </div>
                         }
                     </div>
@@ -91,20 +84,20 @@ export function ConversationListPage () {
             })}
         </div>
         <button className="ui primary button" onClick={() => {
-            const conversations = localStorageUtil.loadConversationsMeta();
+            const selfDiscovers = localStorageUtil.loadSelfDiscoversMeta();
             const {
                 meta,
-                conversation,
-            } = localStorageUtil.makeConversation();
-            const newConversations : localStorageUtil.ConversationMeta[] = [
-                ...conversations,
+                selfDiscover,
+            } = localStorageUtil.makeSelfDiscover();
+            const newSelfDiscovers : localStorageUtil.SelfDiscoverMeta[] = [
+                ...selfDiscovers,
                 meta,
             ];
-            localStorageUtil.saveConversationsMeta(newConversations);
-            localStorageUtil.saveConversation(conversation)
-            setConversations(newConversations);
+            localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
+            localStorageUtil.saveSelfDiscover(selfDiscover)
+            setSelfDiscovers(newSelfDiscovers);
         }}>
-            Create Conversation
+            Create Self-Discover
         </button>
     </div>
 }

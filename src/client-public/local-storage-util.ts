@@ -1,3 +1,4 @@
+import * as uuid from "uuid";
 import { RawChatRequestConfig } from "./ChatRequestConfigUx";
 import { FunctionTool } from "./FunctionToolForm";
 
@@ -53,6 +54,8 @@ export enum LocalStorageKey {
     CONVERSATIONS_META = "CONVERSATIONS_META",
     CONVERSATION = "CONVERSATION",
     MODELS = "MODELS",
+    SELF_DISCOVERS_META = "SELF_DISCOVERS_META",
+    SELF_DISCOVER = "SELF_DISCOVER",
 }
 
 export function loadFunctionTools () : FunctionTool[] {
@@ -71,6 +74,12 @@ export interface ConversationMeta {
     name : string;
     description : string;
     lastMessage : string;
+}
+
+export interface SelfDiscoverMeta {
+    uuid : string;
+    name : string;
+    description : string;
 }
 
 export interface MessageBase {
@@ -144,8 +153,81 @@ export interface Conversation {
     messages : Message[],
 }
 
+export interface SelfDiscoverTask {
+    uuid : string;
+    useAsExample : boolean;
+    problemStatement : string;
+    executeConversation : Conversation;
+    executeResult : undefined|SelfDiscoverTaskExecuteResult;
+}
+
+export interface SelfDiscoverTaskExecuteResult {
+    steps : { result : string }[];
+    answer : string;
+}
+
+export interface PartialSelfDiscoverTask {
+    uuid : string;
+    useAsExample : boolean;
+    problemStatement : string;
+    executeConversation : undefined;
+}
+
+/**
+ * https://arxiv.org/html/2402.03620v1
+ */
+export interface SelfDiscover {
+    uuid : string;
+    name : string;
+    description : string;
+    model : string;
+
+    tasks : SelfDiscoverTask[];
+    selectConversation : Conversation;
+    adaptConversation : Conversation;
+    implementConversation : Conversation;
+
+    selectResult : SelfDiscoverSelectResult|undefined,
+    adaptResult : SelfDiscoverAdaptResult|undefined,
+    implementResult : SelfDiscoverImplementResult|undefined,
+}
+
+export interface SelfDiscoverSelectResult {
+    selected_reasoning_modules : string[];
+    rationale : string;
+}
+
+export interface SelfDiscoverAdaptResult {
+    reasoning_modules : {
+        name : string,
+        description : string,
+    }[];
+}
+
+export interface SelfDiscoverImplementResult {
+    steps : {
+        instructions : string,
+    }[];
+}
+
+export interface PartialSelfDiscover {
+    uuid : string;
+    name : string;
+    description : string;
+    model : string;
+
+    tasks : PartialSelfDiscoverTask[];
+    selectConversation : undefined;
+    adaptConversation : undefined;
+    implementConversation : undefined;
+}
+
 export function loadConversationsMeta () : ConversationMeta[] {
     return JSON.parse(getItem(LocalStorageKey.CONVERSATIONS_META) ?? "[]");
+}
+
+export function loadSelfDiscoversMeta () : SelfDiscoverMeta[] {
+    return JSON.parse(getItem(LocalStorageKey.SELF_DISCOVERS_META) ?? "[]");
 }
 
 export function saveConversationsMeta (conversationsMeta : ConversationMeta[]) {
@@ -153,6 +235,93 @@ export function saveConversationsMeta (conversationsMeta : ConversationMeta[]) {
         LocalStorageKey.CONVERSATIONS_META,
         JSON.stringify(conversationsMeta)
     );
+}
+
+export function saveSelfDiscoversMeta (selfDiscoversMeta : SelfDiscoverMeta[]) {
+    return setItem(
+        LocalStorageKey.SELF_DISCOVERS_META,
+        JSON.stringify(selfDiscoversMeta)
+    );
+}
+
+export function makeConversation (customUuid : string|undefined = undefined) : {
+    conversation : Conversation,
+    meta : ConversationMeta,
+} {
+    const models = loadModels().filter(model => model.id.startsWith("gpt"));
+    const meta : ConversationMeta = {
+        uuid : customUuid ?? uuid.v4(),
+        name : "",
+        description : "",
+        lastMessage : "",
+    };
+    const conversation : Conversation = {
+        uuid : meta.uuid,
+        name : meta.name,
+        description : meta.description,
+        rawChatRequestConfig : {
+            model : models.length > 0 ?
+                models[0].id :
+                "",
+            temperature  :1,
+            max_tokens : 256,
+            stop : "",
+            top_p : 1,
+            frequency_penalty : 0,
+            presence_penalty : 0,
+            response_format : {
+                type : "text",
+            },
+        },
+        messages : [],
+        usedFunctions : {},
+    };
+    return {
+        conversation,
+        meta,
+    };
+}
+
+export function makeSelfDiscover () : {
+    selfDiscover : SelfDiscover,
+    meta : SelfDiscoverMeta,
+} {
+    const meta : SelfDiscoverMeta = {
+        uuid : uuid.v4(),
+        name : "",
+        description : "",
+    };
+    const models = loadModels().filter(model => model.id.startsWith("gpt-4"));
+    const selfDiscover : SelfDiscover = {
+        uuid : meta.uuid,
+        name : meta.name,
+        description : meta.description,
+        model : models.length > 0 ?
+            models[0].id :
+            "",
+
+        tasks : [],
+        selectConversation : undefined as unknown as Conversation,
+        adaptConversation : undefined as unknown as Conversation,
+        implementConversation : undefined as unknown as Conversation,
+
+        selectResult : undefined,
+    };
+    loadOrMakeSelfDiscoverConversations(selfDiscover);
+    return {
+        selfDiscover,
+        meta,
+    };
+}
+
+export function makeSelfDiscoverTask (selfDiscoverUuid : string) : SelfDiscoverTask {
+    const taskUuid = uuid.v4();
+    return {
+        uuid : taskUuid,
+        useAsExample : true,
+        problemStatement : "",
+        executeConversation : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscoverUuid}_task_${taskUuid}_execute`).conversation,
+    };
 }
 
 export function loadConversation (uuid : string) : Conversation|undefined {
@@ -170,6 +339,45 @@ export function loadConversation (uuid : string) : Conversation|undefined {
     return result;
 }
 
+function loadOrMakeSelfDiscoverConversations (selfDiscover : SelfDiscover) {
+    selfDiscover.selectConversation = (
+        loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_select`) ??
+        makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_select`).conversation
+    );
+    selfDiscover.adaptConversation = (
+        loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_adapt`) ??
+        makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_adapt`).conversation
+    );
+    selfDiscover.implementConversation = (
+        loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_implement`) ??
+        makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_implement`).conversation
+    );
+    for (const task of selfDiscover.tasks) {
+        task.executeConversation = (
+            loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_task_${task.uuid}_execute`) ??
+            makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_task_${task.uuid}_execute`).conversation
+        );
+    }
+}
+
+export function loadSelfDiscover (uuid : string) : SelfDiscover|undefined {
+    const str = getItem(`${LocalStorageKey.SELF_DISCOVER}_${uuid}`);
+    if (str == undefined) {
+        return undefined;
+    }
+    const result = JSON.parse(str) as SelfDiscover;
+    
+    loadOrMakeSelfDiscoverConversations(result);
+
+    for (const task of result.tasks) {
+        if (task.useAsExample == undefined) {
+            task.useAsExample = (task as any).includeInPrompt;
+        }
+    }
+
+    return result;
+}
+
 export function saveConversation (conversation : Conversation) {
     return setItem(
         `${LocalStorageKey.CONVERSATION}_${conversation.uuid}`,
@@ -177,9 +385,50 @@ export function saveConversation (conversation : Conversation) {
     );
 }
 
+export function saveSelfDiscover (selfDiscover : SelfDiscover) {
+    saveConversation(selfDiscover.selectConversation);
+    saveConversation(selfDiscover.adaptConversation);
+    saveConversation(selfDiscover.implementConversation);
+    for (const task of selfDiscover.tasks) {
+        saveConversation(task.executeConversation);
+    }
+    const minSelfDiscover : PartialSelfDiscover = {
+        ...selfDiscover,
+        selectConversation : undefined,
+        adaptConversation : undefined,
+        implementConversation : undefined,
+        tasks : selfDiscover.tasks.map(t => {
+            return {
+                ...t,
+                executeConversation : undefined,
+            };
+        }),
+    };
+    return setItem(
+        `${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}`,
+        JSON.stringify(minSelfDiscover)
+    );
+}
+
 export function deleteConversation (conversation : Pick<Conversation, "uuid">) {
     return removeItem(
         `${LocalStorageKey.CONVERSATION}_${conversation.uuid}`
+    );
+}
+
+export function deleteSelfDiscover (self_discover_id : Pick<SelfDiscover, "uuid">) {
+    const selfDiscover = loadSelfDiscover(self_discover_id.uuid);
+    if (selfDiscover == undefined) {
+        return;
+    }
+    deleteConversation(selfDiscover.selectConversation);
+    deleteConversation(selfDiscover.adaptConversation);
+    deleteConversation(selfDiscover.implementConversation);
+    for (const task of selfDiscover.tasks) {
+        deleteConversation(task.executeConversation);
+    }
+    return removeItem(
+        `${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}`
     );
 }
 

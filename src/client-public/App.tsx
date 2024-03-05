@@ -13,6 +13,8 @@ import { FunctionToolEditPage } from "./FunctionToolEditPage";
 import { ConversationListPage } from "./ConversationListPage";
 import { ConversationEditPage } from "./ConversationEditPage";
 import { ModelListPage } from "./ModelListPage";
+import { SelfDiscoverListPage } from "./self-discover/SelfDiscoverListPage";
+import { SelfDiscoverEditPage } from "./self-discover/SelfDiscoverEditPage";
 
 
 export interface Props {
@@ -91,6 +93,7 @@ export function App (_props : Props) {
                         <Link className="ui item" to={`/function-tool`}>Function Tools</Link>
                         <Link className="ui item" to={`/model`}>Models</Link>
                         <Link className="ui item" to={`/conversation`}>Conversations</Link>
+                        <Link className="ui item" to={`/self-discover`}>Self-Discovers</Link>
                     </div>
                 </div>
             </div>
@@ -108,6 +111,8 @@ export function App (_props : Props) {
                     <Route path="/model" component={() => <ModelListPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/conversation/:uuid/edit" component={() => <ConversationEditPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/conversation" component={ConversationListPage}/>
+                    <Route path="/self-discover/:uuid/edit" component={() => <SelfDiscoverEditPage openAiApi={_props.openAiApi}/>}/>
+                    <Route path="/self-discover" component={SelfDiscoverListPage}/>
                     <Route path="/" component={HomePage}/>
                 </Switch>
                 {/*<div className="ui vertical footer segment">

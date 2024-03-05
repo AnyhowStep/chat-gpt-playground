@@ -113,7 +113,7 @@ function parseMessages (messages : localStorageUtil.Message[]) {
     });
 }
 
-async function submitConversation (
+export async function submitConversation (
     openAiApi : OpenAiApi,
     conversation : localStorageUtil.Conversation,
     functionTools : FunctionTool[],
@@ -231,7 +231,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     />
                 </div>
                 <div className="field">
-                    <label>Descriptio</label>
+                    <label>Description</label>
                     <input
                         placeholder="Enter a Conversation Description"
                         value={conversation.description}
