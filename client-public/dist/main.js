@@ -1165,7 +1165,6 @@ async function submitConversation(openAiApi, conversation, functionTools) {
 }
 exports.submitConversation = submitConversation;
 function ConversationEditPage(props) {
-    var _a;
     const routeParams = reactRouter.useParams();
     const [conversation, setConversation,] = React.useState(localStorageUtil.loadConversation(routeParams.uuid));
     const functionTools = React.useMemo(() => {
@@ -1246,7 +1245,7 @@ function ConversationEditPage(props) {
             }
         }, 500);
         return () => clearTimeout(timeout);
-    }, [(_a = conversation === null || conversation === void 0 ? void 0 : conversation.messages.map(m => m.tokenCount).join(",")) !== null && _a !== void 0 ? _a : ""]);
+    }, [conversation]);
     if (conversation == undefined) {
         return React.createElement("div", { className: "ui main container" },
             "Conversation ",
@@ -2890,8 +2889,6 @@ const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
-const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-const ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
 const SelfDiscoverTaskTab_1 = __webpack_require__(/*! ./SelfDiscoverTaskTab */ "./src/client-public/self-discover/SelfDiscoverTaskTab.tsx");
 const SelfDiscoverSelectTab_1 = __webpack_require__(/*! ./SelfDiscoverSelectTab */ "./src/client-public/self-discover/SelfDiscoverSelectTab.tsx");
 const SelfDiscoverAdaptTab_1 = __webpack_require__(/*! ./SelfDiscoverAdaptTab */ "./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx");
@@ -2913,8 +2910,6 @@ function SelfDiscoverEditPage(props) {
     const routeLocation = reactRouter.useLocation();
     const searchParams = new URLSearchParams(routeLocation.search);
     const [selfDiscover, setSelfDiscover,] = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid));
-    const [isLoading, setIsLoading] = React.useState(false);
-    const error = (0, use_error_1.useError)();
     const [tapType, setTabType] = React.useState(TabType.Tasks);
     React.useEffect(() => {
         var _a;
@@ -2982,14 +2977,6 @@ function SelfDiscoverEditPage(props) {
         React.createElement(SelfDiscoverAdaptTab_1.SelfDiscoverAdaptTab, { openAiApi: openAiApi, active: tapType == TabType.Adapt, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
         React.createElement(SelfDiscoverImplementTab_1.SelfDiscoverImplementTab, { openAiApi: openAiApi, active: tapType == TabType.Implement, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
         React.createElement(SelfDiscoverExecuteTab_1.SelfDiscoverExecuteTab, { openAiApi: openAiApi, active: tapType == TabType.Execute, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
-        React.createElement("div", { className: "ui segment" },
-            React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
-            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
-                    if (isLoading) {
-                        return;
-                    }
-                    setIsLoading(true);
-                } }, "Submit")),
         React.createElement("div", { className: "ui segment" },
             React.createElement("div", { className: "ui form" },
                 React.createElement("div", { className: "field" },

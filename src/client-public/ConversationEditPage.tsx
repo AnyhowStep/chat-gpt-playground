@@ -263,7 +263,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             );
             return () => clearTimeout(timeout);
         },
-        [conversation?.messages.map(m => m.tokenCount).join(",") ?? ""]
+        [conversation]
     );
 
     if (conversation == undefined) {

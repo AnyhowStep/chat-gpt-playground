@@ -3,8 +3,6 @@ import * as reactRouter from "react-router-dom";
 import * as classNames from "classnames";
 import { OpenAiApi } from "../../api-openai";
 import * as localStorageUtil from "../local-storage-util";
-import { useError } from "../use-error";
-import { ErrorMessage } from "../ErrorMessage";
 import { SelfDiscoverTaskTab } from "./SelfDiscoverTaskTab";
 import { SelfDiscoverSelectTab } from "./SelfDiscoverSelectTab";
 import { SelfDiscoverAdaptTab } from "./SelfDiscoverAdaptTab";
@@ -39,8 +37,6 @@ export function SelfDiscoverEditPage (props : SelfDiscoverEditPageProps) {
         selfDiscover,
         setSelfDiscover,
     ] = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid));
-    const [isLoading, setIsLoading] = React.useState(false);
-    const error = useError();
     const [tapType, setTabType] = React.useState(TabType.Tasks);
 
     React.useEffect(
@@ -169,25 +165,6 @@ export function SelfDiscoverEditPage (props : SelfDiscoverEditPageProps) {
             selfDiscover={selfDiscover}
             setSelfDiscover={setSelfDiscover}
         />
-        
-        <div className="ui segment">
-            <ErrorMessage
-                error={error}
-            />
-            
-            <button className={classNames(
-                "ui primary button",
-                isLoading ? "loading" : undefined,
-            )} onClick={() => {
-                if (isLoading) {
-                    return;
-                }
-                setIsLoading(true);
-                
-            }}>
-                Submit
-            </button>
-        </div>
         <div className="ui segment">
             <div className="ui form">
                 <div className="field">
