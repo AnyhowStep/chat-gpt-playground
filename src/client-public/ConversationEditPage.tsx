@@ -2,6 +2,7 @@ import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
 import * as classNames from "classnames";
+import * as gptTokenizer from "gpt-tokenizer";
 import { OpenAiApi } from "../api-openai";
 import * as localStorageUtil from "./local-storage-util";
 import { ChatRequestConfigUx } from "./ChatRequestConfigUx";
@@ -208,6 +209,63 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
         [conversation]
     );
 
+    React.useEffect(
+        () => {
+            const timeout = setTimeout(
+                () => {
+                    if (conversation == undefined) {
+                        return;
+                    }
+                    let tokenized = false;
+                    const newConversation : localStorageUtil.Conversation = {
+                        ...conversation,
+                        messages : conversation.messages.map(m => {
+                            if (m.tokenCount != undefined) {
+                                return m;
+                            }
+
+                            if (m.messageType == "tool_response") {
+                                tokenized = true;
+                                return {
+                                    ...m,
+                                    tokenCount : gptTokenizer.encode(JSON.stringify({
+                                        tool_call_id : m.tool_call_id,
+                                        name : m.name,
+                                        content : m.content,
+                                    })).length,
+                                };
+                            }
+
+                            if ("content" in m) {
+                                tokenized = true;
+                                return {
+                                    ...m,
+                                    tokenCount : gptTokenizer.encode(m.content).length,
+                                };
+                            }
+
+                            if ("tool_calls" in m) {
+                                tokenized = true;
+                                return {
+                                    ...m,
+                                    tokenCount : gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
+                                };
+                            }
+
+                            return m;
+                        }),
+                    };
+                    if (tokenized) {
+                        setConversation(newConversation);
+                    }
+                },
+                500
+            );
+            return () => clearTimeout(timeout);
+        },
+        [conversation?.messages.map(m => m.tokenCount).join(",") ?? ""]
+    );
+
     if (conversation == undefined) {
         return <div className="ui main container">
             Conversation {routeParams.uuid} not found
@@ -244,6 +302,12 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     />
                 </div>
             </div>
+            <div className="ui mini label">~{conversation.messages.reduce(
+                (sum, m) => {
+                    return sum + (m.tokenCount ?? 0);
+                },
+                0
+            )} tokens</div>
         </div>
         <MessageListForm
             messages={conversation.messages}

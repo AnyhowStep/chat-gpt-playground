@@ -21,6 +21,7 @@ export function AssistantToolCallMessageForm (props : AssistantToolCallMessageFo
                 onChange({
                     ...message,
                     tool_calls : newToolCalls,
+                    tokenCount : undefined,
                 }, message);
             }}
             onAddResponse={(toolCall) => {

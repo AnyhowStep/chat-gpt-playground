@@ -1,6 +1,5 @@
 import * as  webpack from "webpack";
 import * as path from "path";
-const CopyPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 if (process.env.WATCH === "TRUE") {
@@ -53,6 +52,17 @@ const rules : webpack.RuleSetRule[] = [
     {
         test: /\.otf(\?.*)?$/,
         use: 'file-loader?name=/fonts/[name].  [ext]&mimetype=application/font-otf'
+    },
+    {
+        test: /\/gpt-tokenizer\/.+?\.js$/,
+        use: [{
+            loader: "babel-loader",
+            options: {
+                presets: ['babel-preset-expo'],
+                env: {
+                },
+            }
+        }]
     }
 ];
 //TODO Is this even needed?

@@ -1,5 +1,9 @@
 import * as React from "react";
+import * as classNames from "classnames";
+import * as localStorageUtil from "./local-storage-util";
 import { ToolResponseMessage } from "./local-storage-util";
+import { useError } from "./use-error";
+import { handleError } from "./error-handling";
 
 export interface ToolResponseMessageFormProps {
     message : ToolResponseMessage;
@@ -14,6 +18,27 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
         onChange,
     } = props;
 
+    const [functionTool, setFunctionTool] = React.useState(() => {
+        return localStorageUtil.loadFunctionTools()
+            .find(f => f.name == message.name);
+    });
+
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = useError();
+
+    React.useEffect(
+        () => {
+            const timer = setTimeout(() => {
+                setFunctionTool(
+                    localStorageUtil.loadFunctionTools()
+                        .find(f => f.name == message.name)
+                );
+            }, 1000);
+            return () => clearTimeout(timer);
+        },
+        [message.name]
+    );
+
     return <div className="ui form">
         <div className="field">
             <label>Tool Call ID</label>
@@ -25,6 +50,7 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
                     onChange({
                         ...message,
                         tool_call_id : evt.target.value,
+                        tokenCount : undefined,
                     }, message);
                 }}
             />
@@ -39,6 +65,7 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
                     onChange({
                         ...message,
                         name : evt.target.value,
+                        tokenCount : undefined,
                     }, message);
                 }}
             />
@@ -53,6 +80,51 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
         </div>
         <div className="field">
             <label>Content</label>
+            {
+                functionTool == undefined ?
+                undefined :
+                <button
+                    className={classNames(
+                        "ui primary button",
+                        isLoading ? "loading" : undefined,
+                    )}
+                    onClick={() => {
+                        if (isLoading) {
+                            return;
+                        }
+                        try {
+                            const f = new Function(`return ${functionTool.javaScriptImpl}`)();
+                            const args = functionArguments == undefined ?
+                                {} :
+                                JSON.parse(functionArguments);
+                            const promise = Promise.resolve(f(args));
+
+                            setIsLoading(true);
+                            promise
+                                .then(
+                                    (result) : void => {
+                                        setIsLoading(false);
+                                        onChange({
+                                            ...message,
+                                            content : JSON.stringify(result, null, 2),
+                                            tokenCount : undefined,
+                                        }, message);
+                                        error.reset();
+                                    },
+                                    (err) => {
+                                        setIsLoading(false);
+                                        handleError(error, err);
+                                    },
+                                );
+                        } catch (err) {
+                            setIsLoading(false);
+                            handleError(error, err);
+                        }
+                    }}
+                >
+                    Execute JavaScript
+                </button>
+            }
             <textarea
                 value={message.content}
                 placeholder="Content (The result of the tool call)"
@@ -60,6 +132,7 @@ export function ToolResponseMessageForm (props : ToolResponseMessageFormProps) {
                     onChange({
                         ...message,
                         content : evt.target.value,
+                        tokenCount : undefined,
                     }, message);
                 }}
             />

@@ -49,7 +49,8 @@ export function MessageForm (props : MessageFormProps) {
                                         role : "system",
                                         content : "content" in message ?
                                             message.content :
-                                            ""
+                                            "",
+                                        tokenCount : undefined,
                                     }, message);
                                     break;
                                 }
@@ -60,7 +61,8 @@ export function MessageForm (props : MessageFormProps) {
                                         role : "user",
                                         content : "content" in message ?
                                             message.content :
-                                            ""
+                                            "",
+                                        tokenCount : undefined,
                                     }, message);
                                     break;
                                 }
@@ -71,7 +73,8 @@ export function MessageForm (props : MessageFormProps) {
                                         role : "assistant",
                                         content : "content" in message ?
                                             message.content :
-                                            ""
+                                            "",
+                                        tokenCount : undefined,
                                     }, message);
                                     break;
                                 }
@@ -82,7 +85,8 @@ export function MessageForm (props : MessageFormProps) {
                                         role : "assistant",
                                         tool_calls : "tool_calls" in message ?
                                             message.tool_calls :
-                                            []
+                                            [],
+                                        tokenCount : undefined,
                                     }, message);
                                     break;
                                 }
@@ -100,6 +104,7 @@ export function MessageForm (props : MessageFormProps) {
                                         content : "content" in message ?
                                             message.content :
                                             "",
+                                        tokenCount : undefined,
                                     }, message);
                                     break;
                                 }
@@ -189,6 +194,11 @@ export function MessageForm (props : MessageFormProps) {
                 }}
             /> :
             undefined
+        }
+        {
+            message.tokenCount == undefined ?
+            <div className="ui mini label">~- tokens</div> :
+            <div className="ui mini label">~{message.tokenCount} tokens</div>
         }
     </div>
 }

@@ -84,6 +84,8 @@ export interface SelfDiscoverMeta {
 
 export interface MessageBase {
     uuid : string;
+
+    tokenCount? : undefined|number;
 }
 
 export interface SystemMessage extends MessageBase {
@@ -306,6 +308,8 @@ export function makeSelfDiscover () : {
         implementConversation : undefined as unknown as Conversation,
 
         selectResult : undefined,
+        adaptResult : undefined,
+        implementResult : undefined,
     };
     loadOrMakeSelfDiscoverConversations(selfDiscover);
     return {
@@ -321,6 +325,7 @@ export function makeSelfDiscoverTask (selfDiscoverUuid : string) : SelfDiscoverT
         useAsExample : true,
         problemStatement : "",
         executeConversation : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscoverUuid}_task_${taskUuid}_execute`).conversation,
+        executeResult : undefined,
     };
 }
 

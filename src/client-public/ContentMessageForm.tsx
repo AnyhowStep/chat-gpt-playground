@@ -33,6 +33,7 @@ export function ContentMessageForm (props : ContentMessageFormProps) {
                 props.onChange({
                     ...props.message,
                     content : evt.target.value,
+                    tokenCount : undefined,
                 }, props.message);
             }}
         />

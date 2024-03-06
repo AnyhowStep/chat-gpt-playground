@@ -28,6 +28,8 @@ export function FunctionToolListPage () {
                         required : [],
                         properties : [],
                     },
+                    useJavaScriptImpl : undefined,
+                    javaScriptImpl : undefined,
                 },
             ];
             localStorageUtil.saveFunctionTools(newFunctionTools);

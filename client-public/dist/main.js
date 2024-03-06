@@ -166,7 +166,7 @@
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatCompleteResponseBody = exports.chatCompleteRequestBody = exports.tools = exports.chatMessage = exports.contentChatMessage = exports.assistantContentChatMessage = exports.assistantToolCallChatMessage = exports.toolResponseChatMessage = void 0;
-var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
+const tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
 /**
  * https://platform.openai.com/docs/guides/function-calling
  */
@@ -334,7 +334,7 @@ exports.chatCompleteResponseBody = tm.object({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getEmbeddingResponseBody = exports.getEmbeddingRequestBody = void 0;
-var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
+const tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
 exports.getEmbeddingRequestBody = tm.object({
     input: tm.string(),
     model: tm.string().or(tm.literal("text-embedding-ada-002")),
@@ -367,7 +367,11 @@ exports.getEmbeddingResponseBody = tm.object({
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -396,7 +400,7 @@ __exportStar(__webpack_require__(/*! ./tokenizer */ "./src/api-openai-mapper/tok
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.modelListResponseBody = exports.model = void 0;
-var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
+const tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
 /**
  * https://platform.openai.com/docs/api-reference/models/object
  */
@@ -425,7 +429,7 @@ exports.modelListResponseBody = tm.object({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.textGenerationResponseBody = exports.textGenerationRequestBody = void 0;
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
 /**
  * https://beta.openai.com/docs/api-reference/completions/create
  */
@@ -471,7 +475,7 @@ exports.textGenerationResponseBody = tm.object({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokenizerTokenLengthResponseBody = exports.tokenizerTokenLengthRequestBody = void 0;
-var tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
+const tm = __webpack_require__(/*! type-mapping/fluent */ "./node_modules/type-mapping/fluent.js");
 exports.tokenizerTokenLengthRequestBody = tm.object({
     text: tm.string(),
 });
@@ -493,13 +497,13 @@ exports.tokenizerTokenLengthResponseBody = tm.object({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatApi = void 0;
-var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
-var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
-var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+const rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+const m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
 /**
  * https://platform.openai.com/docs/api-reference/chat/create
  */
-var completeChat = rd.route()
+const completeChat = rd.route()
     .append("/v1/chat/completions")
     .setBody(m.chatCompleteRequestBody)
     .setResponse(m.chatCompleteResponseBody);
@@ -521,15 +525,15 @@ exports.ChatApi = rc.toAxiosApi({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmbeddingApi = void 0;
-var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
-var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
-var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
-var getEmbedding = rd.route()
+const rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+const rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+const m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const getEmbedding = rd.route()
     .append("/v1/embeddings")
     .setBody(m.getEmbeddingRequestBody)
     .setResponse(m.getEmbeddingResponseBody);
 exports.EmbeddingApi = rc.toAxiosApi({
-    getEmbedding: getEmbedding,
+    getEmbedding,
 });
 
 
@@ -546,7 +550,11 @@ exports.EmbeddingApi = rc.toAxiosApi({
 
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
 }) : (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     o[k2] = m[k];
@@ -574,13 +582,13 @@ __exportStar(__webpack_require__(/*! ./text-generation */ "./src/api-openai/text
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModelApi = void 0;
-var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
-var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
-var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+const rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+const m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
 /**
  * https://platform.openai.com/docs/api-reference/models/list
  */
-var list = rd.route()
+const list = rd.route()
     .append("/v1/models")
     .setResponse(m.modelListResponseBody);
 exports.ModelApi = rc.toAxiosApi({
@@ -599,32 +607,24 @@ exports.ModelApi = rc.toAxiosApi({
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenAiApi = void 0;
-var chat_1 = __webpack_require__(/*! ./chat */ "./src/api-openai/chat.ts");
-var embedding_1 = __webpack_require__(/*! ./embedding */ "./src/api-openai/embedding.ts");
-var model_1 = __webpack_require__(/*! ./model */ "./src/api-openai/model.ts");
-var text_generation_1 = __webpack_require__(/*! ./text-generation */ "./src/api-openai/text-generation.ts");
-var tokenizer_1 = __webpack_require__(/*! ./tokenizer */ "./src/api-openai/tokenizer.ts");
-var OpenAiApi = /** @class */ (function () {
-    function OpenAiApi(args) {
-        var myArgs = __assign(__assign({}, args), { onInjectHeader: function () {
+const chat_1 = __webpack_require__(/*! ./chat */ "./src/api-openai/chat.ts");
+const embedding_1 = __webpack_require__(/*! ./embedding */ "./src/api-openai/embedding.ts");
+const model_1 = __webpack_require__(/*! ./model */ "./src/api-openai/model.ts");
+const text_generation_1 = __webpack_require__(/*! ./text-generation */ "./src/api-openai/text-generation.ts");
+const tokenizer_1 = __webpack_require__(/*! ./tokenizer */ "./src/api-openai/tokenizer.ts");
+class OpenAiApi {
+    constructor(args) {
+        const myArgs = {
+            ...args,
+            onInjectHeader: () => {
                 return {
-                    Authorization: "Bearer " + args.apiKey,
+                    Authorization: `Bearer ${args.apiKey}`,
                 };
-            } });
-        var defaultTimeout = 240 * 1000;
+            }
+        };
+        const defaultTimeout = 240 * 1000;
         this.chat = new chat_1.ChatApi(myArgs);
         this.chat.sender.axiosInstance.defaults.timeout = defaultTimeout;
         this.embedding = new embedding_1.EmbeddingApi(myArgs);
@@ -636,8 +636,7 @@ var OpenAiApi = /** @class */ (function () {
         this.tokenizer = new tokenizer_1.TokenizerApi(myArgs);
         this.tokenizer.sender.axiosInstance.defaults.timeout = defaultTimeout;
     }
-    return OpenAiApi;
-}());
+}
 exports.OpenAiApi = OpenAiApi;
 
 
@@ -654,11 +653,11 @@ exports.OpenAiApi = OpenAiApi;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TextGenerationApi = void 0;
-var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
-var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
-var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
-var generate = rd.route()
+const rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+const rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+const m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const generate = rd.route()
     .append("/v1/engines")
     .appendParam("engine_id")
     .append("/completions")
@@ -668,7 +667,7 @@ var generate = rd.route()
     .setBody(m.textGenerationRequestBody)
     .setResponse(m.textGenerationResponseBody);
 exports.TextGenerationApi = rc.toAxiosApi({
-    generate: generate,
+    generate,
 });
 
 
@@ -685,15 +684,15 @@ exports.TextGenerationApi = rc.toAxiosApi({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TokenizerApi = void 0;
-var rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
-var rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
-var m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
-var tokenLength = rd.route()
+const rd = __webpack_require__(/*! route-declaration */ "./node_modules/route-declaration/dist/index.js");
+const rc = __webpack_require__(/*! route-client */ "./node_modules/route-client/dist/index.js");
+const m = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const tokenLength = rd.route()
     .append("/v1/tokenizer/token-length")
     .setBody(m.tokenizerTokenLengthRequestBody)
     .setResponse(m.tokenizerTokenLengthResponseBody);
 exports.TokenizerApi = rc.toAxiosApi({
-    tokenLength: tokenLength,
+    tokenLength,
 });
 
 
@@ -710,18 +709,18 @@ exports.TokenizerApi = rc.toAxiosApi({
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ApiKeyPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 function ApiKeyPage() {
     var _a;
-    var _b = React.useState((_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : ""), openAiApiKey = _b[0], setOpenAiApikey = _b[1];
+    const [openAiApiKey, setOpenAiApikey,] = React.useState((_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : "");
     return React.createElement("div", { className: "ui main container form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Open AI API Key"),
-            React.createElement("input", { type: "text", value: openAiApiKey, onChange: function (evt) {
+            React.createElement("input", { type: "text", value: openAiApiKey, onChange: (evt) => {
                     setOpenAiApikey(evt.target.value);
                 } })),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
+        React.createElement("button", { className: "ui primary button", onClick: () => {
                 localStorageUtil.setItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY, openAiApiKey);
                 alert("Saved API Key");
             } }, "Save"));
@@ -742,22 +741,22 @@ exports.ApiKeyPage = ApiKeyPage;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.App = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var use_dropdown_1 = __webpack_require__(/*! ./use-dropdown */ "./src/client-public/use-dropdown.ts");
-var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const use_dropdown_1 = __webpack_require__(/*! ./use-dropdown */ "./src/client-public/use-dropdown.ts");
+const react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 //import {DefaultMenu} from "./DefaultMenu";
-var HomePage_1 = __webpack_require__(/*! ./HomePage */ "./src/client-public/HomePage.tsx");
-var DefaultMenu_1 = __webpack_require__(/*! ./DefaultMenu */ "./src/client-public/DefaultMenu.tsx");
-var ApiKeyPage_1 = __webpack_require__(/*! ./ApiKeyPage */ "./src/client-public/ApiKeyPage.tsx");
-var FunctionToolListPage_1 = __webpack_require__(/*! ./FunctionToolListPage */ "./src/client-public/FunctionToolListPage.tsx");
-var FunctionToolEditPage_1 = __webpack_require__(/*! ./FunctionToolEditPage */ "./src/client-public/FunctionToolEditPage.tsx");
-var ConversationListPage_1 = __webpack_require__(/*! ./ConversationListPage */ "./src/client-public/ConversationListPage.tsx");
-var ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
-var ModelListPage_1 = __webpack_require__(/*! ./ModelListPage */ "./src/client-public/ModelListPage.tsx");
-var SelfDiscoverListPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverListPage */ "./src/client-public/self-discover/SelfDiscoverListPage.tsx");
-var SelfDiscoverEditPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverEditPage */ "./src/client-public/self-discover/SelfDiscoverEditPage.tsx");
+const HomePage_1 = __webpack_require__(/*! ./HomePage */ "./src/client-public/HomePage.tsx");
+const DefaultMenu_1 = __webpack_require__(/*! ./DefaultMenu */ "./src/client-public/DefaultMenu.tsx");
+const ApiKeyPage_1 = __webpack_require__(/*! ./ApiKeyPage */ "./src/client-public/ApiKeyPage.tsx");
+const FunctionToolListPage_1 = __webpack_require__(/*! ./FunctionToolListPage */ "./src/client-public/FunctionToolListPage.tsx");
+const FunctionToolEditPage_1 = __webpack_require__(/*! ./FunctionToolEditPage */ "./src/client-public/FunctionToolEditPage.tsx");
+const ConversationListPage_1 = __webpack_require__(/*! ./ConversationListPage */ "./src/client-public/ConversationListPage.tsx");
+const ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+const ModelListPage_1 = __webpack_require__(/*! ./ModelListPage */ "./src/client-public/ModelListPage.tsx");
+const SelfDiscoverListPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverListPage */ "./src/client-public/self-discover/SelfDiscoverListPage.tsx");
+const SelfDiscoverEditPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverEditPage */ "./src/client-public/self-discover/SelfDiscoverEditPage.tsx");
 function App(_props) {
-    var sidebar = use_dropdown_1.useDropdown({
+    const sidebar = (0, use_dropdown_1.useDropdown)({
         openClassName: "uncover visible",
         closeClassName: "uncover animating",
     });
@@ -769,28 +768,28 @@ function App(_props) {
             React.createElement("div", { className: "item" },
                 "Lists",
                 React.createElement("div", { className: "menu" },
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/list" }, "All Lists"))),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/list` }, "All Lists"))),
             React.createElement("div", { className: "item" },
                 "Search",
                 React.createElement("div", { className: "menu" })),
             React.createElement("div", { className: "item" },
                 "Settings",
                 React.createElement("div", { className: "menu" },
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/api-key" }, "API Key"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/function-tool" }, "Function Tools"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/model" }, "Models"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/conversation" }, "Conversations"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: "/self-discover" }, "Self-Discovers")))),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/api-key` }, "API Key"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/function-tool` }, "Function Tools"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/model` }, "Models"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/conversation` }, "Conversations"),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/self-discover` }, "Self-Discovers")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
             React.createElement(react_router_dom_1.Switch, null,
                 React.createElement(react_router_dom_1.Route, { path: "/api-key", component: ApiKeyPage_1.ApiKeyPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/function-tool/:uuid/edit", component: FunctionToolEditPage_1.FunctionToolEditPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/function-tool", component: FunctionToolListPage_1.FunctionToolListPage }),
-                React.createElement(react_router_dom_1.Route, { path: "/model", component: function () { return React.createElement(ModelListPage_1.ModelListPage, { openAiApi: _props.openAiApi }); } }),
-                React.createElement(react_router_dom_1.Route, { path: "/conversation/:uuid/edit", component: function () { return React.createElement(ConversationEditPage_1.ConversationEditPage, { openAiApi: _props.openAiApi }); } }),
+                React.createElement(react_router_dom_1.Route, { path: "/model", component: () => React.createElement(ModelListPage_1.ModelListPage, { openAiApi: _props.openAiApi }) }),
+                React.createElement(react_router_dom_1.Route, { path: "/conversation/:uuid/edit", component: () => React.createElement(ConversationEditPage_1.ConversationEditPage, { openAiApi: _props.openAiApi }) }),
                 React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
-                React.createElement(react_router_dom_1.Route, { path: "/self-discover/:uuid/edit", component: function () { return React.createElement(SelfDiscoverEditPage_1.SelfDiscoverEditPage, { openAiApi: _props.openAiApi }); } }),
+                React.createElement(react_router_dom_1.Route, { path: "/self-discover/:uuid/edit", component: () => React.createElement(SelfDiscoverEditPage_1.SelfDiscoverEditPage, { openAiApi: _props.openAiApi }) }),
                 React.createElement(react_router_dom_1.Route, { path: "/self-discover", component: SelfDiscoverListPage_1.SelfDiscoverListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
 }
@@ -808,27 +807,20 @@ exports.App = App;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AssistantToolCallMessageForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var ToolCallListForm_1 = __webpack_require__(/*! ./ToolCallListForm */ "./src/client-public/ToolCallListForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const ToolCallListForm_1 = __webpack_require__(/*! ./ToolCallListForm */ "./src/client-public/ToolCallListForm.tsx");
 function AssistantToolCallMessageForm(props) {
-    var message = props.message, onChange = props.onChange, onAddResponse = props.onAddResponse;
+    const { message, onChange, onAddResponse, } = props;
     return React.createElement("div", { className: "ui form" },
-        React.createElement(ToolCallListForm_1.ToolCallListForm, { toolCalls: message.tool_calls, onChange: function (newToolCalls) {
-                onChange(__assign(__assign({}, message), { tool_calls: newToolCalls }), message);
-            }, onAddResponse: function (toolCall) {
+        React.createElement(ToolCallListForm_1.ToolCallListForm, { toolCalls: message.tool_calls, onChange: (newToolCalls) => {
+                onChange({
+                    ...message,
+                    tool_calls: newToolCalls,
+                    tokenCount: undefined,
+                }, message);
+            }, onAddResponse: (toolCall) => {
                 onAddResponse(toolCall);
             } }));
 }
@@ -846,39 +838,33 @@ exports.AssistantToolCallMessageForm = AssistantToolCallMessageForm;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChatRequestConfigUx = exports.responseFormatTypes = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
 exports.responseFormatTypes = [
     "text",
     "json_object",
 ];
 function ChatRequestConfigUx(props) {
-    var config = props.config, onConfigChange = props.onConfigChange;
-    var models = React.useState(function () {
-        return localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
-    })[0];
+    const { config, onConfigChange, } = props;
+    const [models,
+    //setModels,
+    ] = React.useState(() => {
+        return localStorageUtil.loadModels().filter(model => model.id.startsWith("gpt"));
+    });
     return React.createElement("div", { className: "ui form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Model"),
-            React.createElement("select", { value: config.model, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { model: evt.target.value }));
+            React.createElement("select", { value: config.model, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        model: evt.target.value,
+                    });
                 } },
                 React.createElement("option", { key: "none", value: "", disabled: true }, "Select a Model"),
-                models.map(function (model) {
+                models.map(model => {
                     return React.createElement("option", { key: model.id, value: model.id },
                         model.id,
                         " - (",
@@ -889,11 +875,14 @@ function ChatRequestConfigUx(props) {
             React.createElement("label", { "data-tooltip": "When using JSON mode, you must also instruct the model to produce JSON yourself via a system or user message.", "data-position": "top left", "data-inverted": true },
                 "Response Format ",
                 React.createElement("i", { className: "question circle icon" })),
-            React.createElement("select", { value: config.response_format.type, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { response_format: {
+            React.createElement("select", { value: config.response_format.type, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        response_format: {
                             type: evt.target.value,
-                        } }));
-                } }, exports.responseFormatTypes.map(function (responeFormatType) {
+                        },
+                    });
+                } }, exports.responseFormatTypes.map(responeFormatType => {
                 return React.createElement("option", { key: responeFormatType, value: responeFormatType }, responeFormatType);
             })),
             config.response_format.type == "json_object" ?
@@ -914,20 +903,29 @@ function ChatRequestConfigUx(props) {
                 "Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic.",
                 React.createElement("br", null),
                 "We generally recommend altering this or top_p but not both."),
-            React.createElement("input", { type: "number", min: "0", max: "2", step: "0.01", value: config.temperature, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { temperature: Number(evt.target.value) }));
+            React.createElement("input", { type: "number", min: "0", max: "2", step: "0.01", value: config.temperature, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        temperature: Number(evt.target.value),
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Max Output Tokens"),
             React.createElement("small", null, "The maximum number of tokens that can be generated in the chat completion."),
-            React.createElement("input", { type: "number", min: "1", max: "4096", step: "1", value: config.max_tokens, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { max_tokens: Number(evt.target.value) }));
+            React.createElement("input", { type: "number", min: "1", max: "4096", step: "1", value: config.max_tokens, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        max_tokens: Number(evt.target.value),
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Stop Sequences"),
             React.createElement("small", null, "Up to 4 sequences where the API will stop generating further tokens."),
-            React.createElement("input", { type: "text", placeholder: "A JSON string or JSON array: \"test\" or [\"day\", \"night\"]", value: config.stop, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { stop: evt.target.value }));
+            React.createElement("input", { type: "text", placeholder: `A JSON string or JSON array: "test" or ["day", "night"]`, value: config.stop, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        stop: evt.target.value,
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Top P"),
@@ -937,20 +935,29 @@ function ChatRequestConfigUx(props) {
                 "So 0.1 means only the tokens comprising the top 10% probability mass are considered.",
                 React.createElement("br", null),
                 "We generally recommend altering this or temperature but not both."),
-            React.createElement("input", { type: "number", min: "0", max: "1", step: "0.01", value: config.top_p, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { top_p: Number(evt.target.value) }));
+            React.createElement("input", { type: "number", min: "0", max: "1", step: "0.01", value: config.top_p, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        top_p: Number(evt.target.value),
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Frequency Penalty"),
             React.createElement("small", null, "Number between -2.0 and 2.0. Positive values penalize new tokens based on their existing frequency in the text so far, decreasing the model's likelihood to repeat the same line verbatim."),
-            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.frequency_penalty, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { frequency_penalty: Number(evt.target.value) }));
+            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.frequency_penalty, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        frequency_penalty: Number(evt.target.value),
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Presence Penalty"),
             React.createElement("small", null, "Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear in the text so far, increasing the model's likelihood to talk about new topics."),
-            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.presence_penalty, onChange: function (evt) {
-                    onConfigChange(__assign(__assign({}, config), { presence_penalty: Number(evt.target.value) }));
+            React.createElement("input", { type: "number", min: "-2", max: "2", step: "0.01", value: config.presence_penalty, onChange: (evt) => {
+                    onConfigChange({
+                        ...config,
+                        presence_penalty: Number(evt.target.value),
+                    });
                 } })));
 }
 exports.ChatRequestConfigUx = ChatRequestConfigUx;
@@ -967,21 +974,10 @@ exports.ChatRequestConfigUx = ChatRequestConfigUx;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ContentMessageForm = exports.isContentMessage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var contentMessageTypes = [
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const contentMessageTypes = [
     "system",
     "user",
     "assistant",
@@ -995,8 +991,12 @@ function ContentMessageForm(props) {
         React.createElement("textarea", { style: {
                 minHeight: "8em",
                 maxHeight: "48em",
-            }, value: props.message.content, onChange: function (evt) {
-                props.onChange(__assign(__assign({}, props.message), { content: evt.target.value }), props.message);
+            }, value: props.message.content, onChange: (evt) => {
+                props.onChange({
+                    ...props.message,
+                    content: evt.target.value,
+                    tokenCount: undefined,
+                }, props.message);
             } }));
 }
 exports.ContentMessageForm = ContentMessageForm;
@@ -1013,73 +1013,22 @@ exports.ContentMessageForm = ContentMessageForm;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConversationEditPage = exports.submitConversation = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
-var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
-var MessageListForm_1 = __webpack_require__(/*! ./MessageListForm */ "./src/client-public/MessageListForm.tsx");
-var api_openai_mapper_1 = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
-var json_schema_editor_1 = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
-var use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
-var ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
-var error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const gptTokenizer = __webpack_require__(/*! gpt-tokenizer */ "./node_modules/gpt-tokenizer/esm/main.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const ChatRequestConfigUx_1 = __webpack_require__(/*! ./ChatRequestConfigUx */ "./src/client-public/ChatRequestConfigUx.tsx");
+const FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
+const MessageListForm_1 = __webpack_require__(/*! ./MessageListForm */ "./src/client-public/MessageListForm.tsx");
+const api_openai_mapper_1 = __webpack_require__(/*! ../api-openai-mapper */ "./src/api-openai-mapper/index.ts");
+const json_schema_editor_1 = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
+const use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+const ErrorMessage_1 = __webpack_require__(/*! ./ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
 function toMessage(m) {
     switch (m.role) {
         case "system": {
@@ -1133,7 +1082,7 @@ function parseStop(str) {
         return undefined;
     }
     try {
-        var result = JSON.parse(str);
+        const result = JSON.parse(str);
         if (typeof result == "string") {
             return [result];
         }
@@ -1147,97 +1096,94 @@ function parseStop(str) {
     }
 }
 function parseFunctionTools(conversation, functionTools) {
-    var result = functionTools
-        .filter(function (f) {
+    const result = functionTools
+        .filter(f => {
         var _a;
         return Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
             (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
             false;
     })
-        .map(function (f) {
+        .map(f => {
         return {
             type: "function",
             function: {
                 name: f.name,
                 description: f.description,
-                parameters: __assign({}, json_schema_editor_1.cleanObject(f.parameters)),
+                parameters: {
+                    ...(0, json_schema_editor_1.cleanObject)(f.parameters),
+                },
             },
         };
     });
     return result.length == 0 ?
         undefined :
-        api_openai_mapper_1.tools("parseFunctionTools", result);
+        (0, api_openai_mapper_1.tools)("parseFunctionTools", result);
 }
 function parseMessages(messages) {
-    return messages.map(function (m, i) {
-        return api_openai_mapper_1.chatMessage("parseMessages[" + i + "]", m);
+    return messages.map((m, i) => {
+        return (0, api_openai_mapper_1.chatMessage)(`parseMessages[${i}]`, m);
     });
 }
-function submitConversation(openAiApi, conversation, functionTools) {
-    return __awaiter(this, void 0, Promise, function () {
-        var parsedStop, response, choice;
-        return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    parsedStop = parseStop(conversation.rawChatRequestConfig.stop);
-                    return [4 /*yield*/, openAiApi.chat.complete()
-                            .setBody({
-                            model: conversation.rawChatRequestConfig.model,
-                            messages: parseMessages(conversation.messages),
-                            tools: parseFunctionTools(conversation, functionTools),
-                            tool_choice: undefined,
-                            temperature: conversation.rawChatRequestConfig.temperature,
-                            top_p: conversation.rawChatRequestConfig.top_p,
-                            /**
-                             * How many chat completion choices to generate for each input message.
-                             * Note that you will be charged based on the number of generated tokens across all of the choices.
-                             * Keep n as 1 to minimize costs.
-                             */
-                            n: undefined,
-                            stream: false,
-                            stop: parsedStop,
-                            max_tokens: conversation.rawChatRequestConfig.max_tokens,
-                            presence_penalty: conversation.rawChatRequestConfig.presence_penalty,
-                            frequency_penalty: conversation.rawChatRequestConfig.frequency_penalty,
-                            logit_bias: undefined,
-                            response_format: conversation.rawChatRequestConfig.response_format,
-                            user: undefined,
-                        })
-                            .send()];
-                case 1:
-                    response = _a.sent();
-                    if (response.responseBody.choices.length != 1) {
-                        console.error(response.responseBody);
-                        throw new Error("Expected 1 choice, found " + response.responseBody.choices.length);
-                    }
-                    choice = response.responseBody.choices[0];
-                    return [2 /*return*/, __assign(__assign({}, conversation), { messages: __spreadArray(__spreadArray([], conversation.messages), [
-                                toMessage(choice.message),
-                            ]) })];
-            }
-        });
-    });
+async function submitConversation(openAiApi, conversation, functionTools) {
+    const parsedStop = parseStop(conversation.rawChatRequestConfig.stop);
+    const response = await openAiApi.chat.complete()
+        .setBody({
+        model: conversation.rawChatRequestConfig.model,
+        messages: parseMessages(conversation.messages),
+        tools: parseFunctionTools(conversation, functionTools),
+        tool_choice: undefined,
+        temperature: conversation.rawChatRequestConfig.temperature,
+        top_p: conversation.rawChatRequestConfig.top_p,
+        /**
+         * How many chat completion choices to generate for each input message.
+         * Note that you will be charged based on the number of generated tokens across all of the choices.
+         * Keep n as 1 to minimize costs.
+         */
+        n: undefined,
+        stream: false,
+        stop: parsedStop,
+        max_tokens: conversation.rawChatRequestConfig.max_tokens,
+        presence_penalty: conversation.rawChatRequestConfig.presence_penalty,
+        frequency_penalty: conversation.rawChatRequestConfig.frequency_penalty,
+        logit_bias: undefined,
+        response_format: conversation.rawChatRequestConfig.response_format,
+        user: undefined,
+    })
+        .send();
+    if (response.responseBody.choices.length != 1) {
+        console.error(response.responseBody);
+        throw new Error(`Expected 1 choice, found ${response.responseBody.choices.length}`);
+    }
+    const choice = response.responseBody.choices[0];
+    return {
+        ...conversation,
+        messages: [
+            ...conversation.messages,
+            toMessage(choice.message),
+        ],
+    };
 }
 exports.submitConversation = submitConversation;
 function ConversationEditPage(props) {
-    var routeParams = reactRouter.useParams();
-    var _a = React.useState(localStorageUtil.loadConversation(routeParams.uuid)), conversation = _a[0], setConversation = _a[1];
-    var functionTools = React.useMemo(function () {
+    var _a;
+    const routeParams = reactRouter.useParams();
+    const [conversation, setConversation,] = React.useState(localStorageUtil.loadConversation(routeParams.uuid));
+    const functionTools = React.useMemo(() => {
         return localStorageUtil.loadFunctionTools();
     }, []);
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    React.useEffect(function () {
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
         if (conversation == undefined) {
             return;
         }
-        var timer = setTimeout(function () {
+        const timer = setTimeout(() => {
             //localStorageUtil.loadConversation(conversation.uuid);
             localStorageUtil.saveConversation(conversation);
-            var lastMessage = conversation.messages.length > 0 ?
+            const lastMessage = conversation.messages.length > 0 ?
                 conversation.messages[conversation.messages.length - 1] :
                 undefined;
-            var meta = localStorageUtil.loadConversationsMeta().map(function (m) {
+            const meta = localStorageUtil.loadConversationsMeta().map((m) => {
                 return m.uuid == conversation.uuid ?
                     {
                         uuid: conversation.uuid,
@@ -1253,8 +1199,54 @@ function ConversationEditPage(props) {
             });
             localStorageUtil.saveConversationsMeta(meta);
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [conversation]);
+    React.useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (conversation == undefined) {
+                return;
+            }
+            let tokenized = false;
+            const newConversation = {
+                ...conversation,
+                messages: conversation.messages.map(m => {
+                    if (m.tokenCount != undefined) {
+                        return m;
+                    }
+                    if (m.messageType == "tool_response") {
+                        tokenized = true;
+                        return {
+                            ...m,
+                            tokenCount: gptTokenizer.encode(JSON.stringify({
+                                tool_call_id: m.tool_call_id,
+                                name: m.name,
+                                content: m.content,
+                            })).length,
+                        };
+                    }
+                    if ("content" in m) {
+                        tokenized = true;
+                        return {
+                            ...m,
+                            tokenCount: gptTokenizer.encode(m.content).length,
+                        };
+                    }
+                    if ("tool_calls" in m) {
+                        tokenized = true;
+                        return {
+                            ...m,
+                            tokenCount: gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
+                        };
+                    }
+                    return m;
+                }),
+            };
+            if (tokenized) {
+                setConversation(newConversation);
+            }
+        }, 500);
+        return () => clearTimeout(timeout);
+    }, [(_a = conversation === null || conversation === void 0 ? void 0 : conversation.messages.map(m => m.tokenCount).join(",")) !== null && _a !== void 0 ? _a : ""]);
     if (conversation == undefined) {
         return React.createElement("div", { className: "ui main container" },
             "Conversation ",
@@ -1266,56 +1258,84 @@ function ConversationEditPage(props) {
             React.createElement("div", { className: "two fields" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Title"),
-                    React.createElement("input", { placeholder: "Enter a Conversation Title", value: conversation.name, onChange: function (evt) {
-                            setConversation(__assign(__assign({}, conversation), { name: evt.target.value }));
+                    React.createElement("input", { placeholder: "Enter a Conversation Title", value: conversation.name, onChange: (evt) => {
+                            setConversation({
+                                ...conversation,
+                                name: evt.target.value,
+                            });
                         } })),
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Description"),
-                    React.createElement("input", { placeholder: "Enter a Conversation Description", value: conversation.description, onChange: function (evt) {
-                            setConversation(__assign(__assign({}, conversation), { description: evt.target.value }));
-                        } })))),
-        React.createElement(MessageListForm_1.MessageListForm, { messages: conversation.messages, onChange: function (newMessages) {
-                setConversation(__assign(__assign({}, conversation), { messages: newMessages }));
+                    React.createElement("input", { placeholder: "Enter a Conversation Description", value: conversation.description, onChange: (evt) => {
+                            setConversation({
+                                ...conversation,
+                                description: evt.target.value,
+                            });
+                        } }))),
+            React.createElement("div", { className: "ui mini label" },
+                "~",
+                conversation.messages.reduce((sum, m) => {
+                    var _a;
+                    return sum + ((_a = m.tokenCount) !== null && _a !== void 0 ? _a : 0);
+                }, 0),
+                " tokens")),
+        React.createElement(MessageListForm_1.MessageListForm, { messages: conversation.messages, onChange: (newMessages) => {
+                setConversation({
+                    ...conversation,
+                    messages: newMessages,
+                });
             } }),
         React.createElement("div", { className: "ui segment" },
             React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
-            React.createElement("button", { className: "ui primary button", onClick: function () {
-                    setConversation(__assign(__assign({}, conversation), { messages: __spreadArray(__spreadArray([], conversation.messages), [
+            React.createElement("button", { className: "ui primary button", onClick: () => {
+                    setConversation({
+                        ...conversation,
+                        messages: [
+                            ...conversation.messages,
                             {
                                 uuid: uuid.v4(),
                                 messageType: "user",
                                 role: "user",
                                 content: "",
                             }
-                        ]) }));
+                        ],
+                    });
                 } }, "Add Message"),
-            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
                     if (isLoading) {
                         return;
                     }
                     setIsLoading(true);
                     submitConversation(props.openAiApi, conversation, functionTools)
-                        .then(function (newConversation) {
+                        .then((newConversation) => {
                         setIsLoading(false);
                         setConversation(newConversation);
                         error.reset();
-                    }, function (err) {
+                    }, (err) => {
                         setIsLoading(false);
-                        error_handling_1.handleError(error, err);
+                        (0, error_handling_1.handleError)(error, err);
                     });
                 } }, "Submit")),
         React.createElement("div", { className: "ui segment" },
-            React.createElement(ChatRequestConfigUx_1.ChatRequestConfigUx, { config: conversation.rawChatRequestConfig, onConfigChange: function (rawChatRequestConfig) {
-                    setConversation(__assign(__assign({}, conversation), { rawChatRequestConfig: rawChatRequestConfig }));
+            React.createElement(ChatRequestConfigUx_1.ChatRequestConfigUx, { config: conversation.rawChatRequestConfig, onConfigChange: (rawChatRequestConfig) => {
+                    setConversation({
+                        ...conversation,
+                        rawChatRequestConfig,
+                    });
                 } })),
-        React.createElement("div", { className: "ui segment" }, React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: false, rightFloatedContent: function (f) {
+        React.createElement("div", { className: "ui segment" }, React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: false, rightFloatedContent: (f) => {
                 var _a;
                 return React.createElement("div", { className: "ui checkbox", key: f.uuid },
                     React.createElement("input", { type: "checkbox", checked: Object.prototype.hasOwnProperty.call(conversation.usedFunctions, f.uuid) ?
                             (_a = conversation.usedFunctions[f.uuid]) !== null && _a !== void 0 ? _a : false :
-                            false, onChange: function (evt) {
-                            var _a;
-                            setConversation(__assign(__assign({}, conversation), { usedFunctions: __assign(__assign({}, conversation.usedFunctions), (_a = {}, _a[f.uuid] = evt.target.checked, _a)) }));
+                            false, onChange: (evt) => {
+                            setConversation({
+                                ...conversation,
+                                usedFunctions: {
+                                    ...conversation.usedFunctions,
+                                    [f.uuid]: evt.target.checked
+                                },
+                            });
                         } }),
                     React.createElement("label", null));
             } })));
@@ -1334,67 +1354,60 @@ exports.ConversationEditPage = ConversationEditPage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConversationListPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 //import { Conversation } from "./ConversationForm";
 function ConversationListPage() {
-    var history = reactRouter.useHistory();
-    var _a = React.useState(localStorageUtil.loadConversationsMeta()), conversations = _a[0], setConversations = _a[1];
+    const history = reactRouter.useHistory();
+    const [conversations, setConversations,] = React.useState(localStorageUtil.loadConversationsMeta());
     return React.createElement("div", { className: "ui main container" },
-        React.createElement("div", { className: "ui segment divided selection massive list" }, conversations.map(function (meta) {
-            var displayName = meta.name.trim() == "" ?
-                "Conversation " + meta.uuid :
+        React.createElement("div", { className: "ui segment divided selection massive list" }, conversations.map(meta => {
+            const displayName = meta.name.trim() == "" ?
+                `Conversation ${meta.uuid}` :
                 meta.name;
-            return React.createElement("div", { className: "item", key: meta.uuid, onClick: function () {
-                    history.push("/conversation/" + meta.uuid + "/edit");
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: () => {
+                    history.push(`/conversation/${meta.uuid}/edit`);
                 } },
                 React.createElement("div", { className: "extra right floated" },
-                    React.createElement("div", { className: "ui icon secondary button", onClick: function (evt) {
+                    React.createElement("div", { className: "ui icon secondary button", onClick: (evt) => {
                             evt.preventDefault();
                             evt.stopPropagation();
-                            if (confirm("Copy " + displayName + "?")) {
-                                var existingConversation = localStorageUtil.loadConversation(meta.uuid);
+                            if (confirm(`Copy ${displayName}?`)) {
+                                const existingConversation = localStorageUtil.loadConversation(meta.uuid);
                                 if (existingConversation == undefined) {
-                                    alert("Cannot find " + displayName + " / " + meta.uuid);
+                                    alert(`Cannot find ${displayName} / ${meta.uuid}`);
                                     return;
                                 }
-                                var newUuid = uuid.v4();
-                                var newConversation = __assign(__assign({}, existingConversation), { uuid: newUuid, name: "Copy of " + displayName });
-                                var newConversations = __spreadArray(__spreadArray([], localStorageUtil.loadConversationsMeta()), [
-                                    __assign(__assign({}, meta), { uuid: newUuid, name: "Copy of " + displayName }),
-                                ]);
+                                const newUuid = uuid.v4();
+                                const newConversation = {
+                                    ...existingConversation,
+                                    uuid: newUuid,
+                                    name: `Copy of ${displayName}`,
+                                };
+                                const newConversations = [
+                                    ...localStorageUtil.loadConversationsMeta(),
+                                    {
+                                        ...meta,
+                                        uuid: newUuid,
+                                        name: `Copy of ${displayName}`,
+                                    },
+                                ];
                                 setConversations(newConversations);
                                 localStorageUtil.saveConversationsMeta(newConversations);
                                 localStorageUtil.saveConversation(newConversation);
                             }
                         } },
                         React.createElement("i", { className: "copy icon" })),
-                    React.createElement("div", { className: "ui icon red button", onClick: function (evt) {
+                    React.createElement("div", { className: "ui icon red button", onClick: (evt) => {
                             evt.preventDefault();
                             evt.stopPropagation();
-                            if (confirm("Delete " + displayName + "?")) {
-                                var newConversations = localStorageUtil.loadConversationsMeta()
-                                    .filter(function (m) { return m.uuid != meta.uuid; });
+                            if (confirm(`Delete ${displayName}?`)) {
+                                const newConversations = localStorageUtil.loadConversationsMeta()
+                                    .filter(m => m.uuid != meta.uuid);
                                 setConversations(newConversations);
                                 localStorageUtil.saveConversationsMeta(newConversations);
                                 localStorageUtil.deleteConversation(meta);
@@ -1413,12 +1426,13 @@ function ConversationListPage() {
                             "Last Message: ",
                             meta.lastMessage)));
         })),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                var conversations = localStorageUtil.loadConversationsMeta();
-                var _a = localStorageUtil.makeConversation(), meta = _a.meta, conversation = _a.conversation;
-                var newConversations = __spreadArray(__spreadArray([], conversations), [
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const conversations = localStorageUtil.loadConversationsMeta();
+                const { meta, conversation, } = localStorageUtil.makeConversation();
+                const newConversations = [
+                    ...conversations,
                     meta,
-                ]);
+                ];
                 localStorageUtil.saveConversationsMeta(newConversations);
                 localStorageUtil.saveConversation(conversation);
                 setConversations(newConversations);
@@ -1440,24 +1454,23 @@ exports.ConversationListPage = ConversationListPage;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DefaultMenu = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 function DefaultMenu(props) {
-    var _a = React.useState(""), searchInput = _a[0], setSearchInput = _a[1];
+    const [searchInput, setSearchInput] = React.useState("");
     //const dropdownSearch = useDropdown({});
-    return React.createElement(react_router_dom_1.Route, { render: function (_a) {
+    return React.createElement(react_router_dom_1.Route, { render: ({ history }) => {
             //searchId, atVersion, rowsPerPage
             //atVersion
             //Convenience method to pick values, stringify and prepend "?" character
-            var history = _a.history;
             /*const queryOnlyLanguageCode = {
                 languageCode : query.languageCode,
             };*/
-            var goToSearch = function () {
+            const goToSearch = () => {
                 if (/^\s*$/.test(searchInput)) {
                     return;
                 }
-                history.push("/search/title/" + encodeURIComponent(searchInput));
+                history.push(`/search/title/${encodeURIComponent(searchInput)}`);
             };
             return (React.createElement("div", { className: "ui fixed inverted menu" },
                 React.createElement("a", { className: "ui item header home-button", onClick: props.sidebarHook.onClick, onMouseOver: props.sidebarHook.onMouseOver, ref: props.sidebarHook.ref },
@@ -1470,11 +1483,11 @@ function DefaultMenu(props) {
                         //maxWidth : "200px",
                         flex: 1,
                     } },
-                    React.createElement("form", { className: "ui input", onSubmit: function (e) {
+                    React.createElement("form", { className: "ui input", onSubmit: (e) => {
                             e.preventDefault();
                             goToSearch();
                         } },
-                        React.createElement("input", { type: "text", placeholder: "Search...", value: searchInput, onChange: function (e) {
+                        React.createElement("input", { type: "text", placeholder: "Search...", value: searchInput, onChange: (e) => {
                                 setSearchInput(e.target.value);
                             } })))));
         } });
@@ -1495,10 +1508,10 @@ exports.DefaultMenu = DefaultMenu;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErrorMessage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const react_router_dom_1 = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 function ErrorMessage(props) {
-    var error = props.error;
+    const { error } = props;
     if (error.messages.length == 0) {
         return React.createElement("div", { className: "ui hidden message" });
     }
@@ -1508,8 +1521,8 @@ function ErrorMessage(props) {
             React.createElement("div", { className: "content" },
                 React.createElement("div", { className: "header" }, error.type == "warning" ? "Warning" : "Error"),
                 React.createElement("ul", { className: "list" },
-                    error.messages.map(function (message, i) { return React.createElement("li", { key: i }, message); }),
-                    error.messages.some(function (msg) { return msg.startsWith("no such"); }) ?
+                    error.messages.map((message, i) => React.createElement("li", { key: i }, message)),
+                    error.messages.some(msg => msg.startsWith("no such")) ?
                         React.createElement("li", null,
                             React.createElement(react_router_dom_1.Link, { to: "/" }, "Maybe peforming a local data update on the Home page will help")) :
                         undefined))));
@@ -1531,14 +1544,14 @@ exports.ErrorMessage = ErrorMessage;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionToolEditPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var FunctionToolForm_1 = __webpack_require__(/*! ./FunctionToolForm */ "./src/client-public/FunctionToolForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const FunctionToolForm_1 = __webpack_require__(/*! ./FunctionToolForm */ "./src/client-public/FunctionToolForm.tsx");
 function FunctionToolEditPage() {
-    var history = reactRouter.useHistory();
-    var routeParams = reactRouter.useParams();
-    var _a = React.useState(localStorageUtil.loadFunctionTools().find(function (f) { return f.uuid == routeParams.uuid; })), functionTool = _a[0], setFunctionTool = _a[1];
+    const history = reactRouter.useHistory();
+    const routeParams = reactRouter.useParams();
+    const [functionTool, setFunctionTool,] = React.useState(localStorageUtil.loadFunctionTools().find(f => f.uuid == routeParams.uuid));
     if (functionTool == undefined) {
         return React.createElement("div", { className: "ui main container" },
             "Function Tool ",
@@ -1548,9 +1561,9 @@ function FunctionToolEditPage() {
     return React.createElement("div", { className: "ui main container" },
         React.createElement("div", { className: "ui segment" },
             React.createElement(FunctionToolForm_1.FunctionToolForm, { functionTool: functionTool, onChange: setFunctionTool })),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                var functionTools = localStorageUtil.loadFunctionTools();
-                var newFunctionTools = functionTools.map(function (f) {
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const functionTools = localStorageUtil.loadFunctionTools();
+                const newFunctionTools = functionTools.map(f => {
                     return f.uuid == routeParams.uuid ?
                         functionTool :
                         f;
@@ -1573,35 +1586,37 @@ exports.FunctionToolEditPage = FunctionToolEditPage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionToolForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var jsonSchemaEditor = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const jsonSchemaEditor = __webpack_require__(/*! ../json-schema-editor */ "./src/json-schema-editor/index.tsx");
+const use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
 function FunctionToolForm(props) {
-    var functionTool = props.functionTool, onChange = props.onChange;
+    const { functionTool, onChange, } = props;
+    const [testArgs, setTestArgs] = React.useState("");
+    const [testOutput, setTestOutput] = React.useState("");
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
     return React.createElement("div", { className: "ui form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Name"),
             React.createElement("small", null, "The name of the function to be called. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 64."),
-            React.createElement("input", { type: "text", value: functionTool.name, onChange: function (evt) {
-                    onChange(__assign(__assign({}, functionTool), { name: evt.target.value }));
+            React.createElement("input", { type: "text", value: functionTool.name, onChange: (evt) => {
+                    onChange({
+                        ...functionTool,
+                        name: evt.target.value,
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Description"),
             React.createElement("small", null, "A description of what the function does, used by the model to choose when and how to call the function."),
-            React.createElement("input", { type: "text", value: functionTool.description, onChange: function (evt) {
-                    onChange(__assign(__assign({}, functionTool), { description: evt.target.value }));
+            React.createElement("input", { type: "text", value: functionTool.description, onChange: (evt) => {
+                    onChange({
+                        ...functionTool,
+                        description: evt.target.value,
+                    });
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Parameters"),
@@ -1611,9 +1626,67 @@ function FunctionToolForm(props) {
                 "for examples, and the",
                 React.createElement("a", { href: "https://json-schema.org/understanding-json-schema/" }, "JSON Schema reference"),
                 "for documentation about the format. Omitting parameters defines a function with an empty parameter list."),
-            React.createElement(jsonSchemaEditor.ObjectEditor, { object: functionTool.parameters, onChange: function (object) {
-                    onChange(__assign(__assign({}, functionTool), { parameters: object }));
-                } })));
+            React.createElement(jsonSchemaEditor.ObjectEditor, { object: functionTool.parameters, onChange: (object) => {
+                    onChange({
+                        ...functionTool,
+                        parameters: object,
+                    });
+                } })),
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null, "Use JavaScript Implementation"),
+            React.createElement("div", { className: "ui checkbox" },
+                React.createElement("input", { type: "checkbox", checked: functionTool.useJavaScriptImpl || false, onChange: (evt) => {
+                        onChange({
+                            ...functionTool,
+                            useJavaScriptImpl: evt.target.checked,
+                        });
+                    } }),
+                React.createElement("label", null, "Use JavaScript Implementation"))),
+        functionTool.useJavaScriptImpl ?
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "JavaScript Implementation"),
+                React.createElement("textarea", { value: functionTool.javaScriptImpl, placeholder: `function (args) {}`, onChange: (evt) => {
+                        onChange({
+                            ...functionTool,
+                            javaScriptImpl: evt.target.value,
+                        });
+                    } })) :
+            undefined,
+        functionTool.useJavaScriptImpl ?
+            React.createElement(React.Fragment, null,
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Test Args"),
+                    React.createElement("textarea", { value: testArgs, onChange: (evt) => {
+                            setTestArgs(evt.target.value);
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Test Output"),
+                    React.createElement("textarea", { value: testOutput, readOnly: true })),
+                React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
+                        if (isLoading) {
+                            return;
+                        }
+                        try {
+                            const f = new Function(`return ${functionTool.javaScriptImpl}`)();
+                            const args = JSON.parse(testArgs);
+                            const promise = Promise.resolve(f(args));
+                            setIsLoading(true);
+                            promise
+                                .then((result) => {
+                                setIsLoading(false);
+                                setTestOutput(JSON.stringify(result, null, 2));
+                                error.reset();
+                            }, (err) => {
+                                setIsLoading(false);
+                                (0, error_handling_1.handleError)(error, err);
+                            });
+                        }
+                        catch (err) {
+                            setIsLoading(false);
+                            (0, error_handling_1.handleError)(error, err);
+                        }
+                    } }, "Test")) :
+            undefined);
 }
 exports.FunctionToolForm = FunctionToolForm;
 
@@ -1631,18 +1704,18 @@ exports.FunctionToolForm = FunctionToolForm;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionToolList = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 function FunctionToolList(props) {
-    var history = reactRouter.useHistory();
-    var functionTools = props.functionTools, editOnClick = props.editOnClick, leftFloatedContent = props.leftFloatedContent, rightFloatedContent = props.rightFloatedContent;
-    return React.createElement("div", { className: "ui segment divided selection massive list" }, functionTools.map(function (f) {
-        return React.createElement("div", { className: "item", key: f.uuid, onClick: function () {
+    const history = reactRouter.useHistory();
+    const { functionTools, editOnClick, leftFloatedContent, rightFloatedContent, } = props;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, functionTools.map(f => {
+        return React.createElement("div", { className: "item", key: f.uuid, onClick: () => {
                 if (!editOnClick) {
                     return;
                 }
-                history.push("/function-tool/" + f.uuid + "/edit");
+                history.push(`/function-tool/${f.uuid}/edit`);
             } },
             leftFloatedContent == undefined ?
                 undefined :
@@ -1652,10 +1725,10 @@ function FunctionToolList(props) {
                 React.createElement("div", { className: "right floated content" }, rightFloatedContent(f)),
             React.createElement("div", { className: "content" },
                 React.createElement("div", { className: "header" }, f.name.trim() == "" ?
-                    "Function " + f.uuid :
+                    `Function ${f.uuid}` :
                     f.name),
                 React.createElement("div", { className: "ui mini label" }, f.uuid),
-                f.parameters.properties.map(function (p) {
+                f.parameters.properties.map(p => {
                     return React.createElement("div", { key: p.propertyName, className: classNames("ui mini label", p.propertyRequired ? "red" : "yellow") }, p.propertyName);
                 }),
                 f.description.trim() == "" ?
@@ -1677,24 +1750,20 @@ exports.FunctionToolList = FunctionToolList;
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FunctionToolListPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const FunctionToolList_1 = __webpack_require__(/*! ./FunctionToolList */ "./src/client-public/FunctionToolList.tsx");
 function FunctionToolListPage() {
-    var _a = React.useState(localStorageUtil.loadFunctionTools()), functionTools = _a[0], setFunctionTools = _a[1];
+    const [functionTools, setFunctionTools,] = React.useState(localStorageUtil.loadFunctionTools());
     return React.createElement("div", { className: "ui main container" },
         React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: true }),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                var functionTools = localStorageUtil.loadFunctionTools();
-                var newFunctionTools = __spreadArray(__spreadArray([], functionTools), [
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const functionTools = localStorageUtil.loadFunctionTools();
+                const newFunctionTools = [
+                    ...functionTools,
                     {
                         uuid: uuid.v4(),
                         name: "",
@@ -1704,8 +1773,10 @@ function FunctionToolListPage() {
                             required: [],
                             properties: [],
                         },
+                        useJavaScriptImpl: undefined,
+                        javaScriptImpl: undefined,
                     },
-                ]);
+                ];
                 localStorageUtil.saveFunctionTools(newFunctionTools);
                 setFunctionTools(newFunctionTools);
             } }, "Create Function Tool"));
@@ -1726,13 +1797,13 @@ exports.FunctionToolListPage = FunctionToolListPage;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HomePage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var supportedLabel = function (supported) {
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const supportedLabel = (supported) => {
     return (React.createElement("span", { className: classnames("ui mini label", supported ? "green" : "red") }, supported ? "Supported" : "Not Supported"));
 };
-var HomePage = function (_props) {
+const HomePage = (_props) => {
     return (React.createElement("div", { className: "ui main container" },
         React.createElement("h1", { className: "ui dividing header" }, "Chat GPT Playground"),
         React.createElement("p", null),
@@ -1750,9 +1821,9 @@ var HomePage = function (_props) {
                     React.createElement("td", null,
                         React.createElement("a", { href: "https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage" }, "Local Storage")),
                     React.createElement("td", null,
-                        supportedLabel(local_storage_util_1.localStorageSupported()),
+                        supportedLabel((0, local_storage_util_1.localStorageSupported)()),
                         React.createElement("br", null),
-                        local_storage_util_1.kbUsed(),
+                        (0, local_storage_util_1.kbUsed)(),
                         " KB used")),
                 React.createElement("tr", null,
                     React.createElement("td", null,
@@ -1789,25 +1860,14 @@ exports.HomePage = HomePage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
-var AssistantToolCallMessageForm_1 = __webpack_require__(/*! ./AssistantToolCallMessageForm */ "./src/client-public/AssistantToolCallMessageForm.tsx");
-var ToolResponseMessageForm_1 = __webpack_require__(/*! ./ToolResponseMessageForm */ "./src/client-public/ToolResponseMessageForm.tsx");
-var messageTypes = [
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
+const AssistantToolCallMessageForm_1 = __webpack_require__(/*! ./AssistantToolCallMessageForm */ "./src/client-public/AssistantToolCallMessageForm.tsx");
+const ToolResponseMessageForm_1 = __webpack_require__(/*! ./ToolResponseMessageForm */ "./src/client-public/ToolResponseMessageForm.tsx");
+const messageTypes = [
     "system",
     "user",
     "assistant",
@@ -1816,86 +1876,124 @@ var messageTypes = [
 ];
 function MessageForm(props) {
     var _a, _b, _c;
-    var messages = props.messages, message = props.message, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, onAddResponse = props.onAddResponse;
+    const { messages, message, onChange, onRemove, onMoveUp, onMoveDown, onAddResponse, } = props;
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Message Type"),
-                    React.createElement("select", { value: message.messageType, onChange: function (evt) {
-                            var messageType = evt.target.value;
+                    React.createElement("select", { value: message.messageType, onChange: (evt) => {
+                            const messageType = evt.target.value;
                             switch (messageType) {
                                 case "system": {
-                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "system", content: "content" in message ?
+                                    onChange({
+                                        ...message,
+                                        messageType,
+                                        role: "system",
+                                        content: "content" in message ?
                                             message.content :
-                                            "" }), message);
+                                            "",
+                                        tokenCount: undefined,
+                                    }, message);
                                     break;
                                 }
                                 case "user": {
-                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "user", content: "content" in message ?
+                                    onChange({
+                                        ...message,
+                                        messageType,
+                                        role: "user",
+                                        content: "content" in message ?
                                             message.content :
-                                            "" }), message);
+                                            "",
+                                        tokenCount: undefined,
+                                    }, message);
                                     break;
                                 }
                                 case "assistant": {
-                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "assistant", content: "content" in message ?
+                                    onChange({
+                                        ...message,
+                                        messageType,
+                                        role: "assistant",
+                                        content: "content" in message ?
                                             message.content :
-                                            "" }), message);
+                                            "",
+                                        tokenCount: undefined,
+                                    }, message);
                                     break;
                                 }
                                 case "assistant_tool_call": {
-                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "assistant", tool_calls: "tool_calls" in message ?
+                                    onChange({
+                                        ...message,
+                                        messageType,
+                                        role: "assistant",
+                                        tool_calls: "tool_calls" in message ?
                                             message.tool_calls :
-                                            [] }), message);
+                                            [],
+                                        tokenCount: undefined,
+                                    }, message);
                                     break;
                                 }
                                 case "tool_response": {
-                                    onChange(__assign(__assign({}, message), { messageType: messageType, role: "tool", tool_call_id: "tool_call_id" in message ?
+                                    onChange({
+                                        ...message,
+                                        messageType,
+                                        role: "tool",
+                                        tool_call_id: "tool_call_id" in message ?
                                             message.tool_call_id :
-                                            "", name: "name" in message ?
+                                            "",
+                                        name: "name" in message ?
                                             message.name :
-                                            "", content: "content" in message ?
+                                            "",
+                                        content: "content" in message ?
                                             message.content :
-                                            "" }), message);
+                                            "",
+                                        tokenCount: undefined,
+                                    }, message);
                                     break;
                                 }
                             }
-                        } }, messageTypes.map(function (s) {
+                        } }, messageTypes.map(s => {
                         return React.createElement("option", { key: s, value: s }, s);
                     }))),
                 React.createElement("div", { className: "field button group", style: {
                         alignSelf: "flex-end",
                     } },
-                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(message); } },
+                    React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(message) },
                         React.createElement("i", { className: "trash icon" })),
                     message.messageType == "assistant_tool_call" ?
-                        React.createElement("button", { className: "ui icon primary button", onClick: function () { return onAddResponse(message.tool_calls); } },
+                        React.createElement("button", { className: "ui icon primary button", onClick: () => onAddResponse(message.tool_calls) },
                             React.createElement("i", { className: "reply icon" })) :
                         undefined,
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(message); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(message) },
                         React.createElement("i", { className: "arrow up icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(message); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(message) },
                         React.createElement("i", { className: "arrow down icon" }))))),
-        ContentMessageForm_1.isContentMessage(message) ?
-            React.createElement(ContentMessageForm_1.ContentMessageForm, { message: message, onChange: function (newMessage) {
+        (0, ContentMessageForm_1.isContentMessage)(message) ?
+            React.createElement(ContentMessageForm_1.ContentMessageForm, { message: message, onChange: (newMessage) => {
                     onChange(newMessage, message);
                 } }) :
             undefined,
         message.messageType == "assistant_tool_call" ?
-            React.createElement(AssistantToolCallMessageForm_1.AssistantToolCallMessageForm, { message: message, onChange: function (newMessage) {
+            React.createElement(AssistantToolCallMessageForm_1.AssistantToolCallMessageForm, { message: message, onChange: (newMessage) => {
                     onChange(newMessage, message);
-                }, onAddResponse: function (toolCall) {
+                }, onAddResponse: (toolCall) => {
                     onAddResponse([toolCall]);
                 } }) :
             undefined,
         message.messageType == "tool_response" ?
             React.createElement(ToolResponseMessageForm_1.ToolResponseMessageForm, { message: message, functionArguments: (_c = ((_b = (_a = messages
                     .filter(local_storage_util_1.isAssistantToolCallMessage)
-                    .flatMap(function (m) { return m.tool_calls; })
-                    .find(function (tc) { return tc.id == message.tool_call_id; })) === null || _a === void 0 ? void 0 : _a.function) === null || _b === void 0 ? void 0 : _b.arguments)) !== null && _c !== void 0 ? _c : "", onChange: function (newMessage) {
+                    .flatMap(m => m.tool_calls)
+                    .find(tc => tc.id == message.tool_call_id)) === null || _a === void 0 ? void 0 : _a.function) === null || _b === void 0 ? void 0 : _b.arguments)) !== null && _c !== void 0 ? _c : "", onChange: (newMessage) => {
                     onChange(newMessage, message);
                 } }) :
-            undefined);
+            undefined,
+        message.tokenCount == undefined ?
+            React.createElement("div", { className: "ui mini label" }, "~- tokens") :
+            React.createElement("div", { className: "ui mini label" },
+                "~",
+                message.tokenCount,
+                " tokens"));
 }
 exports.MessageForm = MessageForm;
 
@@ -1911,56 +2009,54 @@ exports.MessageForm = MessageForm;
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageListForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
 function MessageListForm(props) {
-    var messages = props.messages, onChange = props.onChange;
-    return React.createElement("div", { className: "ui segment divided selection massive list" }, messages.map(function (m, index) {
-        return React.createElement(MessageForm_1.MessageForm, { messages: messages, key: m.uuid, message: m, onChange: function (newMessage) {
-                onChange(messages.map(function (m) {
+    const { messages, onChange, } = props;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, messages.map((m, index) => {
+        return React.createElement(MessageForm_1.MessageForm, { messages: messages, key: m.uuid, message: m, onChange: (newMessage) => {
+                onChange(messages.map(m => {
                     return m.uuid == newMessage.uuid ?
                         newMessage :
                         m;
                 }), messages);
-            }, onRemove: function () {
-                var newMessages = __spreadArray([], messages);
+            }, onRemove: () => {
+                const newMessages = [...messages];
                 newMessages.splice(index, 1);
                 onChange(newMessages, messages);
-            }, onMoveUp: function (m) {
+            }, onMoveUp: (m) => {
                 if (index == 0) {
                     return;
                 }
-                var newMessages = __spreadArray([], messages);
+                const newMessages = [...messages];
                 newMessages.splice(index, 1);
                 newMessages.splice(index - 1, 0, m);
                 onChange(newMessages, messages);
-            }, onMoveDown: function (m) {
+            }, onMoveDown: (m) => {
                 if (index >= messages.length) {
                     return;
                 }
-                var newMessages = __spreadArray([], messages);
+                const newMessages = [...messages];
                 newMessages.splice(index, 1);
                 newMessages.splice(index + 1, 0, m);
                 onChange(newMessages, messages);
-            }, onAddResponse: function (toolCalls) {
-                onChange(__spreadArray(__spreadArray([], messages), toolCalls.map(function (tc) {
-                    return {
-                        uuid: uuid.v4(),
-                        messageType: "tool_response",
-                        role: "tool",
-                        tool_call_id: tc.id,
-                        name: tc.function.name,
-                        content: "",
-                    };
-                })), messages);
+            }, onAddResponse: (toolCalls) => {
+                onChange([
+                    ...messages,
+                    ...toolCalls.map((tc) => {
+                        return {
+                            uuid: uuid.v4(),
+                            messageType: "tool_response",
+                            role: "tool",
+                            tool_call_id: tc.id,
+                            name: tc.function.name,
+                            content: "",
+                        };
+                    })
+                ], messages);
             } });
     }));
 }
@@ -1978,24 +2074,19 @@ exports.MessageListForm = MessageListForm;
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ModelListPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
-var error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
 function ModelListPage(props) {
-    var _a = React.useState(localStorageUtil.loadModels()), models = _a[0], setModels = _a[1];
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
+    const [models, setModels,] = React.useState(localStorageUtil.loadModels());
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
     return React.createElement("div", { className: "ui main container" },
-        React.createElement("div", { className: "ui segment divided selection massive list" }, models.map(function (f) {
+        React.createElement("div", { className: "ui segment divided selection massive list" }, models.map(f => {
             return React.createElement("div", { className: "item", key: f.id },
                 React.createElement("div", { className: "content" },
                     React.createElement("div", { className: "header" }, f.id),
@@ -2003,25 +2094,25 @@ function ModelListPage(props) {
                     React.createElement("div", { className: "ui mini label" }, new Date(f.created * 1000).toISOString()),
                     React.createElement("div", { className: "ui mini label" }, f.owned_by)));
         })),
-        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
                 if (isLoading) {
                     return;
                 }
                 setIsLoading(true);
                 props.openAiApi.model.list()
                     .send()
-                    .then(function (res) {
-                    var arr = __spreadArray([], res.responseBody.data);
-                    arr.sort(function (a, b) {
+                    .then((res) => {
+                    const arr = [...res.responseBody.data];
+                    arr.sort((a, b) => {
                         return b.created - a.created;
                     });
                     setIsLoading(false);
                     setModels(arr);
                     localStorageUtil.saveModels(arr);
                     error.reset();
-                }, function (err) {
+                }, (err) => {
                     setIsLoading(false);
-                    error_handling_1.handleError(error, err);
+                    (0, error_handling_1.handleError)(error, err);
                 });
             } }, "Update"));
 }
@@ -2039,50 +2130,54 @@ exports.ModelListPage = ModelListPage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolCallForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function ToolCallForm(props) {
-    var toolCall = props.toolCall, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, onAddResponse = props.onAddResponse;
+    const { toolCall, onChange, onRemove, onMoveUp, onMoveDown, onAddResponse, } = props;
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "ID"),
-                    React.createElement("input", { type: "text", value: toolCall.id, placeholder: "ID", onChange: function (evt) {
-                            onChange(__assign(__assign({}, toolCall), { id: evt.target.value }), toolCall);
+                    React.createElement("input", { type: "text", value: toolCall.id, placeholder: "ID", onChange: (evt) => {
+                            onChange({
+                                ...toolCall,
+                                id: evt.target.value,
+                            }, toolCall);
                         } })),
                 React.createElement("div", { className: "field button group", style: {
                         alignSelf: "flex-end",
                     } },
-                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(toolCall); } },
+                    React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(toolCall) },
                         React.createElement("i", { className: "trash icon" })),
-                    React.createElement("button", { className: "ui icon primary button", onClick: function () { return onAddResponse(toolCall); } },
+                    React.createElement("button", { className: "ui icon primary button", onClick: () => onAddResponse(toolCall) },
                         React.createElement("i", { className: "reply icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(toolCall); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(toolCall) },
                         React.createElement("i", { className: "arrow up icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(toolCall); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(toolCall) },
                         React.createElement("i", { className: "arrow down icon" })))),
             React.createElement("div", { className: "field" },
                 React.createElement("label", null, "Function Name"),
-                React.createElement("input", { type: "text", value: toolCall.function.name, placeholder: "Function Name", onChange: function (evt) {
-                        onChange(__assign(__assign({}, toolCall), { function: __assign(__assign({}, toolCall.function), { name: evt.target.value }) }), toolCall);
+                React.createElement("input", { type: "text", value: toolCall.function.name, placeholder: "Function Name", onChange: (evt) => {
+                        onChange({
+                            ...toolCall,
+                            function: {
+                                ...toolCall.function,
+                                name: evt.target.value,
+                            },
+                        }, toolCall);
                     } })),
             React.createElement("div", { className: "field" },
                 React.createElement("label", null, "Function Arguments"),
-                React.createElement("textarea", { value: toolCall.function.arguments, placeholder: "Function Arguments", onChange: function (evt) {
-                        onChange(__assign(__assign({}, toolCall), { function: __assign(__assign({}, toolCall.function), { arguments: evt.target.value }) }), toolCall);
+                React.createElement("textarea", { value: toolCall.function.arguments, placeholder: "Function Arguments", onChange: (evt) => {
+                        onChange({
+                            ...toolCall,
+                            function: {
+                                ...toolCall.function,
+                                arguments: evt.target.value,
+                            },
+                        }, toolCall);
                     } }))));
 }
 exports.ToolCallForm = ToolCallForm;
@@ -2099,43 +2194,38 @@ exports.ToolCallForm = ToolCallForm;
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolCallListForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var ToolCallForm_1 = __webpack_require__(/*! ./ToolCallForm */ "./src/client-public/ToolCallForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const ToolCallForm_1 = __webpack_require__(/*! ./ToolCallForm */ "./src/client-public/ToolCallForm.tsx");
 function ToolCallListForm(props) {
-    var toolCalls = props.toolCalls, onChange = props.onChange, onAddResponse = props.onAddResponse;
-    return React.createElement("div", { className: "ui segment divided selection massive list" }, toolCalls.map(function (m, index) {
-        return React.createElement(ToolCallForm_1.ToolCallForm, { key: index, toolCall: m, onChange: function (newToolCall) {
-                onChange(toolCalls.map(function (m, changedIndex) {
+    const { toolCalls, onChange, onAddResponse, } = props;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, toolCalls.map((m, index) => {
+        return React.createElement(ToolCallForm_1.ToolCallForm, { key: index, toolCall: m, onChange: (newToolCall) => {
+                onChange(toolCalls.map((m, changedIndex) => {
                     return index == changedIndex ?
                         newToolCall :
                         m;
                 }), toolCalls);
-            }, onRemove: function () {
-                var newToolCalls = __spreadArray([], toolCalls);
+            }, onRemove: () => {
+                const newToolCalls = [...toolCalls];
                 newToolCalls.splice(index, 1);
                 onChange(newToolCalls, toolCalls);
-            }, onAddResponse: function (toolCall) {
+            }, onAddResponse: (toolCall) => {
                 onAddResponse(toolCall);
-            }, onMoveUp: function (m) {
+            }, onMoveUp: (m) => {
                 if (index == 0) {
                     return;
                 }
-                var newToolCalls = __spreadArray([], toolCalls);
+                const newToolCalls = [...toolCalls];
                 newToolCalls.splice(index, 1);
                 newToolCalls.splice(index - 1, 0, m);
                 onChange(newToolCalls, toolCalls);
-            }, onMoveDown: function (m) {
+            }, onMoveDown: (m) => {
                 if (index >= toolCalls.length) {
                     return;
                 }
-                var newToolCalls = __spreadArray([], toolCalls);
+                const newToolCalls = [...toolCalls];
                 newToolCalls.splice(index, 1);
                 newToolCalls.splice(index + 1, 0, m);
                 onChange(newToolCalls, toolCalls);
@@ -2156,40 +2246,90 @@ exports.ToolCallListForm = ToolCallListForm;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ToolResponseMessageForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const use_error_1 = __webpack_require__(/*! ./use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ./error-handling */ "./src/client-public/error-handling.ts");
 function ToolResponseMessageForm(props) {
-    var message = props.message, functionArguments = props.functionArguments, onChange = props.onChange;
+    const { message, functionArguments, onChange, } = props;
+    const [functionTool, setFunctionTool] = React.useState(() => {
+        return localStorageUtil.loadFunctionTools()
+            .find(f => f.name == message.name);
+    });
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
+            setFunctionTool(localStorageUtil.loadFunctionTools()
+                .find(f => f.name == message.name));
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [message.name]);
     return React.createElement("div", { className: "ui form" },
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Tool Call ID"),
-            React.createElement("input", { type: "text", value: message.tool_call_id, placeholder: "Tool Call ID", onChange: function (evt) {
-                    onChange(__assign(__assign({}, message), { tool_call_id: evt.target.value }), message);
+            React.createElement("input", { type: "text", value: message.tool_call_id, placeholder: "Tool Call ID", onChange: (evt) => {
+                    onChange({
+                        ...message,
+                        tool_call_id: evt.target.value,
+                        tokenCount: undefined,
+                    }, message);
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Function Name"),
-            React.createElement("input", { type: "text", value: message.name, placeholder: "Function Name", onChange: function (evt) {
-                    onChange(__assign(__assign({}, message), { name: evt.target.value }), message);
+            React.createElement("input", { type: "text", value: message.name, placeholder: "Function Name", onChange: (evt) => {
+                    onChange({
+                        ...message,
+                        name: evt.target.value,
+                        tokenCount: undefined,
+                    }, message);
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Function Arguments"),
             React.createElement("textarea", { value: functionArguments, placeholder: "Function Arguments", readOnly: true })),
         React.createElement("div", { className: "field" },
             React.createElement("label", null, "Content"),
-            React.createElement("textarea", { value: message.content, placeholder: "Content (The result of the tool call)", onChange: function (evt) {
-                    onChange(__assign(__assign({}, message), { content: evt.target.value }), message);
+            functionTool == undefined ?
+                undefined :
+                React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
+                        if (isLoading) {
+                            return;
+                        }
+                        try {
+                            const f = new Function(`return ${functionTool.javaScriptImpl}`)();
+                            const args = functionArguments == undefined ?
+                                {} :
+                                JSON.parse(functionArguments);
+                            const promise = Promise.resolve(f(args));
+                            setIsLoading(true);
+                            promise
+                                .then((result) => {
+                                setIsLoading(false);
+                                onChange({
+                                    ...message,
+                                    content: JSON.stringify(result, null, 2),
+                                    tokenCount: undefined,
+                                }, message);
+                                error.reset();
+                            }, (err) => {
+                                setIsLoading(false);
+                                (0, error_handling_1.handleError)(error, err);
+                            });
+                        }
+                        catch (err) {
+                            setIsLoading(false);
+                            (0, error_handling_1.handleError)(error, err);
+                        }
+                    } }, "Execute JavaScript"),
+            React.createElement("textarea", { value: message.content, placeholder: "Content (The result of the tool call)", onChange: (evt) => {
+                    onChange({
+                        ...message,
+                        content: evt.target.value,
+                        tokenCount: undefined,
+                    }, message);
                 } })));
 }
 exports.ToolResponseMessageForm = ToolResponseMessageForm;
@@ -2212,19 +2352,18 @@ function handleError(error, err) {
     var _a, _b;
     console.log(Object.getOwnPropertyNames(err));
     console.log(err);
-    var propertyErrors = err === null || err === void 0 ? void 0 : err.propertyErrors;
+    const propertyErrors = err === null || err === void 0 ? void 0 : err.propertyErrors;
     if (propertyErrors instanceof Array) {
-        for (var _i = 0, propertyErrors_1 = propertyErrors; _i < propertyErrors_1.length; _i++) {
-            var propertyError = propertyErrors_1[_i];
+        for (const propertyError of propertyErrors) {
             error.push("negative", [
-                String(propertyError) + " (" + propertyError.actualValue + ")"
+                `${String(propertyError)} (${propertyError.actualValue})`
             ]);
         }
         return;
     }
-    var responseBody = (_a = err === null || err === void 0 ? void 0 : err.sendResult) === null || _a === void 0 ? void 0 : _a.responseBody;
-    var responseErrorMessage = (_b = responseBody === null || responseBody === void 0 ? void 0 : responseBody.error) === null || _b === void 0 ? void 0 : _b.message;
-    var errorMessage = err === null || err === void 0 ? void 0 : err.message;
+    const responseBody = (_a = err === null || err === void 0 ? void 0 : err.sendResult) === null || _a === void 0 ? void 0 : _a.responseBody;
+    const responseErrorMessage = (_b = responseBody === null || responseBody === void 0 ? void 0 : responseBody.error) === null || _b === void 0 ? void 0 : _b.message;
+    const errorMessage = err === null || err === void 0 ? void 0 : err.message;
     if (responseErrorMessage != undefined) {
         error.push("negative", [responseErrorMessage]);
         return;
@@ -2249,20 +2388,9 @@ exports.handleError = handleError;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.saveModels = exports.loadModels = exports.deleteSelfDiscover = exports.deleteConversation = exports.saveSelfDiscover = exports.saveConversation = exports.loadSelfDiscover = exports.loadConversation = exports.makeSelfDiscoverTask = exports.makeSelfDiscover = exports.makeConversation = exports.saveSelfDiscoversMeta = exports.saveConversationsMeta = exports.loadSelfDiscoversMeta = exports.loadConversationsMeta = exports.isAssistantToolCallMessage = exports.saveFunctionTools = exports.loadFunctionTools = exports.LocalStorageKey = exports.kbUsed = exports.removeItem = exports.setItem = exports.getItem = exports.localStorageSupported = void 0;
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 function localStorageSupported() {
     return ("localStorage" in self);
 }
@@ -2290,7 +2418,7 @@ exports.removeItem = removeItem;
  * @returns
  */
 function kbUsed() {
-    var _lsTotal = 0, _xLen, _x;
+    let _lsTotal = 0, _xLen, _x;
     for (_x in localStorage) {
         if (!localStorage.hasOwnProperty(_x)) {
             continue;
@@ -2300,7 +2428,7 @@ function kbUsed() {
         console.log(_x.substring(0, 50) + " = " + (_xLen / 1024).toFixed(2) + " KB");
     }
     ;
-    var totalKb = Number((_lsTotal / 1024).toFixed(2));
+    const totalKb = Number((_lsTotal / 1024).toFixed(2));
     console.log("Total = " + totalKb + " KB");
     return totalKb;
 }
@@ -2314,7 +2442,7 @@ var LocalStorageKey;
     LocalStorageKey["MODELS"] = "MODELS";
     LocalStorageKey["SELF_DISCOVERS_META"] = "SELF_DISCOVERS_META";
     LocalStorageKey["SELF_DISCOVER"] = "SELF_DISCOVER";
-})(LocalStorageKey = exports.LocalStorageKey || (exports.LocalStorageKey = {}));
+})(LocalStorageKey || (exports.LocalStorageKey = LocalStorageKey = {}));
 function loadFunctionTools() {
     var _a;
     return JSON.parse((_a = getItem(LocalStorageKey.FUNCTION_TOOLS)) !== null && _a !== void 0 ? _a : "[]");
@@ -2346,16 +2474,15 @@ function saveSelfDiscoversMeta(selfDiscoversMeta) {
     return setItem(LocalStorageKey.SELF_DISCOVERS_META, JSON.stringify(selfDiscoversMeta));
 }
 exports.saveSelfDiscoversMeta = saveSelfDiscoversMeta;
-function makeConversation(customUuid) {
-    if (customUuid === void 0) { customUuid = undefined; }
-    var models = loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
-    var meta = {
+function makeConversation(customUuid = undefined) {
+    const models = loadModels().filter(model => model.id.startsWith("gpt"));
+    const meta = {
         uuid: customUuid !== null && customUuid !== void 0 ? customUuid : uuid.v4(),
         name: "",
         description: "",
         lastMessage: "",
     };
-    var conversation = {
+    const conversation = {
         uuid: meta.uuid,
         name: meta.name,
         description: meta.description,
@@ -2377,19 +2504,19 @@ function makeConversation(customUuid) {
         usedFunctions: {},
     };
     return {
-        conversation: conversation,
-        meta: meta,
+        conversation,
+        meta,
     };
 }
 exports.makeConversation = makeConversation;
 function makeSelfDiscover() {
-    var meta = {
+    const meta = {
         uuid: uuid.v4(),
         name: "",
         description: "",
     };
-    var models = loadModels().filter(function (model) { return model.id.startsWith("gpt-4"); });
-    var selfDiscover = {
+    const models = loadModels().filter(model => model.id.startsWith("gpt-4"));
+    const selfDiscover = {
         uuid: meta.uuid,
         name: meta.name,
         description: meta.description,
@@ -2401,31 +2528,34 @@ function makeSelfDiscover() {
         adaptConversation: undefined,
         implementConversation: undefined,
         selectResult: undefined,
+        adaptResult: undefined,
+        implementResult: undefined,
     };
     loadOrMakeSelfDiscoverConversations(selfDiscover);
     return {
-        selfDiscover: selfDiscover,
-        meta: meta,
+        selfDiscover,
+        meta,
     };
 }
 exports.makeSelfDiscover = makeSelfDiscover;
 function makeSelfDiscoverTask(selfDiscoverUuid) {
-    var taskUuid = uuid.v4();
+    const taskUuid = uuid.v4();
     return {
         uuid: taskUuid,
         useAsExample: true,
         problemStatement: "",
-        executeConversation: makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscoverUuid + "_task_" + taskUuid + "_execute").conversation,
+        executeConversation: makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscoverUuid}_task_${taskUuid}_execute`).conversation,
+        executeResult: undefined,
     };
 }
 exports.makeSelfDiscoverTask = makeSelfDiscoverTask;
 function loadConversation(uuid) {
     var _a, _b, _c;
-    var str = getItem(LocalStorageKey.CONVERSATION + "_" + uuid);
+    const str = getItem(`${LocalStorageKey.CONVERSATION}_${uuid}`);
     if (str == undefined) {
         return undefined;
     }
-    var result = JSON.parse(str);
+    const result = JSON.parse(str);
     result.messages = (_a = result.messages) !== null && _a !== void 0 ? _a : [];
     result.usedFunctions = (_b = result.usedFunctions) !== null && _b !== void 0 ? _b : {};
     result.rawChatRequestConfig.response_format = (_c = result.rawChatRequestConfig.response_format) !== null && _c !== void 0 ? _c : {
@@ -2436,23 +2566,21 @@ function loadConversation(uuid) {
 exports.loadConversation = loadConversation;
 function loadOrMakeSelfDiscoverConversations(selfDiscover) {
     var _a, _b, _c, _d;
-    selfDiscover.selectConversation = ((_a = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_select")) !== null && _a !== void 0 ? _a : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_select").conversation);
-    selfDiscover.adaptConversation = ((_b = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_adapt")) !== null && _b !== void 0 ? _b : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_adapt").conversation);
-    selfDiscover.implementConversation = ((_c = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_implement")) !== null && _c !== void 0 ? _c : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_implement").conversation);
-    for (var _i = 0, _e = selfDiscover.tasks; _i < _e.length; _i++) {
-        var task = _e[_i];
-        task.executeConversation = ((_d = loadConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_task_" + task.uuid + "_execute")) !== null && _d !== void 0 ? _d : makeConversation(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid + "_task_" + task.uuid + "_execute").conversation);
+    selfDiscover.selectConversation = ((_a = loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_select`)) !== null && _a !== void 0 ? _a : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_select`).conversation);
+    selfDiscover.adaptConversation = ((_b = loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_adapt`)) !== null && _b !== void 0 ? _b : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_adapt`).conversation);
+    selfDiscover.implementConversation = ((_c = loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_implement`)) !== null && _c !== void 0 ? _c : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_implement`).conversation);
+    for (const task of selfDiscover.tasks) {
+        task.executeConversation = ((_d = loadConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_task_${task.uuid}_execute`)) !== null && _d !== void 0 ? _d : makeConversation(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}_task_${task.uuid}_execute`).conversation);
     }
 }
 function loadSelfDiscover(uuid) {
-    var str = getItem(LocalStorageKey.SELF_DISCOVER + "_" + uuid);
+    const str = getItem(`${LocalStorageKey.SELF_DISCOVER}_${uuid}`);
     if (str == undefined) {
         return undefined;
     }
-    var result = JSON.parse(str);
+    const result = JSON.parse(str);
     loadOrMakeSelfDiscoverConversations(result);
-    for (var _i = 0, _a = result.tasks; _i < _a.length; _i++) {
-        var task = _a[_i];
+    for (const task of result.tasks) {
         if (task.useAsExample == undefined) {
             task.useAsExample = task.includeInPrompt;
         }
@@ -2461,48 +2589,55 @@ function loadSelfDiscover(uuid) {
 }
 exports.loadSelfDiscover = loadSelfDiscover;
 function saveConversation(conversation) {
-    return setItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid, JSON.stringify(conversation));
+    return setItem(`${LocalStorageKey.CONVERSATION}_${conversation.uuid}`, JSON.stringify(conversation));
 }
 exports.saveConversation = saveConversation;
 function saveSelfDiscover(selfDiscover) {
     saveConversation(selfDiscover.selectConversation);
     saveConversation(selfDiscover.adaptConversation);
     saveConversation(selfDiscover.implementConversation);
-    for (var _i = 0, _a = selfDiscover.tasks; _i < _a.length; _i++) {
-        var task = _a[_i];
+    for (const task of selfDiscover.tasks) {
         saveConversation(task.executeConversation);
     }
-    var minSelfDiscover = __assign(__assign({}, selfDiscover), { selectConversation: undefined, adaptConversation: undefined, implementConversation: undefined, tasks: selfDiscover.tasks.map(function (t) {
-            return __assign(__assign({}, t), { executeConversation: undefined });
-        }) });
-    return setItem(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid, JSON.stringify(minSelfDiscover));
+    const minSelfDiscover = {
+        ...selfDiscover,
+        selectConversation: undefined,
+        adaptConversation: undefined,
+        implementConversation: undefined,
+        tasks: selfDiscover.tasks.map(t => {
+            return {
+                ...t,
+                executeConversation: undefined,
+            };
+        }),
+    };
+    return setItem(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}`, JSON.stringify(minSelfDiscover));
 }
 exports.saveSelfDiscover = saveSelfDiscover;
 function deleteConversation(conversation) {
-    return removeItem(LocalStorageKey.CONVERSATION + "_" + conversation.uuid);
+    return removeItem(`${LocalStorageKey.CONVERSATION}_${conversation.uuid}`);
 }
 exports.deleteConversation = deleteConversation;
 function deleteSelfDiscover(self_discover_id) {
-    var selfDiscover = loadSelfDiscover(self_discover_id.uuid);
+    const selfDiscover = loadSelfDiscover(self_discover_id.uuid);
     if (selfDiscover == undefined) {
         return;
     }
     deleteConversation(selfDiscover.selectConversation);
     deleteConversation(selfDiscover.adaptConversation);
     deleteConversation(selfDiscover.implementConversation);
-    for (var _i = 0, _a = selfDiscover.tasks; _i < _a.length; _i++) {
-        var task = _a[_i];
+    for (const task of selfDiscover.tasks) {
         deleteConversation(task.executeConversation);
     }
-    return removeItem(LocalStorageKey.SELF_DISCOVER + "_" + selfDiscover.uuid);
+    return removeItem(`${LocalStorageKey.SELF_DISCOVER}_${selfDiscover.uuid}`);
 }
 exports.deleteSelfDiscover = deleteSelfDiscover;
 function loadModels() {
-    var str = getItem(LocalStorageKey.MODELS);
+    const str = getItem(LocalStorageKey.MODELS);
     if (str == undefined) {
         return [];
     }
-    var result = JSON.parse(str);
+    const result = JSON.parse(str);
     return result;
 }
 exports.loadModels = loadModels;
@@ -2526,18 +2661,17 @@ exports.saveModels = saveModels;
 var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 //Really bad BigInt polyfill
-var MyBigInt = /** @class */ (function () {
-    function MyBigInt(value) {
+class MyBigInt {
+    constructor(value) {
         this.value = String(value);
     }
-    MyBigInt.prototype.toString = function () {
+    toString() {
         return this.value;
-    };
-    MyBigInt.prototype.toJSON = function () {
+    }
+    toJSON() {
         return this.value;
-    };
-    return MyBigInt;
-}());
+    }
+}
 //if (true) {
 if (typeof BigInt === "undefined") {
     console.log("Using really bad BigInt polyfill because browser does not support it");
@@ -2555,13 +2689,13 @@ if (BigInt.prototype != undefined) {
         }
     };
 }
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
-var App_1 = __webpack_require__(/*! ./App */ "./src/client-public/App.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const ReactDOM = __webpack_require__(/*! react-dom */ "./node_modules/react-dom/index.js");
+const App_1 = __webpack_require__(/*! ./App */ "./src/client-public/App.tsx");
 __webpack_require__(/*! semantic-ui-less/semantic.less */ "./node_modules/semantic-ui-less/semantic.less");
-var api_openai_1 = __webpack_require__(/*! ../api-openai */ "./src/api-openai/index.ts");
-var localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
-var openAiApi = new api_openai_1.OpenAiApi({
+const api_openai_1 = __webpack_require__(/*! ../api-openai */ "./src/api-openai/index.ts");
+const localStorageUtil = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
+const openAiApi = new api_openai_1.OpenAiApi({
     domain: "https://api.openai.com",
     root: "/",
     apiKey: (_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : "",
@@ -2580,80 +2714,27 @@ ReactDOM.render(React.createElement(App_1.App, { openAiApi: openAiApi }), docume
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverAdaptTab = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
-var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
-var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
 function SelfDiscoverAdaptTab(props) {
-    var _this = this;
-    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
-    var history = reactRouter.useHistory();
-    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    React.useEffect(function () {
-        var timer = setTimeout(function () {
+    const { openAiApi, active, selfDiscover, setSelfDiscover, } = props;
+    const history = reactRouter.useHistory();
+    const [prompt, setPrompt] = React.useState(() => buildPrompt(selfDiscover));
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
             setPrompt(buildPrompt(selfDiscover));
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [selfDiscover]);
     return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
         React.createElement("div", { className: "ui form" },
@@ -2666,99 +2747,125 @@ function SelfDiscoverAdaptTab(props) {
                     React.createElement("label", null, "Adapted Reasoning Modules"),
                     React.createElement("textarea", { value: JSON.stringify(selfDiscover.adaptResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
         React.createElement("br", null),
-        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
-                var conversationA, conversationB, conversationC, conversationD, lastMessage, parsed, validated, err_1;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (isLoading) {
-                                return [2 /*return*/];
-                            }
-                            conversationA = __assign(__assign({}, selfDiscover.adaptConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.adaptConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
-                                        type: "text",
-                                    }, temperature: 0, max_tokens: 1024 }), messages: [
-                                    {
-                                        uuid: uuid.v4(),
-                                        messageType: "user",
-                                        role: "user",
-                                        content: prompt,
-                                    },
-                                ] });
-                            setIsLoading(true);
-                            _a.label = 1;
-                        case 1:
-                            _a.trys.push([1, 4, , 5]);
-                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
-                        case 2:
-                            conversationB = _a.sent();
-                            conversationC = __assign(__assign({}, conversationB), { rawChatRequestConfig: __assign(__assign({}, conversationB.rawChatRequestConfig), { response_format: {
-                                        type: "json_object",
-                                    } }), messages: __spreadArray(__spreadArray([], conversationB.messages), [
-                                    {
-                                        uuid: uuid.v4(),
-                                        messageType: "user",
-                                        role: "user",
-                                        content: convertPrompt,
-                                    },
-                                ]) });
-                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationC, [])];
-                        case 3:
-                            conversationD = _a.sent();
-                            setIsLoading(false);
-                            lastMessage = conversationD.messages[conversationD.messages.length - 1];
-                            if (lastMessage.role != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
-                                return [2 /*return*/];
-                            }
-                            if (lastMessage.messageType != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
-                                return [2 /*return*/];
-                            }
-                            parsed = {};
-                            try {
-                                parsed = JSON.parse(lastMessage.content);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            validated = void 0;
-                            try {
-                                validated = adaptResultMapper("result", parsed);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { adaptConversation: conversationD, adaptResult: validated }));
-                            error.reset();
-                            return [3 /*break*/, 5];
-                        case 4:
-                            err_1 = _a.sent();
-                            setIsLoading(false);
-                            error_handling_1.handleError(error, err_1);
-                            return [3 /*break*/, 5];
-                        case 5: return [2 /*return*/];
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: async () => {
+                if (isLoading) {
+                    return;
+                }
+                const conversationA = {
+                    ...selfDiscover.adaptConversation,
+                    rawChatRequestConfig: {
+                        ...selfDiscover.adaptConversation.rawChatRequestConfig,
+                        model: selfDiscover.model,
+                        response_format: {
+                            type: "text",
+                        },
+                        temperature: 0,
+                        max_tokens: 1024,
+                    },
+                    messages: [
+                        {
+                            uuid: uuid.v4(),
+                            messageType: "user",
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                };
+                setIsLoading(true);
+                try {
+                    const conversationB = await (0, ConversationEditPage_1.submitConversation)(openAiApi, conversationA, []);
+                    const conversationC = {
+                        ...conversationB,
+                        rawChatRequestConfig: {
+                            ...conversationB.rawChatRequestConfig,
+                            response_format: {
+                                type: "json_object",
+                            },
+                        },
+                        messages: [
+                            ...conversationB.messages,
+                            {
+                                uuid: uuid.v4(),
+                                messageType: "user",
+                                role: "user",
+                                content: convertPrompt,
+                            },
+                        ]
+                    };
+                    const conversationD = await (0, ConversationEditPage_1.submitConversation)(openAiApi, conversationC, []);
+                    setIsLoading(false);
+                    const lastMessage = conversationD.messages[conversationD.messages.length - 1];
+                    if (lastMessage.role != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.role}`]);
+                        return;
                     }
-                });
-            }); } }, "Adapt Reasoning Modules"),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                history.push("/conversation/" + selfDiscover.adaptConversation.uuid + "/edit");
+                    if (lastMessage.messageType != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.messageType}`]);
+                        return;
+                    }
+                    let parsed = {};
+                    try {
+                        parsed = JSON.parse(lastMessage.content);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    let validated;
+                    try {
+                        validated = adaptResultMapper("result", parsed);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    setSelfDiscover({
+                        ...selfDiscover,
+                        adaptConversation: conversationD,
+                        adaptResult: validated,
+                    });
+                    error.reset();
+                }
+                catch (err) {
+                    setIsLoading(false);
+                    (0, error_handling_1.handleError)(error, err);
+                }
+            } }, "Adapt Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                history.push(`/conversation/${selfDiscover.adaptConversation.uuid}/edit`);
             } }, "View Conversation"));
 }
 exports.SelfDiscoverAdaptTab = SelfDiscoverAdaptTab;
 function buildPrompt(selfDiscover) {
     var _a;
-    var exampleTasks = selfDiscover.tasks
-        .filter(function (t) { return t.useAsExample; })
-        .filter(function (t) { return t.problemStatement.trim() != ""; })
-        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+    const exampleTasks = selfDiscover.tasks
+        .filter(t => t.useAsExample)
+        .filter(t => t.problemStatement.trim() != "")
+        .map((t, index) => `### Example Task ${index + 1}
+
+${t.problemStatement.trim()}`)
         .join("\n\n");
-    var selectedModules = (_a = selfDiscover.selectResult) === null || _a === void 0 ? void 0 : _a.selected_reasoning_modules.map(function (i) { return "+ " + i; }).join("\n");
-    return "Rephrase and specify each reasoning module so that it better helps with solving the task:\n\n### Selected module descriptions\n\n" + selectedModules + "\n\n" + exampleTasks + "\n\n### Instructions\n\nAdapt each reasoning module description to better solve the tasks";
+    const selectedModules = (_a = selfDiscover.selectResult) === null || _a === void 0 ? void 0 : _a.selected_reasoning_modules.map(i => `+ ${i}`).join("\n");
+    return `Rephrase and specify each reasoning module so that it better helps with solving the task:
+
+### Selected module descriptions
+
+${selectedModules}
+
+${exampleTasks}
+
+### Instructions
+
+Adapt each reasoning module description to better solve the tasks`;
 }
-var convertPrompt = "Convert your response into a JSON object with the following properties,\n+ reasoning_modules : ReasoningModule[] - an array containing the rephrased and specified reasoning modules\n\ninterface ReasoningModule {\n  name : string;\n  description : string;\n}";
-var adaptResultMapper = tm.object({
+const convertPrompt = `Convert your response into a JSON object with the following properties,
++ reasoning_modules : ReasoningModule[] - an array containing the rephrased and specified reasoning modules
+
+interface ReasoningModule {
+  name : string;
+  description : string;
+}`;
+const adaptResultMapper = tm.object({
     reasoning_modules: tm.array(tm.object({
         name: tm.string(),
         description: tm.string(),
@@ -2777,30 +2884,19 @@ var adaptResultMapper = tm.object({
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverEditPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
-var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-var ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
-var SelfDiscoverTaskTab_1 = __webpack_require__(/*! ./SelfDiscoverTaskTab */ "./src/client-public/self-discover/SelfDiscoverTaskTab.tsx");
-var SelfDiscoverSelectTab_1 = __webpack_require__(/*! ./SelfDiscoverSelectTab */ "./src/client-public/self-discover/SelfDiscoverSelectTab.tsx");
-var SelfDiscoverAdaptTab_1 = __webpack_require__(/*! ./SelfDiscoverAdaptTab */ "./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx");
-var SelfDiscoverImplementTab_1 = __webpack_require__(/*! ./SelfDiscoverImplementTab */ "./src/client-public/self-discover/SelfDiscoverImplementTab.tsx");
-var SelfDiscoverExecuteTab_1 = __webpack_require__(/*! ./SelfDiscoverExecuteTab */ "./src/client-public/self-discover/SelfDiscoverExecuteTab.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const SelfDiscoverTaskTab_1 = __webpack_require__(/*! ./SelfDiscoverTaskTab */ "./src/client-public/self-discover/SelfDiscoverTaskTab.tsx");
+const SelfDiscoverSelectTab_1 = __webpack_require__(/*! ./SelfDiscoverSelectTab */ "./src/client-public/self-discover/SelfDiscoverSelectTab.tsx");
+const SelfDiscoverAdaptTab_1 = __webpack_require__(/*! ./SelfDiscoverAdaptTab */ "./src/client-public/self-discover/SelfDiscoverAdaptTab.tsx");
+const SelfDiscoverImplementTab_1 = __webpack_require__(/*! ./SelfDiscoverImplementTab */ "./src/client-public/self-discover/SelfDiscoverImplementTab.tsx");
+const SelfDiscoverExecuteTab_1 = __webpack_require__(/*! ./SelfDiscoverExecuteTab */ "./src/client-public/self-discover/SelfDiscoverExecuteTab.tsx");
 var TabType;
 (function (TabType) {
     TabType["Tasks"] = "Tasks";
@@ -2810,22 +2906,24 @@ var TabType;
     TabType["Execute"] = "Execute";
 })(TabType || (TabType = {}));
 function SelfDiscoverEditPage(props) {
-    var openAiApi = props.openAiApi;
-    var routeParams = reactRouter.useParams();
-    var _a = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid)), selfDiscover = _a[0], setSelfDiscover = _a[1];
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    var _c = React.useState(TabType.Tasks), tapType = _c[0], setTabType = _c[1];
-    var models = React.useState(function () {
-        return localStorageUtil.loadModels().filter(function (model) { return model.id.startsWith("gpt"); });
-    })[0];
-    React.useEffect(function () {
+    const { openAiApi, } = props;
+    const routeParams = reactRouter.useParams();
+    const [selfDiscover, setSelfDiscover,] = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid));
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    const [tapType, setTabType] = React.useState(TabType.Tasks);
+    const [models,
+    //setModels,
+    ] = React.useState(() => {
+        return localStorageUtil.loadModels().filter(model => model.id.startsWith("gpt"));
+    });
+    React.useEffect(() => {
         if (selfDiscover == undefined) {
             return;
         }
-        var timer = setTimeout(function () {
+        const timer = setTimeout(() => {
             localStorageUtil.saveSelfDiscover(selfDiscover);
-            var meta = localStorageUtil.loadSelfDiscoversMeta().map(function (m) {
+            const meta = localStorageUtil.loadSelfDiscoversMeta().map((m) => {
                 return m.uuid == selfDiscover.uuid ?
                     {
                         uuid: selfDiscover.uuid,
@@ -2836,7 +2934,7 @@ function SelfDiscoverEditPage(props) {
             });
             localStorageUtil.saveSelfDiscoversMeta(meta);
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [selfDiscover]);
     if (selfDiscover == undefined) {
         return React.createElement("div", { className: "ui main container" },
@@ -2849,13 +2947,19 @@ function SelfDiscoverEditPage(props) {
             React.createElement("div", { className: "two fields" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Title"),
-                    React.createElement("input", { placeholder: "Enter a Self-Discover Title", value: selfDiscover.name, onChange: function (evt) {
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { name: evt.target.value }));
+                    React.createElement("input", { placeholder: "Enter a Self-Discover Title", value: selfDiscover.name, onChange: (evt) => {
+                            setSelfDiscover({
+                                ...selfDiscover,
+                                name: evt.target.value,
+                            });
                         } })),
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Description"),
-                    React.createElement("input", { placeholder: "Enter a Self-Discover Description", value: selfDiscover.description, onChange: function (evt) {
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { description: evt.target.value }));
+                    React.createElement("input", { placeholder: "Enter a Self-Discover Description", value: selfDiscover.description, onChange: (evt) => {
+                            setSelfDiscover({
+                                ...selfDiscover,
+                                description: evt.target.value,
+                            });
                         } })))),
         React.createElement("div", { className: "ui top attached tabular menu" }, [
             TabType.Tasks,
@@ -2863,8 +2967,8 @@ function SelfDiscoverEditPage(props) {
             TabType.Adapt,
             TabType.Implement,
             TabType.Execute,
-        ].map(function (t) {
-            return React.createElement("div", { key: t, className: classNames("item", tapType == t ? "active" : undefined), onClick: function () { return setTabType(t); } }, t);
+        ].map(t => {
+            return React.createElement("div", { key: t, className: classNames("item", tapType == t ? "active" : undefined), onClick: () => setTabType(t) }, t);
         })),
         React.createElement(SelfDiscoverTaskTab_1.SelfDiscoverTaskTab, { active: tapType == TabType.Tasks, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
         React.createElement(SelfDiscoverSelectTab_1.SelfDiscoverSelectTab, { openAiApi: openAiApi, active: tapType == TabType.Select, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
@@ -2873,7 +2977,7 @@ function SelfDiscoverEditPage(props) {
         React.createElement(SelfDiscoverExecuteTab_1.SelfDiscoverExecuteTab, { openAiApi: openAiApi, active: tapType == TabType.Execute, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
         React.createElement("div", { className: "ui segment" },
             React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
-            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () {
+            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: () => {
                     if (isLoading) {
                         return;
                     }
@@ -2883,11 +2987,14 @@ function SelfDiscoverEditPage(props) {
             React.createElement("div", { className: "ui form" },
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Model"),
-                    React.createElement("select", { value: selfDiscover.model, onChange: function (evt) {
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { model: evt.target.value }));
+                    React.createElement("select", { value: selfDiscover.model, onChange: (evt) => {
+                            setSelfDiscover({
+                                ...selfDiscover,
+                                model: evt.target.value,
+                            });
                         } },
                         React.createElement("option", { key: "none", value: "", disabled: true }, "Select a Model"),
-                        models.map(function (model) {
+                        models.map(model => {
                             return React.createElement("option", { key: model.id, value: model.id },
                                 model.id,
                                 " - (",
@@ -2909,31 +3016,15 @@ exports.SelfDiscoverEditPage = SelfDiscoverEditPage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverExecuteTab = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
-var SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
-var ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+const SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
+const ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
 function SelfDiscoverExecuteTab(props) {
-    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    const { openAiApi, active, selfDiscover, setSelfDiscover, } = props;
     return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
         selfDiscover.implementResult == undefined ?
             React.createElement(ErrorMessage_1.ErrorMessage, { error: {
@@ -2942,17 +3033,24 @@ function SelfDiscoverExecuteTab(props) {
                         "No Implement Result found",
                     ],
                 } }) :
-            React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: function (newTasks) {
-                    setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: newTasks }));
+            React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: (newTasks) => {
+                    setSelfDiscover({
+                        ...selfDiscover,
+                        tasks: newTasks,
+                    });
                 }, executeConfig: {
-                    openAiApi: openAiApi,
+                    openAiApi,
                     implementResult: selfDiscover.implementResult,
                     model: selfDiscover.model,
                 } }),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: __spreadArray(__spreadArray([], selfDiscover.tasks), [
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                setSelfDiscover({
+                    ...selfDiscover,
+                    tasks: [
+                        ...selfDiscover.tasks,
                         localStorageUtil.makeSelfDiscoverTask(selfDiscover.uuid),
-                    ]) }));
+                    ],
+                });
             } }, "Add Task"));
 }
 exports.SelfDiscoverExecuteTab = SelfDiscoverExecuteTab;
@@ -2969,75 +3067,27 @@ exports.SelfDiscoverExecuteTab = SelfDiscoverExecuteTab;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverImplementTab = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
-var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
-var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
 function SelfDiscoverImplementTab(props) {
-    var _this = this;
-    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
-    var history = reactRouter.useHistory();
-    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    React.useEffect(function () {
-        var timer = setTimeout(function () {
+    const { openAiApi, active, selfDiscover, setSelfDiscover, } = props;
+    const history = reactRouter.useHistory();
+    const [prompt, setPrompt] = React.useState(() => buildPrompt(selfDiscover));
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
             setPrompt(buildPrompt(selfDiscover));
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [selfDiscover]);
     return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
         React.createElement("div", { className: "ui form" },
@@ -3050,85 +3100,106 @@ function SelfDiscoverImplementTab(props) {
                     React.createElement("label", null, "Implemented Reasoning Modules"),
                     React.createElement("textarea", { value: JSON.stringify(selfDiscover.implementResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
         React.createElement("br", null),
-        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
-                var conversationA, conversationB, lastMessage, parsed, validated, err_1;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (isLoading) {
-                                return [2 /*return*/];
-                            }
-                            conversationA = __assign(__assign({}, selfDiscover.implementConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.implementConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
-                                        type: "json_object",
-                                    }, temperature: 0, max_tokens: 1024 }), messages: [
-                                    {
-                                        uuid: uuid.v4(),
-                                        messageType: "user",
-                                        role: "user",
-                                        content: prompt,
-                                    },
-                                ] });
-                            setIsLoading(true);
-                            _a.label = 1;
-                        case 1:
-                            _a.trys.push([1, 3, , 4]);
-                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
-                        case 2:
-                            conversationB = _a.sent();
-                            setIsLoading(false);
-                            lastMessage = conversationB.messages[conversationB.messages.length - 1];
-                            if (lastMessage.role != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
-                                return [2 /*return*/];
-                            }
-                            if (lastMessage.messageType != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
-                                return [2 /*return*/];
-                            }
-                            parsed = {};
-                            try {
-                                parsed = JSON.parse(lastMessage.content);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            validated = void 0;
-                            try {
-                                validated = implementResultMapper("result", parsed);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { implementConversation: conversationB, implementResult: validated }));
-                            error.reset();
-                            return [3 /*break*/, 4];
-                        case 3:
-                            err_1 = _a.sent();
-                            setIsLoading(false);
-                            error_handling_1.handleError(error, err_1);
-                            return [3 /*break*/, 4];
-                        case 4: return [2 /*return*/];
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: async () => {
+                if (isLoading) {
+                    return;
+                }
+                const conversationA = {
+                    ...selfDiscover.implementConversation,
+                    rawChatRequestConfig: {
+                        ...selfDiscover.implementConversation.rawChatRequestConfig,
+                        model: selfDiscover.model,
+                        response_format: {
+                            type: "json_object",
+                        },
+                        temperature: 0,
+                        max_tokens: 1024,
+                    },
+                    messages: [
+                        {
+                            uuid: uuid.v4(),
+                            messageType: "user",
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                };
+                setIsLoading(true);
+                try {
+                    const conversationB = await (0, ConversationEditPage_1.submitConversation)(openAiApi, conversationA, []);
+                    setIsLoading(false);
+                    const lastMessage = conversationB.messages[conversationB.messages.length - 1];
+                    if (lastMessage.role != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.role}`]);
+                        return;
                     }
-                });
-            }); } }, "Implement Reasoning Modules"),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                history.push("/conversation/" + selfDiscover.implementConversation.uuid + "/edit");
+                    if (lastMessage.messageType != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.messageType}`]);
+                        return;
+                    }
+                    let parsed = {};
+                    try {
+                        parsed = JSON.parse(lastMessage.content);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    let validated;
+                    try {
+                        validated = implementResultMapper("result", parsed);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    setSelfDiscover({
+                        ...selfDiscover,
+                        implementConversation: conversationB,
+                        implementResult: validated,
+                    });
+                    error.reset();
+                }
+                catch (err) {
+                    setIsLoading(false);
+                    (0, error_handling_1.handleError)(error, err);
+                }
+            } }, "Implement Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                history.push(`/conversation/${selfDiscover.implementConversation.uuid}/edit`);
             } }, "View Conversation"));
 }
 exports.SelfDiscoverImplementTab = SelfDiscoverImplementTab;
 function buildPrompt(selfDiscover) {
     var _a;
-    var exampleTasks = selfDiscover.tasks
-        .filter(function (t) { return t.useAsExample; })
-        .filter(function (t) { return t.problemStatement.trim() != ""; })
-        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+    const exampleTasks = selfDiscover.tasks
+        .filter(t => t.useAsExample)
+        .filter(t => t.problemStatement.trim() != "")
+        .map((t, index) => `### Example Task ${index + 1}
+
+${t.problemStatement.trim()}`)
         .join("\n\n");
-    var adaptedModules = (_a = selfDiscover.adaptResult) === null || _a === void 0 ? void 0 : _a.reasoning_modules.map(function (i) { return "#### " + i.name + "\n" + i.description; }).join("\n\n");
-    return "Operationalize the reasoning modules into a step-by-step reasoning plan in JSON format:\n\n### Adapted module description\n\n" + adaptedModules + "\n\n" + exampleTasks + "\n\n### Instructions\n\nImplement a reasoning structure for solvers to follow step-by-step and arrive at correct answers.\n\nThe JSON object should have properties,\n- steps : Step[] - The steps to follow to solve the task\n\ninterface Step {\n  instructions : string;\n}";
+    const adaptedModules = (_a = selfDiscover.adaptResult) === null || _a === void 0 ? void 0 : _a.reasoning_modules.map(i => `#### ${i.name}\n${i.description}`).join("\n\n");
+    return `Operationalize the reasoning modules into a step-by-step reasoning plan in JSON format:
+
+### Adapted module description
+
+${adaptedModules}
+
+${exampleTasks}
+
+### Instructions
+
+Implement a reasoning structure for solvers to follow step-by-step and arrive at correct answers.
+
+The JSON object should have properties,
+- steps : Step[] - The steps to follow to solve the task
+
+interface Step {
+  instructions : string;
+}`;
 }
-var implementResultMapper = tm.object({
+const implementResultMapper = tm.object({
     steps: tm.array(tm.object({
         instructions: tm.string(),
     })),
@@ -3146,67 +3217,60 @@ var implementResultMapper = tm.object({
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverListPage = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
 //import { SelfDiscover } from "./SelfDiscoverForm";
 function SelfDiscoverListPage() {
-    var history = reactRouter.useHistory();
-    var _a = React.useState(localStorageUtil.loadSelfDiscoversMeta()), selfDiscovers = _a[0], setSelfDiscovers = _a[1];
+    const history = reactRouter.useHistory();
+    const [selfDiscovers, setSelfDiscovers,] = React.useState(localStorageUtil.loadSelfDiscoversMeta());
     return React.createElement("div", { className: "ui main container" },
-        React.createElement("div", { className: "ui segment divided selection massive list" }, selfDiscovers.map(function (meta) {
-            var displayName = meta.name.trim() == "" ?
-                "Self-Discover " + meta.uuid :
+        React.createElement("div", { className: "ui segment divided selection massive list" }, selfDiscovers.map(meta => {
+            const displayName = meta.name.trim() == "" ?
+                `Self-Discover ${meta.uuid}` :
                 meta.name;
-            return React.createElement("div", { className: "item", key: meta.uuid, onClick: function () {
-                    history.push("/self-discover/" + meta.uuid + "/edit");
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: () => {
+                    history.push(`/self-discover/${meta.uuid}/edit`);
                 } },
                 React.createElement("div", { className: "extra right floated" },
-                    React.createElement("div", { className: "ui icon secondary button", onClick: function (evt) {
+                    React.createElement("div", { className: "ui icon secondary button", onClick: (evt) => {
                             evt.preventDefault();
                             evt.stopPropagation();
-                            if (confirm("Copy " + displayName + "?")) {
-                                var existingSelfDiscover = localStorageUtil.loadSelfDiscover(meta.uuid);
+                            if (confirm(`Copy ${displayName}?`)) {
+                                const existingSelfDiscover = localStorageUtil.loadSelfDiscover(meta.uuid);
                                 if (existingSelfDiscover == undefined) {
-                                    alert("Cannot find " + displayName + " / " + meta.uuid);
+                                    alert(`Cannot find ${displayName} / ${meta.uuid}`);
                                     return;
                                 }
-                                var newUuid = uuid.v4();
-                                var newSelfDiscover = __assign(__assign({}, existingSelfDiscover), { uuid: newUuid, name: "Copy of " + displayName });
-                                var newSelfDiscovers = __spreadArray(__spreadArray([], localStorageUtil.loadSelfDiscoversMeta()), [
-                                    __assign(__assign({}, meta), { uuid: newUuid, name: "Copy of " + displayName }),
-                                ]);
+                                const newUuid = uuid.v4();
+                                const newSelfDiscover = {
+                                    ...existingSelfDiscover,
+                                    uuid: newUuid,
+                                    name: `Copy of ${displayName}`,
+                                };
+                                const newSelfDiscovers = [
+                                    ...localStorageUtil.loadSelfDiscoversMeta(),
+                                    {
+                                        ...meta,
+                                        uuid: newUuid,
+                                        name: `Copy of ${displayName}`,
+                                    },
+                                ];
                                 setSelfDiscovers(newSelfDiscovers);
                                 localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
                                 localStorageUtil.saveSelfDiscover(newSelfDiscover);
                             }
                         } },
                         React.createElement("i", { className: "copy icon" })),
-                    React.createElement("div", { className: "ui icon red button", onClick: function (evt) {
+                    React.createElement("div", { className: "ui icon red button", onClick: (evt) => {
                             evt.preventDefault();
                             evt.stopPropagation();
-                            if (confirm("Delete " + displayName + "?")) {
-                                var newSelfDiscovers = localStorageUtil.loadSelfDiscoversMeta()
-                                    .filter(function (m) { return m.uuid != meta.uuid; });
+                            if (confirm(`Delete ${displayName}?`)) {
+                                const newSelfDiscovers = localStorageUtil.loadSelfDiscoversMeta()
+                                    .filter(m => m.uuid != meta.uuid);
                                 setSelfDiscovers(newSelfDiscovers);
                                 localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
                                 localStorageUtil.deleteSelfDiscover(meta);
@@ -3220,12 +3284,13 @@ function SelfDiscoverListPage() {
                         React.createElement("small", { className: "description" }, "There is no description for this self-discover") :
                         React.createElement("div", { className: "description" }, meta.description)));
         })),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                var selfDiscovers = localStorageUtil.loadSelfDiscoversMeta();
-                var _a = localStorageUtil.makeSelfDiscover(), meta = _a.meta, selfDiscover = _a.selfDiscover;
-                var newSelfDiscovers = __spreadArray(__spreadArray([], selfDiscovers), [
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const selfDiscovers = localStorageUtil.loadSelfDiscoversMeta();
+                const { meta, selfDiscover, } = localStorageUtil.makeSelfDiscover();
+                const newSelfDiscovers = [
+                    ...selfDiscovers,
                     meta,
-                ]);
+                ];
                 localStorageUtil.saveSelfDiscoversMeta(newSelfDiscovers);
                 localStorageUtil.saveSelfDiscover(selfDiscover);
                 setSelfDiscovers(newSelfDiscovers);
@@ -3245,80 +3310,27 @@ exports.SelfDiscoverListPage = SelfDiscoverListPage;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverSelectTab = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
-var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
-var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
 function SelfDiscoverSelectTab(props) {
-    var _this = this;
-    var openAiApi = props.openAiApi, active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
-    var history = reactRouter.useHistory();
-    var _a = React.useState(function () { return buildPrompt(selfDiscover); }), prompt = _a[0], setPrompt = _a[1];
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    React.useEffect(function () {
-        var timer = setTimeout(function () {
+    const { openAiApi, active, selfDiscover, setSelfDiscover, } = props;
+    const history = reactRouter.useHistory();
+    const [prompt, setPrompt] = React.useState(() => buildPrompt(selfDiscover));
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
             setPrompt(buildPrompt(selfDiscover));
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [selfDiscover]);
     return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
         React.createElement("div", { className: "ui form" },
@@ -3331,97 +3343,170 @@ function SelfDiscoverSelectTab(props) {
                     React.createElement("label", null, "Selected Reasoning Modules"),
                     React.createElement("textarea", { value: JSON.stringify(selfDiscover.selectResult, null, 2), readOnly: true, style: { minHeight: "36em", maxHeight: "84em" } }))),
         React.createElement("br", null),
-        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
-                var conversationA, conversationB, conversationC, conversationD, lastMessage, parsed, validated, err_1;
-                return __generator(this, function (_a) {
-                    switch (_a.label) {
-                        case 0:
-                            if (isLoading) {
-                                return [2 /*return*/];
-                            }
-                            conversationA = __assign(__assign({}, selfDiscover.selectConversation), { rawChatRequestConfig: __assign(__assign({}, selfDiscover.selectConversation.rawChatRequestConfig), { model: selfDiscover.model, response_format: {
-                                        type: "text",
-                                    }, temperature: 0, max_tokens: 1024 }), messages: [
-                                    {
-                                        uuid: uuid.v4(),
-                                        messageType: "user",
-                                        role: "user",
-                                        content: prompt,
-                                    },
-                                ] });
-                            setIsLoading(true);
-                            _a.label = 1;
-                        case 1:
-                            _a.trys.push([1, 4, , 5]);
-                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationA, [])];
-                        case 2:
-                            conversationB = _a.sent();
-                            conversationC = __assign(__assign({}, conversationB), { rawChatRequestConfig: __assign(__assign({}, conversationB.rawChatRequestConfig), { response_format: {
-                                        type: "json_object",
-                                    } }), messages: __spreadArray(__spreadArray([], conversationB.messages), [
-                                    {
-                                        uuid: uuid.v4(),
-                                        messageType: "user",
-                                        role: "user",
-                                        content: convertPrompt,
-                                    },
-                                ]) });
-                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(openAiApi, conversationC, [])];
-                        case 3:
-                            conversationD = _a.sent();
-                            setIsLoading(false);
-                            lastMessage = conversationD.messages[conversationD.messages.length - 1];
-                            if (lastMessage.role != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
-                                return [2 /*return*/];
-                            }
-                            if (lastMessage.messageType != "assistant") {
-                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
-                                return [2 /*return*/];
-                            }
-                            parsed = {};
-                            try {
-                                parsed = JSON.parse(lastMessage.content);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            validated = void 0;
-                            try {
-                                validated = selectResultMapper("result", parsed);
-                            }
-                            catch (err) {
-                                error_handling_1.handleError(error, err);
-                                return [2 /*return*/];
-                            }
-                            setSelfDiscover(__assign(__assign({}, selfDiscover), { selectConversation: conversationD, selectResult: validated }));
-                            error.reset();
-                            return [3 /*break*/, 5];
-                        case 4:
-                            err_1 = _a.sent();
-                            setIsLoading(false);
-                            error_handling_1.handleError(error, err_1);
-                            return [3 /*break*/, 5];
-                        case 5: return [2 /*return*/];
+        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: async () => {
+                if (isLoading) {
+                    return;
+                }
+                const conversationA = {
+                    ...selfDiscover.selectConversation,
+                    rawChatRequestConfig: {
+                        ...selfDiscover.selectConversation.rawChatRequestConfig,
+                        model: selfDiscover.model,
+                        response_format: {
+                            type: "text",
+                        },
+                        temperature: 0,
+                        max_tokens: 1024,
+                    },
+                    messages: [
+                        {
+                            uuid: uuid.v4(),
+                            messageType: "user",
+                            role: "user",
+                            content: prompt,
+                        },
+                    ],
+                };
+                setIsLoading(true);
+                try {
+                    const conversationB = await (0, ConversationEditPage_1.submitConversation)(openAiApi, conversationA, []);
+                    const conversationC = {
+                        ...conversationB,
+                        rawChatRequestConfig: {
+                            ...conversationB.rawChatRequestConfig,
+                            response_format: {
+                                type: "json_object",
+                            },
+                        },
+                        messages: [
+                            ...conversationB.messages,
+                            {
+                                uuid: uuid.v4(),
+                                messageType: "user",
+                                role: "user",
+                                content: convertPrompt,
+                            },
+                        ]
+                    };
+                    const conversationD = await (0, ConversationEditPage_1.submitConversation)(openAiApi, conversationC, []);
+                    setIsLoading(false);
+                    const lastMessage = conversationD.messages[conversationD.messages.length - 1];
+                    if (lastMessage.role != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.role}`]);
+                        return;
                     }
-                });
-            }); } }, "Select Reasoning Modules"),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                history.push("/conversation/" + selfDiscover.selectConversation.uuid + "/edit");
+                    if (lastMessage.messageType != "assistant") {
+                        error.push("negative", [`Expected assistant message, received ${lastMessage.messageType}`]);
+                        return;
+                    }
+                    let parsed = {};
+                    try {
+                        parsed = JSON.parse(lastMessage.content);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    let validated;
+                    try {
+                        validated = selectResultMapper("result", parsed);
+                    }
+                    catch (err) {
+                        (0, error_handling_1.handleError)(error, err);
+                        return;
+                    }
+                    setSelfDiscover({
+                        ...selfDiscover,
+                        selectConversation: conversationD,
+                        selectResult: validated,
+                    });
+                    error.reset();
+                }
+                catch (err) {
+                    setIsLoading(false);
+                    (0, error_handling_1.handleError)(error, err);
+                }
+            } }, "Select Reasoning Modules"),
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                history.push(`/conversation/${selfDiscover.selectConversation.uuid}/edit`);
             } }, "View Conversation"));
 }
 exports.SelfDiscoverSelectTab = SelfDiscoverSelectTab;
 function buildPrompt(selfDiscover) {
-    var exampleTasks = selfDiscover.tasks
-        .filter(function (t) { return t.useAsExample; })
-        .filter(function (t) { return t.problemStatement.trim() != ""; })
-        .map(function (t, index) { return "### Example Task " + (index + 1) + "\n\n" + t.problemStatement.trim(); })
+    const exampleTasks = selfDiscover.tasks
+        .filter(t => t.useAsExample)
+        .filter(t => t.problemStatement.trim() != "")
+        .map((t, index) => `### Example Task ${index + 1}
+
+${t.problemStatement.trim()}`)
         .join("\n\n");
-    return "Select several reasoning modules that are crucial to utilize in order to solve the given task:\n\n### All reasoning module descriptions\n\n+ How could I devise an experiment to help solve that problem?\n+ Make a list of ideas for solving this problem, and apply them one by one to the problem to see if any progress can be made.\n+ How could I measure progress on this problem?\n+ How can I simplify the problem so that it is easier to solve?\n+ What are the key assumptions underlying this problem?\n+ What are the potential risks and drawbacks of each solution?\n+ What are the alternative perspectives or viewpoints on this problem?\n+ What are the long-term implications of this problem and its solutions?\n+ How can I break down this problem into smaller, more manageable parts?\n+ Critical Thinking: This style involves analyzing the problem from different perspectives, questioning assumptions, and evaluating\nthe evidence or information available. It focuses on logical reasoning, evidence-based decision-making, and identifying\npotential biases or flaws in thinking.\n+ Try creative thinking, generate innovative and out-of-the-box ideas to solve the problem. Explore unconventional solutions,\nthinking beyond traditional boundaries, and encouraging imagination and originality.\n+ Seek input and collaboration from others to solve the problem. Emphasize teamwork, open communication, and leveraging the\ndiverse perspectives and expertise of a group to come up with effective solutions.\n+ Use systems thinking: Consider the problem as part of a larger system and understanding the interconnectedness of various elements.\nFocuses on identifying the underlying causes, feedback loops, and interdependencies that influence the problem, and developing holistic\nsolutions that address the system as a whole.\n+ Use Risk Analysis: Evaluate potential risks, uncertainties, and tradeoffs associated with different solutions or approaches to a\nproblem. Emphasize assessing the potential consequences and likelihood of success or failure, and making informed decisions based\non a balanced analysis of risks and benefits.\n+ Use Reflective Thinking: Step back from the problem, take the time for introspection and self-reflection. Examine personal biases,\nassumptions, and mental models that may influence problem-solving, and being open to learning from past experiences to improve\nfuture approaches.\n+ What is the core issue or problem that needs to be addressed?\n+ What are the underlying causes or factors contributing to the problem?\n+ Are there any potential solutions or strategies that have been tried before? If yes, what were the outcomes and lessons learned?\n+ What are the potential obstacles or challenges that might arise in solving this problem?\n+ Are there any relevant data or information that can provide insights into the problem? If yes, what data sources are available,\nand how can they be analyzed?\n+ Are there any stakeholders or individuals who are directly affected by the problem? What are their perspectives and needs?\n+ What resources (financial, human, technological, etc.) are needed to tackle the problem effectively?\n+ How can progress or success in solving the problem be measured or evaluated?\n+ What indicators or metrics can be used?\n+ Is the problem a technical or practical one that requires a specific expertise or skill set? Or is it more of a conceptual or\ntheoretical problem?\n+ Does the problem involve a physical constraint, such as limited resources, infrastructure, or space?\n+ Is the problem related to human behavior, such as a social, cultural, or psychological issue?\n+ Does the problem involve decision-making or planning, where choices need to be made under uncertainty or with competing\nobjectives?\n+ Is the problem an analytical one that requires data analysis, modeling, or optimization techniques?\n+ Is the problem a design challenge that requires creative solutions and innovation?\n+ Does the problem require addressing systemic or structural issues rather than just individual instances?\n+ Is the problem time-sensitive or urgent, requiring immediate attention and action?\n+ What kinds of solution typically are produced for this kind of problem specification?\n+ Given the problem specification and the current best solution, have a guess about other possible solutions.\n+ Let\u2019s imagine the current best solution is totally wrong, what other ways are there to think about the problem specification?\n+ What is the best way to modify this current best solution, given what you know about these kinds of problem specification?\n+ Ignoring the current best solution, create an entirely new solution to the problem.\n+ Let\u2019s think step by step.\n+ Let\u2019s make a step by step plan and implement it with good notion and explanation.\n\n" + exampleTasks + "\n\n### Instructions\n\nSelect several modules that are crucial for solving the tasks above.";
+    return `Select several reasoning modules that are crucial to utilize in order to solve the given task:
+
+### All reasoning module descriptions
+
++ How could I devise an experiment to help solve that problem?
++ Make a list of ideas for solving this problem, and apply them one by one to the problem to see if any progress can be made.
++ How could I measure progress on this problem?
++ How can I simplify the problem so that it is easier to solve?
++ What are the key assumptions underlying this problem?
++ What are the potential risks and drawbacks of each solution?
++ What are the alternative perspectives or viewpoints on this problem?
++ What are the long-term implications of this problem and its solutions?
++ How can I break down this problem into smaller, more manageable parts?
++ Critical Thinking: This style involves analyzing the problem from different perspectives, questioning assumptions, and evaluating
+the evidence or information available. It focuses on logical reasoning, evidence-based decision-making, and identifying
+potential biases or flaws in thinking.
++ Try creative thinking, generate innovative and out-of-the-box ideas to solve the problem. Explore unconventional solutions,
+thinking beyond traditional boundaries, and encouraging imagination and originality.
++ Seek input and collaboration from others to solve the problem. Emphasize teamwork, open communication, and leveraging the
+diverse perspectives and expertise of a group to come up with effective solutions.
++ Use systems thinking: Consider the problem as part of a larger system and understanding the interconnectedness of various elements.
+Focuses on identifying the underlying causes, feedback loops, and interdependencies that influence the problem, and developing holistic
+solutions that address the system as a whole.
++ Use Risk Analysis: Evaluate potential risks, uncertainties, and tradeoffs associated with different solutions or approaches to a
+problem. Emphasize assessing the potential consequences and likelihood of success or failure, and making informed decisions based
+on a balanced analysis of risks and benefits.
++ Use Reflective Thinking: Step back from the problem, take the time for introspection and self-reflection. Examine personal biases,
+assumptions, and mental models that may influence problem-solving, and being open to learning from past experiences to improve
+future approaches.
++ What is the core issue or problem that needs to be addressed?
++ What are the underlying causes or factors contributing to the problem?
++ Are there any potential solutions or strategies that have been tried before? If yes, what were the outcomes and lessons learned?
++ What are the potential obstacles or challenges that might arise in solving this problem?
++ Are there any relevant data or information that can provide insights into the problem? If yes, what data sources are available,
+and how can they be analyzed?
++ Are there any stakeholders or individuals who are directly affected by the problem? What are their perspectives and needs?
++ What resources (financial, human, technological, etc.) are needed to tackle the problem effectively?
++ How can progress or success in solving the problem be measured or evaluated?
++ What indicators or metrics can be used?
++ Is the problem a technical or practical one that requires a specific expertise or skill set? Or is it more of a conceptual or
+theoretical problem?
++ Does the problem involve a physical constraint, such as limited resources, infrastructure, or space?
++ Is the problem related to human behavior, such as a social, cultural, or psychological issue?
++ Does the problem involve decision-making or planning, where choices need to be made under uncertainty or with competing
+objectives?
++ Is the problem an analytical one that requires data analysis, modeling, or optimization techniques?
++ Is the problem a design challenge that requires creative solutions and innovation?
++ Does the problem require addressing systemic or structural issues rather than just individual instances?
++ Is the problem time-sensitive or urgent, requiring immediate attention and action?
++ What kinds of solution typically are produced for this kind of problem specification?
++ Given the problem specification and the current best solution, have a guess about other possible solutions.
++ Let’s imagine the current best solution is totally wrong, what other ways are there to think about the problem specification?
++ What is the best way to modify this current best solution, given what you know about these kinds of problem specification?
++ Ignoring the current best solution, create an entirely new solution to the problem.
++ Let’s think step by step.
++ Let’s make a step by step plan and implement it with good notion and explanation.
+
+${exampleTasks}
+
+### Instructions
+
+Select several modules that are crucial for solving the tasks above.`;
 }
-var convertPrompt = "Convert your response into a JSON object with the following properties,\n+ selected_reasoning_modules : string[] - an array containing the names of the selected reasoning modules\n+ rationale : string - A plain language explanation for why these modules were selecteds";
-var selectResultMapper = tm.object({
+const convertPrompt = `Convert your response into a JSON object with the following properties,
++ selected_reasoning_modules : string[] - an array containing the names of the selected reasoning modules
++ rationale : string - A plain language explanation for why these modules were selecteds`;
+const selectResultMapper = tm.object({
     selected_reasoning_modules: tm.array(tm.string()),
     rationale: tm.string(),
 });
@@ -3438,79 +3523,31 @@ var selectResultMapper = tm.object({
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __generator = (this && this.__generator) || function (thisArg, body) {
-    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
-    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
-    function verb(n) { return function (v) { return step([n, v]); }; }
-    function step(op) {
-        if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
-            if (y = 0, t) op = [op[0] & 2, t.value];
-            switch (op[0]) {
-                case 0: case 1: t = op; break;
-                case 4: _.label++; return { value: op[1], done: false };
-                case 5: _.label++; y = op[1]; op = [0]; continue;
-                case 7: op = _.ops.pop(); _.trys.pop(); continue;
-                default:
-                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
-                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
-                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
-                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
-                    if (t[2]) _.ops.pop();
-                    _.trys.pop(); continue;
-            }
-            op = body.call(thisArg, _);
-        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
-        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
-    }
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverTaskForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
-var tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
-var use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
-var ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
-var error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const tm = __webpack_require__(/*! type-mapping */ "./node_modules/type-mapping/dist/index.js");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const ConversationEditPage_1 = __webpack_require__(/*! ../ConversationEditPage */ "./src/client-public/ConversationEditPage.tsx");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
 function SelfDiscoverTaskForm(props) {
-    var _this = this;
-    var task = props.task, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, executeConfig = props.executeConfig;
-    var _a = React.useState(function () { return executeConfig == undefined ? "" : buildPrompt(task, executeConfig); }), prompt = _a[0], setPrompt = _a[1];
-    var history = reactRouter.useHistory();
-    var _b = React.useState(false), isLoading = _b[0], setIsLoading = _b[1];
-    var error = use_error_1.useError();
-    React.useEffect(function () {
-        var timer = setTimeout(function () {
+    const { task, onChange, onRemove, onMoveUp, onMoveDown, executeConfig, } = props;
+    const [prompt, setPrompt] = React.useState(() => executeConfig == undefined ? "" : buildPrompt(task, executeConfig));
+    const history = reactRouter.useHistory();
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    React.useEffect(() => {
+        const timer = setTimeout(() => {
             if (executeConfig == undefined) {
                 setPrompt("");
                 return;
             }
             setPrompt(buildPrompt(task, executeConfig));
         }, 1000);
-        return function () { return clearTimeout(timer); };
+        return () => clearTimeout(timer);
     }, [executeConfig]);
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "header" },
@@ -3522,92 +3559,100 @@ function SelfDiscoverTaskForm(props) {
                     React.createElement(React.Fragment, null,
                         React.createElement("label", null, "Use as Example"),
                         React.createElement("div", { className: "ui checkbox" },
-                            React.createElement("input", { type: "checkbox", checked: task.useAsExample, onChange: function (evt) {
-                                    onChange(__assign(__assign({}, task), { useAsExample: evt.target.checked }), task);
+                            React.createElement("input", { type: "checkbox", checked: task.useAsExample, onChange: (evt) => {
+                                    onChange({
+                                        ...task,
+                                        useAsExample: evt.target.checked,
+                                    }, task);
                                 } }),
                             React.createElement("label", null, "Use as Example"))) :
                     React.createElement(React.Fragment, null,
-                        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: function () { return __awaiter(_this, void 0, void 0, function () {
-                                var conversationA, conversationB, lastMessage, parsed, validated, err_1;
-                                return __generator(this, function (_a) {
-                                    switch (_a.label) {
-                                        case 0:
-                                            if (isLoading) {
-                                                return [2 /*return*/];
-                                            }
-                                            conversationA = __assign(__assign({}, task.executeConversation), { rawChatRequestConfig: __assign(__assign({}, task.executeConversation.rawChatRequestConfig), { model: executeConfig.model, response_format: {
-                                                        type: "json_object",
-                                                    }, temperature: 0, max_tokens: 1024 }), messages: [
-                                                    {
-                                                        uuid: uuid.v4(),
-                                                        messageType: "user",
-                                                        role: "user",
-                                                        content: prompt,
-                                                    },
-                                                ] });
-                                            setIsLoading(true);
-                                            _a.label = 1;
-                                        case 1:
-                                            _a.trys.push([1, 3, , 4]);
-                                            return [4 /*yield*/, ConversationEditPage_1.submitConversation(executeConfig.openAiApi, conversationA, [])];
-                                        case 2:
-                                            conversationB = _a.sent();
-                                            setIsLoading(false);
-                                            lastMessage = conversationB.messages[conversationB.messages.length - 1];
-                                            if (lastMessage.role != "assistant") {
-                                                error.push("negative", ["Expected assistant message, received " + lastMessage.role]);
-                                                return [2 /*return*/];
-                                            }
-                                            if (lastMessage.messageType != "assistant") {
-                                                error.push("negative", ["Expected assistant message, received " + lastMessage.messageType]);
-                                                return [2 /*return*/];
-                                            }
-                                            parsed = {};
-                                            try {
-                                                parsed = JSON.parse(lastMessage.content);
-                                            }
-                                            catch (err) {
-                                                error_handling_1.handleError(error, err);
-                                                return [2 /*return*/];
-                                            }
-                                            validated = void 0;
-                                            try {
-                                                validated = executeResultMapper("result", parsed);
-                                            }
-                                            catch (err) {
-                                                error_handling_1.handleError(error, err);
-                                                return [2 /*return*/];
-                                            }
-                                            onChange(__assign(__assign({}, task), { executeConversation: conversationB, executeResult: validated }), task);
-                                            error.reset();
-                                            return [3 /*break*/, 4];
-                                        case 3:
-                                            err_1 = _a.sent();
-                                            setIsLoading(false);
-                                            error_handling_1.handleError(error, err_1);
-                                            return [3 /*break*/, 4];
-                                        case 4: return [2 /*return*/];
+                        React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : undefined), onClick: async () => {
+                                if (isLoading) {
+                                    return;
+                                }
+                                const conversationA = {
+                                    ...task.executeConversation,
+                                    rawChatRequestConfig: {
+                                        ...task.executeConversation.rawChatRequestConfig,
+                                        model: executeConfig.model,
+                                        response_format: {
+                                            type: "json_object",
+                                        },
+                                        temperature: 0,
+                                        max_tokens: 1024,
+                                    },
+                                    messages: [
+                                        {
+                                            uuid: uuid.v4(),
+                                            messageType: "user",
+                                            role: "user",
+                                            content: prompt,
+                                        },
+                                    ],
+                                };
+                                setIsLoading(true);
+                                try {
+                                    const conversationB = await (0, ConversationEditPage_1.submitConversation)(executeConfig.openAiApi, conversationA, []);
+                                    setIsLoading(false);
+                                    const lastMessage = conversationB.messages[conversationB.messages.length - 1];
+                                    if (lastMessage.role != "assistant") {
+                                        error.push("negative", [`Expected assistant message, received ${lastMessage.role}`]);
+                                        return;
                                     }
-                                });
-                            }); } }, "Execute"),
-                        React.createElement("button", { className: "ui primary button", onClick: function () {
-                                history.push("/conversation/" + task.executeConversation.uuid + "/edit");
+                                    if (lastMessage.messageType != "assistant") {
+                                        error.push("negative", [`Expected assistant message, received ${lastMessage.messageType}`]);
+                                        return;
+                                    }
+                                    let parsed = {};
+                                    try {
+                                        parsed = JSON.parse(lastMessage.content);
+                                    }
+                                    catch (err) {
+                                        (0, error_handling_1.handleError)(error, err);
+                                        return;
+                                    }
+                                    let validated;
+                                    try {
+                                        validated = executeResultMapper("result", parsed);
+                                    }
+                                    catch (err) {
+                                        (0, error_handling_1.handleError)(error, err);
+                                        return;
+                                    }
+                                    onChange({
+                                        ...task,
+                                        executeConversation: conversationB,
+                                        executeResult: validated,
+                                    }, task);
+                                    error.reset();
+                                }
+                                catch (err) {
+                                    setIsLoading(false);
+                                    (0, error_handling_1.handleError)(error, err);
+                                }
+                            } }, "Execute"),
+                        React.createElement("button", { className: "ui primary button", onClick: () => {
+                                history.push(`/conversation/${task.executeConversation.uuid}/edit`);
                             } }, "View Conversation"))),
                 React.createElement("div", { className: "field button group", style: {
                         alignSelf: "flex-end",
                     } },
-                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(task); } },
+                    React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(task) },
                         React.createElement("i", { className: "trash icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(task); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(task) },
                         React.createElement("i", { className: "arrow up icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(task); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(task) },
                         React.createElement("i", { className: "arrow down icon" }))))),
         React.createElement("div", { className: "ui form" },
             React.createElement("textarea", { style: {
                     minHeight: "8em",
                     maxHeight: "48em",
-                }, value: task.problemStatement, onChange: function (evt) {
-                    props.onChange(__assign(__assign({}, task), { problemStatement: evt.target.value }), task);
+                }, value: task.problemStatement, onChange: (evt) => {
+                    props.onChange({
+                        ...task,
+                        problemStatement: evt.target.value,
+                    }, task);
                 } }),
             executeConfig == undefined || prompt == "" ?
                 undefined :
@@ -3622,12 +3667,30 @@ function SelfDiscoverTaskForm(props) {
 }
 exports.SelfDiscoverTaskForm = SelfDiscoverTaskForm;
 function buildPrompt(task, executeConfig) {
-    var reasoningPlan = executeConfig.implementResult.steps
-        .map(function (step, index) { return index + 1 + ". " + step.instructions; })
+    const reasoningPlan = executeConfig.implementResult.steps
+        .map((step, index) => `${index + 1}. ${step.instructions}`)
         .join("\n");
-    return "Follow the step-by-step reasoning plan to arrive at correct answers.\n\n### Reasoning Plan\n" + reasoningPlan + "\n\n### Task\n" + task.problemStatement.trim() + "\n\n### Instructions\n\nFollow the reasoning structure to arrive at the correct answer for the task.\n\nOutput a JSON object with properties,\n+ steps : Step[] - The result of following each step in the reasoning structure\n+ answer : string - The answer in easy-to-understand plain language\n\ninterface Step {\n  result : string;\n}";
+    return `Follow the step-by-step reasoning plan to arrive at correct answers.
+
+### Reasoning Plan
+${reasoningPlan}
+
+### Task
+${task.problemStatement.trim()}
+
+### Instructions
+
+Follow the reasoning structure to arrive at the correct answer for the task.
+
+Output a JSON object with properties,
++ steps : Step[] - The result of following each step in the reasoning structure
++ answer : string - The answer in easy-to-understand plain language
+
+interface Step {
+  result : string;
+}`;
 }
-var executeResultMapper = tm.object({
+const executeResultMapper = tm.object({
     steps: tm.array(tm.object({
         result: tm.string(),
     })),
@@ -3646,44 +3709,39 @@ var executeResultMapper = tm.object({
 
 "use strict";
 
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverTaskListForm = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var SelfDiscoverTaskForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskForm */ "./src/client-public/self-discover/SelfDiscoverTaskForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const SelfDiscoverTaskForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskForm */ "./src/client-public/self-discover/SelfDiscoverTaskForm.tsx");
 function SelfDiscoverTaskListForm(props) {
-    var tasks = props.tasks, onChange = props.onChange, executeConfig = props.executeConfig;
-    return React.createElement("div", { className: "ui segment divided selection massive list" }, tasks.map(function (t, index) {
-        return React.createElement(SelfDiscoverTaskForm_1.SelfDiscoverTaskForm, { tasks: tasks, key: t.uuid, task: t, onChange: function (newSelfDiscoverTask) {
-                onChange(tasks.map(function (m) {
+    const { tasks, onChange, executeConfig, } = props;
+    return React.createElement("div", { className: "ui segment divided selection massive list" }, tasks.map((t, index) => {
+        return React.createElement(SelfDiscoverTaskForm_1.SelfDiscoverTaskForm, { tasks: tasks, key: t.uuid, task: t, onChange: (newSelfDiscoverTask) => {
+                onChange(tasks.map(m => {
                     return m.uuid == newSelfDiscoverTask.uuid ?
                         newSelfDiscoverTask :
                         m;
                 }), tasks);
-            }, onRemove: function () {
-                if (!confirm("Delete task " + t.uuid + "?")) {
+            }, onRemove: () => {
+                if (!confirm(`Delete task ${t.uuid}?`)) {
                     return;
                 }
-                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                const newSelfDiscoverTasks = [...tasks];
                 newSelfDiscoverTasks.splice(index, 1);
                 onChange(newSelfDiscoverTasks, tasks);
-            }, onMoveUp: function (t) {
+            }, onMoveUp: (t) => {
                 if (index == 0) {
                     return;
                 }
-                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                const newSelfDiscoverTasks = [...tasks];
                 newSelfDiscoverTasks.splice(index, 1);
                 newSelfDiscoverTasks.splice(index - 1, 0, t);
                 onChange(newSelfDiscoverTasks, tasks);
-            }, onMoveDown: function (t) {
+            }, onMoveDown: (t) => {
                 if (index >= tasks.length) {
                     return;
                 }
-                var newSelfDiscoverTasks = __spreadArray([], tasks);
+                const newSelfDiscoverTasks = [...tasks];
                 newSelfDiscoverTasks.splice(index, 1);
                 newSelfDiscoverTasks.splice(index + 1, 0, t);
                 onChange(newSelfDiscoverTasks, tasks);
@@ -3704,38 +3762,29 @@ exports.SelfDiscoverTaskListForm = SelfDiscoverTaskListForm;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SelfDiscoverTaskTab = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
-var SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+const SelfDiscoverTaskListForm_1 = __webpack_require__(/*! ./SelfDiscoverTaskListForm */ "./src/client-public/self-discover/SelfDiscoverTaskListForm.tsx");
 function SelfDiscoverTaskTab(props) {
-    var active = props.active, selfDiscover = props.selfDiscover, setSelfDiscover = props.setSelfDiscover;
+    const { active, selfDiscover, setSelfDiscover, } = props;
     return React.createElement("div", { className: classNames("ui bottom attached tab segment", active ? "active" : undefined) },
-        React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: function (newTasks) {
-                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: newTasks }));
+        React.createElement(SelfDiscoverTaskListForm_1.SelfDiscoverTaskListForm, { tasks: selfDiscover.tasks, onChange: (newTasks) => {
+                setSelfDiscover({
+                    ...selfDiscover,
+                    tasks: newTasks,
+                });
             }, executeConfig: undefined }),
-        React.createElement("button", { className: "ui primary button", onClick: function () {
-                setSelfDiscover(__assign(__assign({}, selfDiscover), { tasks: __spreadArray(__spreadArray([], selfDiscover.tasks), [
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                setSelfDiscover({
+                    ...selfDiscover,
+                    tasks: [
+                        ...selfDiscover.tasks,
                         localStorageUtil.makeSelfDiscoverTask(selfDiscover.uuid),
-                    ]) }));
+                    ],
+                });
             } }, "Add Task"));
 }
 exports.SelfDiscoverTaskTab = SelfDiscoverTaskTab;
@@ -3754,56 +3803,54 @@ exports.SelfDiscoverTaskTab = SelfDiscoverTaskTab;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useDropdown = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-var classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
-var onDropdownOpenListener = [];
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classnames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const onDropdownOpenListener = [];
 function addOnDropdownOpenListener(d) {
     if (onDropdownOpenListener.indexOf(d) < 0) {
         onDropdownOpenListener.push(d);
     }
 }
 function removeOnDropdownOpenListener(d) {
-    var index = onDropdownOpenListener.indexOf(d);
+    const index = onDropdownOpenListener.indexOf(d);
     if (index < 0) {
         return;
     }
     onDropdownOpenListener.splice(index, 1);
 }
 function invokeOnDropdownOpen(element) {
-    var arr = onDropdownOpenListener.slice();
-    for (var _i = 0, arr_1 = arr; _i < arr_1.length; _i++) {
-        var d = arr_1[_i];
+    const arr = onDropdownOpenListener.slice();
+    for (const d of arr) {
         d(element);
     }
 }
-var onCloseAllListener = [];
+const onCloseAllListener = [];
 function addOnCloseAllListener(d) {
     if (onCloseAllListener.indexOf(d) < 0) {
         onCloseAllListener.push(d);
     }
 }
 function removeOnCloseAllListener(d) {
-    var index = onCloseAllListener.indexOf(d);
+    const index = onCloseAllListener.indexOf(d);
     if (index < 0) {
         return;
     }
     onCloseAllListener.splice(index, 1);
 }
 function invokeOnCloseAll() {
-    var arr = onCloseAllListener.slice();
-    for (var _i = 0, arr_2 = arr; _i < arr_2.length; _i++) {
-        var d = arr_2[_i];
+    const arr = onCloseAllListener.slice();
+    for (const d of arr) {
         d();
     }
 }
-var documentClickListener = undefined;
-var allowCloseAll = true;
+let documentClickListener = undefined;
+let allowCloseAll = true;
 function initDocumentClickListener() {
     if (documentClickListener != undefined) {
         return;
     }
     if (document != undefined) {
-        documentClickListener = function (_e) {
+        documentClickListener = (_e) => {
             //console.log("body click", e);
             if (!allowCloseAll) {
                 allowCloseAll = true;
@@ -3815,11 +3862,11 @@ function initDocumentClickListener() {
     }
 }
 function useDropdown(props) {
-    var _a = React.useState(false), open = _a[0], setOpen = _a[1];
-    var ref = React.useRef(null);
-    React.useEffect(function () {
+    const [open, setOpen] = React.useState(false);
+    const ref = React.useRef(null);
+    React.useEffect(() => {
         initDocumentClickListener();
-        var d = function (element) {
+        const d = (element) => {
             if (element == ref.current) {
                 //console.log("opening", element)
                 setOpen(true);
@@ -3830,19 +3877,19 @@ function useDropdown(props) {
             }
         };
         addOnDropdownOpenListener(d);
-        var d2 = function () {
+        const d2 = () => {
             //console.log("close all");
             setOpen(false);
         };
         addOnCloseAllListener(d2);
-        return function () {
+        return () => {
             removeOnDropdownOpenListener(d);
             removeOnCloseAllListener(d2);
         };
     }, []);
-    var onMouseOver = function () {
+    const onMouseOver = () => {
     };
-    var onClick = function (e) {
+    const onClick = (e) => {
         e.stopPropagation();
         allowCloseAll = false;
         //console.log("click", ref.current, e.target);
@@ -3859,7 +3906,7 @@ function useDropdown(props) {
         }
     };
     return {
-        className: function (className) {
+        className: (className) => {
             return classnames([
                 className,
                 (open ?
@@ -3869,9 +3916,9 @@ function useDropdown(props) {
                     props.closeClassName),
             ]);
         },
-        onMouseOver: onMouseOver,
-        onClick: onClick,
-        ref: ref,
+        onMouseOver,
+        onClick,
+        ref,
     };
 }
 exports.useDropdown = useDropdown;
@@ -3890,20 +3937,20 @@ exports.useDropdown = useDropdown;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.useError = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 function useError() {
-    var _a = React.useState("warning"), type = _a[0], setType = _a[1];
-    var _b = React.useState([]), messages = _b[0], setMessages = _b[1];
+    const [type, setType] = React.useState("warning");
+    const [messages, setMessages] = React.useState([]);
     return {
-        messages: messages,
-        type: type,
-        push: function (newType, newMessage) {
+        messages,
+        type,
+        push: (newType, newMessage) => {
             if (newType == "negative") {
                 setType(newType);
             }
             setMessages(messages.concat(newMessage));
         },
-        reset: function () {
+        reset: () => {
             setType("warning");
             setMessages([]);
         },
@@ -3923,25 +3970,9 @@ exports.useError = useError;
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var __spreadArray = (this && this.__spreadArray) || function (to, from) {
-    for (var i = 0, il = from.length, j = to.length; i < il; i++, j++)
-        to[j] = from[i];
-    return to;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanObject = exports.cleanProperty = exports.ObjectEditor = exports.PropertyEditor = exports.dataTypes = void 0;
-var React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 exports.dataTypes = [
     "string",
     "number",
@@ -3951,7 +3982,7 @@ exports.dataTypes = [
     "array",
 ];
 function PropertyEditor(props) {
-    var property = props.property, onChange = props.onChange, onRemove = props.onRemove, onMoveUp = props.onMoveUp, onMoveDown = props.onMoveDown, hidePropertyName = props.hidePropertyName, hideRequired = props.hideRequired, hideControls = props.hideControls, style = props.style;
+    const { property, onChange, onRemove, onMoveUp, onMoveDown, hidePropertyName, hideRequired, hideControls, style, } = props;
     return React.createElement("div", { style: style },
         React.createElement("div", { className: "five fields", style: {
                 paddingLeft: "32px"
@@ -3960,38 +3991,59 @@ function PropertyEditor(props) {
                 undefined :
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Property Name"),
-                    React.createElement("input", { type: "text", value: property.propertyName, placeholder: "Property Name", onChange: function (evt) {
-                            onChange(__assign(__assign({}, property), { propertyName: evt.target.value }), property);
+                    React.createElement("input", { type: "text", value: property.propertyName, placeholder: "Property Name", onChange: (evt) => {
+                            onChange({
+                                ...property,
+                                propertyName: evt.target.value,
+                            }, property);
                         } })),
             React.createElement("div", { className: "field" },
                 React.createElement("label", null, "Data Type"),
-                React.createElement("select", { value: property.type, onChange: function (evt) {
-                        var type = evt.target.value;
+                React.createElement("select", { value: property.type, onChange: (evt) => {
+                        const type = evt.target.value;
                         if (type == "object") {
                             if ("properties" in property) {
-                                onChange(__assign(__assign({}, property), { type: type }), property);
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                }, property);
                             }
                             else {
-                                onChange(__assign(__assign({}, property), { type: type, required: [], properties: [] }), property);
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                    required: [],
+                                    properties: [],
+                                }, property);
                             }
                         }
                         else if (type == "array") {
                             if ("items" in property) {
-                                onChange(__assign(__assign({}, property), { type: type }), property);
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                }, property);
                             }
                             else {
-                                onChange(__assign(__assign({}, property), { type: type, items: {
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                    items: {
                                         type: "string",
                                         propertyName: "item",
                                         propertyRequired: true,
                                         description: "",
-                                    } }), property);
+                                    },
+                                }, property);
                             }
                         }
                         else {
-                            onChange(__assign(__assign({}, property), { type: type }), property);
+                            onChange({
+                                ...property,
+                                type: type,
+                            }, property);
                         }
-                    } }, exports.dataTypes.map(function (s) {
+                    } }, exports.dataTypes.map(s => {
                     return React.createElement("option", { key: s, value: s }, s);
                 }))),
             (hideRequired !== null && hideRequired !== void 0 ? hideRequired : false) ?
@@ -3999,37 +4051,46 @@ function PropertyEditor(props) {
                 React.createElement("div", { className: "field" },
                     React.createElement("label", null, "Required"),
                     React.createElement("div", { className: "ui checkbox" },
-                        React.createElement("input", { type: "checkbox", checked: property.propertyRequired, onChange: function (evt) {
-                                onChange(__assign(__assign({}, property), { propertyRequired: evt.target.checked }), property);
+                        React.createElement("input", { type: "checkbox", checked: property.propertyRequired, onChange: (evt) => {
+                                onChange({
+                                    ...property,
+                                    propertyRequired: evt.target.checked,
+                                }, property);
                             } }),
                         React.createElement("label", null, "Required"))),
             React.createElement("div", { className: "field" },
                 React.createElement("label", null, "Description"),
-                React.createElement("input", { type: "text", value: property.description, placeholder: "Description", onChange: function (evt) {
-                        onChange(__assign(__assign({}, property), { description: evt.target.value }), property);
+                React.createElement("input", { type: "text", value: property.description, placeholder: "Description", onChange: (evt) => {
+                        onChange({
+                            ...property,
+                            description: evt.target.value,
+                        }, property);
                     } })),
             (hideControls !== null && hideControls !== void 0 ? hideControls : false) ?
                 undefined :
                 React.createElement("div", { className: "field button group", style: {
                         alignSelf: "flex-end",
                     } },
-                    React.createElement("button", { className: "ui icon red button", onClick: function () { return onRemove(property); } },
+                    React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(property) },
                         React.createElement("i", { className: "trash icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveUp(property); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(property) },
                         React.createElement("i", { className: "arrow up icon" })),
-                    React.createElement("button", { className: "ui icon button", onClick: function () { return onMoveDown(property); } },
+                    React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(property) },
                         React.createElement("i", { className: "arrow down icon" })))),
         property.type == "object" ?
-            React.createElement(ObjectEditor, { object: property, onChange: function (objectProperty, oldObjectProperty) {
+            React.createElement(ObjectEditor, { object: property, onChange: (objectProperty, oldObjectProperty) => {
                     onChange(objectProperty, oldObjectProperty);
                 }, style: {
                     paddingLeft: "32px",
                 }, name: property.propertyName })
             : undefined,
         property.type == "array" ?
-            React.createElement(PropertyEditor, { property: property.items, onChange: function (propertyItems) {
-                    onChange(__assign(__assign({}, property), { items: propertyItems }), property);
-                }, onRemove: function () { }, onMoveUp: function () { }, onMoveDown: function () { }, hidePropertyName: true, hideRequired: true, hideControls: true, style: {
+            React.createElement(PropertyEditor, { property: property.items, onChange: (propertyItems) => {
+                    onChange({
+                        ...property,
+                        items: propertyItems,
+                    }, property);
+                }, onRemove: () => { }, onMoveUp: () => { }, onMoveDown: () => { }, hidePropertyName: true, hideRequired: true, hideControls: true, style: {
                     paddingLeft: "32px",
                 } })
             : undefined);
@@ -4037,56 +4098,78 @@ function PropertyEditor(props) {
 exports.PropertyEditor = PropertyEditor;
 function deriveRequired(properties) {
     return properties
-        .filter(function (p) { return p.propertyRequired; })
-        .map(function (p) { return p.propertyName; });
+        .filter(p => p.propertyRequired)
+        .map(p => p.propertyName);
 }
 function ObjectEditor(props) {
-    var object = props.object, onChange = props.onChange, style = props.style, name = props.name;
+    const { object, onChange, style, name, } = props;
     return React.createElement("div", { className: "fields", style: style },
         React.createElement("div", { className: "field" },
             React.createElement("label", null,
                 name,
                 " Properties"),
-            object.properties.map(function (property, index) {
-                return React.createElement(PropertyEditor, { key: index, property: property, onRemove: function () {
-                        var newProperties = __spreadArray([], object.properties);
+            object.properties.map((property, index) => {
+                return React.createElement(PropertyEditor, { key: index, property: property, onRemove: () => {
+                        const newProperties = [...object.properties];
                         newProperties.splice(index, 1);
-                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
-                    }, onChange: function (newProperty) {
-                        var newProperties = __spreadArray([], object.properties);
+                        onChange({
+                            ...object,
+                            required: deriveRequired(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onChange: (newProperty) => {
+                        const newProperties = [...object.properties];
                         newProperties.splice(index, 1, newProperty);
-                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
-                    }, onMoveUp: function () {
+                        onChange({
+                            ...object,
+                            required: deriveRequired(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onMoveUp: () => {
                         if (index == 0) {
                             return;
                         }
-                        var newProperties = __spreadArray([], object.properties);
+                        const newProperties = [...object.properties];
                         newProperties.splice(index, 1);
                         newProperties.splice(index - 1, 0, property);
-                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
-                    }, onMoveDown: function () {
+                        onChange({
+                            ...object,
+                            required: deriveRequired(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onMoveDown: () => {
                         if (index >= object.properties.length) {
                             return;
                         }
-                        var newProperties = __spreadArray([], object.properties);
+                        const newProperties = [...object.properties];
                         newProperties.splice(index, 1);
                         newProperties.splice(index + 1, 0, property);
-                        onChange(__assign(__assign({}, object), { required: deriveRequired(newProperties), properties: newProperties }), object);
+                        onChange({
+                            ...object,
+                            required: deriveRequired(newProperties),
+                            properties: newProperties,
+                        }, object);
                     } });
             })),
         React.createElement("div", { className: "field button group", style: {
                 alignSelf: "flex-start",
             } },
-            React.createElement("button", { className: "ui icon red button", onClick: function () { return onChange(__assign(__assign({}, object), { required: __spreadArray(__spreadArray([], object.required), [
-                        "property_" + object.properties.length,
-                    ]), properties: __spreadArray(__spreadArray([], object.properties), [
+            React.createElement("button", { className: "ui icon red button", onClick: () => onChange({
+                    ...object,
+                    required: [
+                        ...object.required,
+                        `property_${object.properties.length}`,
+                    ],
+                    properties: [
+                        ...object.properties,
                         {
-                            propertyName: "property_" + object.properties.length,
+                            propertyName: `property_${object.properties.length}`,
                             type: "string",
                             propertyRequired: true,
                             description: "",
                         }
-                    ]) }), object); } },
+                    ]
+                }, object) },
                 React.createElement("i", { className: "plus icon" }))));
 }
 exports.ObjectEditor = ObjectEditor;
@@ -4096,7 +4179,7 @@ function cleanProperty(property) {
             type: property.type,
             description: property.description,
             required: deriveRequired(property.properties),
-            properties: Object.fromEntries(property.properties.map(function (p) { return [p.propertyName, cleanProperty(p)]; })),
+            properties: Object.fromEntries(property.properties.map(p => [p.propertyName, cleanProperty(p)])),
         };
     }
     else if (property.type == "array") {
@@ -4118,7 +4201,7 @@ function cleanObject(object) {
     return {
         type: object.type,
         required: deriveRequired(object.properties),
-        properties: Object.fromEntries(object.properties.map(function (p) { return [p.propertyName, cleanProperty(p)]; })),
+        properties: Object.fromEntries(object.properties.map(p => [p.propertyName, cleanProperty(p)])),
     };
 }
 exports.cleanObject = cleanObject;
