@@ -23,11 +23,18 @@ enum TabType {
     Execute = "Execute",
 }
 
+const tabTypes = Object.keys(TabType);
+
 export function SelfDiscoverEditPage (props : SelfDiscoverEditPageProps) {
     const {
         openAiApi,
     } = props;
+
+    const history = reactRouter.useHistory();
     const routeParams = reactRouter.useParams() as { uuid : string };
+    const routeLocation = reactRouter.useLocation();
+    const searchParams = new URLSearchParams(routeLocation.search);
+
     const [
         selfDiscover,
         setSelfDiscover,
@@ -35,6 +42,18 @@ export function SelfDiscoverEditPage (props : SelfDiscoverEditPageProps) {
     const [isLoading, setIsLoading] = React.useState(false);
     const error = useError();
     const [tapType, setTabType] = React.useState(TabType.Tasks);
+
+    React.useEffect(
+        () => {
+            const curTab = searchParams.get("tab") ?? TabType.Tasks;
+            setTabType(
+                tabTypes.includes(curTab) ?
+                curTab as TabType :
+                TabType.Tasks
+            );
+        },
+        [searchParams.get("tab")]
+    );
 
     const [
         models,
@@ -105,20 +124,16 @@ export function SelfDiscoverEditPage (props : SelfDiscoverEditPageProps) {
         </div>
         <div className="ui top attached tabular menu">
             {
-                [
-                    TabType.Tasks,
-                    TabType.Select,
-                    TabType.Adapt,
-                    TabType.Implement,
-                    TabType.Execute,
-                ].map(t => {
+                tabTypes.map(t => {
                     return <div
                         key={t}
                         className={classNames(
                             "item",
                             tapType == t ? "active" : undefined,
                         )}
-                        onClick={() => setTabType(t)}
+                        onClick={() => {
+                            history.replace(routeLocation.pathname + `?tab=${t}`)
+                        }}
                     >
                         {t}
                     </div>;

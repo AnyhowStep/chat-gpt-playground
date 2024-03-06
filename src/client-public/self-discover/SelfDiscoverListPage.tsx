@@ -2,6 +2,7 @@ import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
 import * as localStorageUtil from "../local-storage-util";
+import { LocalStorageKey, SelfDiscover } from "../local-storage-util";
 //import { SelfDiscover } from "./SelfDiscoverForm";
 
 export function SelfDiscoverListPage () {
@@ -31,10 +32,32 @@ export function SelfDiscoverListPage () {
                                     return;
                                 }
                                 const newUuid = uuid.v4();
-                                const newSelfDiscover = {
+                                const newSelfDiscover : SelfDiscover = {
                                     ...existingSelfDiscover,
                                     uuid : newUuid,
                                     name : `Copy of ${displayName}`,
+                                    
+                                    selectConversation : {
+                                        ...existingSelfDiscover.selectConversation,
+                                        uuid : `${LocalStorageKey.SELF_DISCOVER}_${newUuid}_select`,
+                                    },
+                                    adaptConversation : {
+                                        ...existingSelfDiscover.adaptConversation,
+                                        uuid : `${LocalStorageKey.SELF_DISCOVER}_${newUuid}_adapt`,
+                                    },
+                                    implementConversation : {
+                                        ...existingSelfDiscover.implementConversation,
+                                        uuid : `${LocalStorageKey.SELF_DISCOVER}_${newUuid}_implement`,
+                                    },
+                                    tasks : existingSelfDiscover.tasks.map(t => {
+                                        return {
+                                            ...t,
+                                            executeConversation : {
+                                                ...t.executeConversation,
+                                                uuid : `${LocalStorageKey.SELF_DISCOVER}_${newUuid}_task_${t.uuid}_execute`,
+                                            },
+                                        };
+                                    }),
                                 };
                                 const newSelfDiscovers = [
                                     ...localStorageUtil.loadSelfDiscoversMeta(),

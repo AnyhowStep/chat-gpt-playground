@@ -2905,13 +2905,24 @@ var TabType;
     TabType["Implement"] = "Implement";
     TabType["Execute"] = "Execute";
 })(TabType || (TabType = {}));
+const tabTypes = Object.keys(TabType);
 function SelfDiscoverEditPage(props) {
     const { openAiApi, } = props;
+    const history = reactRouter.useHistory();
     const routeParams = reactRouter.useParams();
+    const routeLocation = reactRouter.useLocation();
+    const searchParams = new URLSearchParams(routeLocation.search);
     const [selfDiscover, setSelfDiscover,] = React.useState(localStorageUtil.loadSelfDiscover(routeParams.uuid));
     const [isLoading, setIsLoading] = React.useState(false);
     const error = (0, use_error_1.useError)();
     const [tapType, setTabType] = React.useState(TabType.Tasks);
+    React.useEffect(() => {
+        var _a;
+        const curTab = (_a = searchParams.get("tab")) !== null && _a !== void 0 ? _a : TabType.Tasks;
+        setTabType(tabTypes.includes(curTab) ?
+            curTab :
+            TabType.Tasks);
+    }, [searchParams.get("tab")]);
     const [models,
     //setModels,
     ] = React.useState(() => {
@@ -2961,14 +2972,10 @@ function SelfDiscoverEditPage(props) {
                                 description: evt.target.value,
                             });
                         } })))),
-        React.createElement("div", { className: "ui top attached tabular menu" }, [
-            TabType.Tasks,
-            TabType.Select,
-            TabType.Adapt,
-            TabType.Implement,
-            TabType.Execute,
-        ].map(t => {
-            return React.createElement("div", { key: t, className: classNames("item", tapType == t ? "active" : undefined), onClick: () => setTabType(t) }, t);
+        React.createElement("div", { className: "ui top attached tabular menu" }, tabTypes.map(t => {
+            return React.createElement("div", { key: t, className: classNames("item", tapType == t ? "active" : undefined), onClick: () => {
+                    history.replace(routeLocation.pathname + `?tab=${t}`);
+                } }, t);
         })),
         React.createElement(SelfDiscoverTaskTab_1.SelfDiscoverTaskTab, { active: tapType == TabType.Tasks, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
         React.createElement(SelfDiscoverSelectTab_1.SelfDiscoverSelectTab, { openAiApi: openAiApi, active: tapType == TabType.Select, selfDiscover: selfDiscover, setSelfDiscover: setSelfDiscover }),
@@ -3223,6 +3230,7 @@ const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+const local_storage_util_1 = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
 //import { SelfDiscover } from "./SelfDiscoverForm";
 function SelfDiscoverListPage() {
     const history = reactRouter.useHistory();
@@ -3250,6 +3258,27 @@ function SelfDiscoverListPage() {
                                     ...existingSelfDiscover,
                                     uuid: newUuid,
                                     name: `Copy of ${displayName}`,
+                                    selectConversation: {
+                                        ...existingSelfDiscover.selectConversation,
+                                        uuid: `${local_storage_util_1.LocalStorageKey.SELF_DISCOVER}_${newUuid}_select`,
+                                    },
+                                    adaptConversation: {
+                                        ...existingSelfDiscover.adaptConversation,
+                                        uuid: `${local_storage_util_1.LocalStorageKey.SELF_DISCOVER}_${newUuid}_adapt`,
+                                    },
+                                    implementConversation: {
+                                        ...existingSelfDiscover.implementConversation,
+                                        uuid: `${local_storage_util_1.LocalStorageKey.SELF_DISCOVER}_${newUuid}_implement`,
+                                    },
+                                    tasks: existingSelfDiscover.tasks.map(t => {
+                                        return {
+                                            ...t,
+                                            executeConversation: {
+                                                ...t.executeConversation,
+                                                uuid: `${local_storage_util_1.LocalStorageKey.SELF_DISCOVER}_${newUuid}_task_${t.uuid}_execute`,
+                                            },
+                                        };
+                                    }),
                                 };
                                 const newSelfDiscovers = [
                                     ...localStorageUtil.loadSelfDiscoversMeta(),
