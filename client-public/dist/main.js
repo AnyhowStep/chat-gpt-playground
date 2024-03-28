@@ -3599,7 +3599,7 @@ async function makeSwipl() {
     let outputBuffer = "";
     const swipl = await SWIPL({
         arguments: ["-q"],
-        locateFile: (path) => `/client-public/dist/swipl/${path}`,
+        locateFile: (path) => `${window.location.pathname}client-public/dist/swipl/${path}`,
         printErr: (err) => {
             console.error(err);
             errorBuffer += err + "\n";
