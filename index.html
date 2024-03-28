@@ -286,13 +286,21 @@
             .ui.message .list:not(.ui) li:before {
                 content : "+";
             }
+
+            .ui.divided.list > .item:nth-child(odd) {
+                background-color: #505050;
+            }
+            /* .ui.divided.list > .item:nth-child(odd):hover {
+                background-color: rgba(255, 255, 255, 0.3);
+            } */
         </style>
-        <link rel="stylesheet" href="client-public/json-schema-editor-main.css"/>
+        <link rel="stylesheet" href="client-public/dist/main.css"/>
     </head>
-    <body>
-        <div id="app" style="height:100%;">
-        </div>
+    <body class="dimmable">
+        <div id="portal" style=""></div>
+        <div id="app" style="height:100%;"></div>
     </body>
+    <script src="client-public/dist/swipl/swipl-web.js"></script>
     <script src="client-public/dist/vendors.bundle.js"></script>
     <script src="client-public/dist/main.js"></script>
 </html>

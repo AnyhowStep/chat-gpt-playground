@@ -1,6 +1,7 @@
 import * as  webpack from "webpack";
 import * as path from "path";
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+import * as CopyWebpackPlugin from "copy-webpack-plugin";
 
 if (process.env.WATCH === "TRUE") {
     console.log("WEBPACK SHOULD WATCH");
@@ -97,7 +98,7 @@ const config : webpack.Configuration = {
         "source-map" :
         undefined,
     resolve : {
-        extensions : [".ts", ".tsx", ".js"],
+        extensions : [".ts", ".tsx", ".js", ".less"],
         alias: {
             '../../theme.config$': path.join(__dirname, 'my-semantic-theme/theme.config')
         }
@@ -128,6 +129,13 @@ const config : webpack.Configuration = {
         new MiniCssExtractPlugin({
             filename: '[name].css',
         }),
+        new CopyWebpackPlugin({
+            patterns : [
+                { from : "./node_modules/swipl-wasm/dist/swipl/swipl-web.js", to : "./swipl/swipl-web.js" },
+                { from : "./node_modules/swipl-wasm/dist/swipl/swipl-web.wasm", to : "./swipl/swipl-web.wasm" },
+                { from : "./node_modules/swipl-wasm/dist/swipl/swipl-web.data", to : "./swipl/swipl-web.data" },
+            ],
+        })
     ]
 };
 

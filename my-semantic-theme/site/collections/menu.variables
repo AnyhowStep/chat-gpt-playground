@@ -6,3 +6,6 @@
 @tabularActiveColor : #ffffff;
 
 @tabularHoveredTextColor : #ffffff;
+
+@color : #000;
+@headerColor : #000;

@@ -9,3 +9,8 @@ service-worker-register-site-asset-cache.js.map
 sql-wasm-debug.wasm
 worker-browser.js
 !client-public/dist
+
+agenda
+hierarchical-generation
+tree
+story

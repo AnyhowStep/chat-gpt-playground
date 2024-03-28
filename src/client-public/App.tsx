@@ -15,6 +15,13 @@ import { ConversationEditPage } from "./ConversationEditPage";
 import { ModelListPage } from "./ModelListPage";
 import { SelfDiscoverListPage } from "./self-discover/SelfDiscoverListPage";
 import { SelfDiscoverEditPage } from "./self-discover/SelfDiscoverEditPage";
+// import { SchemaListPage } from "./hierarchical-generation/SchemaListPage";
+// import { SchemaEditPage } from "./hierarchical-generation/SchemaEditPage";
+// import { GraphListPage } from "./hierarchical-generation/GraphListPage";
+// import { GraphEditPage } from "./hierarchical-generation/GraphEditPage";
+// import { AgendaEditPage } from "./agenda/AgendaEditPage";
+// import { AgendaListPage } from "./agenda/AgendaListPage";
+import { FileEditPage, FileListPage } from "./prolog";
 
 
 export interface Props {
@@ -94,6 +101,20 @@ export function App (_props : Props) {
                         <Link className="ui item" to={`/model`}>Models</Link>
                         <Link className="ui item" to={`/conversation`}>Conversations</Link>
                         <Link className="ui item" to={`/self-discover`}>Self-Discovers</Link>
+                        {/* <Link className="ui item" to={`/agenda`}>Agendas</Link> */}
+                    </div>
+                </div>
+                {/* <div className="item">
+                    Hierarchical Generation
+                    <div className="menu">
+                        <Link className="ui item" to={`/schema`}>Schemas</Link>
+                        <Link className="ui item" to={`/graph`}>Graphs</Link>
+                    </div>
+                </div> */}
+                <div className="item">
+                    Prolog
+                    <div className="menu">
+                        <Link className="ui item" to={`/prolog/file`}>Files</Link>
                     </div>
                 </div>
             </div>
@@ -113,6 +134,18 @@ export function App (_props : Props) {
                     <Route path="/conversation" component={ConversationListPage}/>
                     <Route path="/self-discover/:uuid/edit" component={() => <SelfDiscoverEditPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/self-discover" component={SelfDiscoverListPage}/>
+                    {/* <Route path="/agenda/:uuid/edit" component={() => <AgendaEditPage openAiApi={_props.openAiApi}/>}/>
+                    <Route path="/agenda" component={AgendaListPage}/> */}
+
+                    {/* <Route path="/schema/:uuid/edit" component={SchemaEditPage}/>
+                    <Route path="/schema" component={SchemaListPage}/>
+
+                    <Route path="/graph/:uuid/edit" component={() => <GraphEditPage openAiApi={_props.openAiApi}/>}/>
+                    <Route path="/graph" component={GraphListPage}/> */}
+
+                    <Route path="/prolog/file/:uuid/edit" component={FileEditPage}/>
+                    <Route path="/prolog/file" component={FileListPage}/>
+
                     <Route path="/" component={HomePage}/>
                 </Switch>
                 {/*<div className="ui vertical footer segment">

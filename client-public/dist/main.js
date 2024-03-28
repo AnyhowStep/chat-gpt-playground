@@ -755,6 +755,13 @@ const ConversationEditPage_1 = __webpack_require__(/*! ./ConversationEditPage */
 const ModelListPage_1 = __webpack_require__(/*! ./ModelListPage */ "./src/client-public/ModelListPage.tsx");
 const SelfDiscoverListPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverListPage */ "./src/client-public/self-discover/SelfDiscoverListPage.tsx");
 const SelfDiscoverEditPage_1 = __webpack_require__(/*! ./self-discover/SelfDiscoverEditPage */ "./src/client-public/self-discover/SelfDiscoverEditPage.tsx");
+// import { SchemaListPage } from "./hierarchical-generation/SchemaListPage";
+// import { SchemaEditPage } from "./hierarchical-generation/SchemaEditPage";
+// import { GraphListPage } from "./hierarchical-generation/GraphListPage";
+// import { GraphEditPage } from "./hierarchical-generation/GraphEditPage";
+// import { AgendaEditPage } from "./agenda/AgendaEditPage";
+// import { AgendaListPage } from "./agenda/AgendaListPage";
+const prolog_1 = __webpack_require__(/*! ./prolog */ "./src/client-public/prolog/index.ts");
 function App(_props) {
     const sidebar = (0, use_dropdown_1.useDropdown)({
         openClassName: "uncover visible",
@@ -779,7 +786,11 @@ function App(_props) {
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/function-tool` }, "Function Tools"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/model` }, "Models"),
                     React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/conversation` }, "Conversations"),
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/self-discover` }, "Self-Discovers")))),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/self-discover` }, "Self-Discovers"))),
+            React.createElement("div", { className: "item" },
+                "Prolog",
+                React.createElement("div", { className: "menu" },
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/prolog/file` }, "Files")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
             React.createElement(react_router_dom_1.Switch, null,
@@ -791,6 +802,8 @@ function App(_props) {
                 React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/self-discover/:uuid/edit", component: () => React.createElement(SelfDiscoverEditPage_1.SelfDiscoverEditPage, { openAiApi: _props.openAiApi }) }),
                 React.createElement(react_router_dom_1.Route, { path: "/self-discover", component: SelfDiscoverListPage_1.SelfDiscoverListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/prolog/file/:uuid/edit", component: prolog_1.FileEditPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/prolog/file", component: prolog_1.FileListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
 }
 exports.App = App;
@@ -1014,7 +1027,7 @@ exports.ContentMessageForm = ContentMessageForm;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConversationEditPage = exports.submitConversation = void 0;
+exports.countTokens = exports.ConversationEditPage = exports.submitConversation = void 0;
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
@@ -1205,41 +1218,7 @@ function ConversationEditPage(props) {
             if (conversation == undefined) {
                 return;
             }
-            let tokenized = false;
-            const newConversation = {
-                ...conversation,
-                messages: conversation.messages.map(m => {
-                    if (m.tokenCount != undefined) {
-                        return m;
-                    }
-                    if (m.messageType == "tool_response") {
-                        tokenized = true;
-                        return {
-                            ...m,
-                            tokenCount: gptTokenizer.encode(JSON.stringify({
-                                tool_call_id: m.tool_call_id,
-                                name: m.name,
-                                content: m.content,
-                            })).length,
-                        };
-                    }
-                    if ("content" in m) {
-                        tokenized = true;
-                        return {
-                            ...m,
-                            tokenCount: gptTokenizer.encode(m.content).length,
-                        };
-                    }
-                    if ("tool_calls" in m) {
-                        tokenized = true;
-                        return {
-                            ...m,
-                            tokenCount: gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
-                        };
-                    }
-                    return m;
-                }),
-            };
+            const { tokenized, newConversation, } = countTokens(conversation);
             if (tokenized) {
                 setConversation(newConversation);
             }
@@ -1283,7 +1262,37 @@ function ConversationEditPage(props) {
                     ...conversation,
                     messages: newMessages,
                 });
-            } }),
+            }, onRegenerateAssistantMessage: (message) => {
+                if (isLoading) {
+                    return;
+                }
+                const messageIndex = conversation.messages.findIndex(m => m.uuid == message.uuid);
+                const tmpConversation = {
+                    ...conversation,
+                    messages: conversation.messages.slice(0, messageIndex),
+                };
+                setIsLoading(true);
+                submitConversation(props.openAiApi, tmpConversation, functionTools)
+                    .then((newConversation) => {
+                    setIsLoading(false);
+                    const newMessage = newConversation.messages[newConversation.messages.length - 1];
+                    setConversation({
+                        ...conversation,
+                        messages: conversation.messages.map(m => {
+                            return m.uuid == message.uuid ?
+                                {
+                                    ...newMessage,
+                                    uuid: message.uuid,
+                                } :
+                                m;
+                        }),
+                    });
+                    error.reset();
+                }, (err) => {
+                    setIsLoading(false);
+                    (0, error_handling_1.handleError)(error, err);
+                });
+            }, isLoading: isLoading }),
         React.createElement("div", { className: "ui segment" },
             React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
             React.createElement("button", { className: "ui primary button", onClick: () => {
@@ -1340,6 +1349,48 @@ function ConversationEditPage(props) {
             } })));
 }
 exports.ConversationEditPage = ConversationEditPage;
+function countTokens(conversation) {
+    let tokenized = false;
+    const newConversation = {
+        ...conversation,
+        messages: conversation.messages.map(m => {
+            if (m.tokenCount != undefined) {
+                return m;
+            }
+            if (m.messageType == "tool_response") {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount: gptTokenizer.encode(JSON.stringify({
+                        tool_call_id: m.tool_call_id,
+                        name: m.name,
+                        content: m.content,
+                    })).length,
+                };
+            }
+            if ("content" in m) {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount: gptTokenizer.encode(m.content).length,
+                };
+            }
+            if ("tool_calls" in m) {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount: gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
+                };
+            }
+            return m;
+        }),
+    };
+    return {
+        tokenized,
+        newConversation,
+    };
+}
+exports.countTokens = countTokens;
 
 
 /***/ }),
@@ -1862,6 +1913,7 @@ exports.HomePage = HomePage;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageForm = void 0;
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
 const local_storage_util_1 = __webpack_require__(/*! ./local-storage-util */ "./src/client-public/local-storage-util.ts");
 const ContentMessageForm_1 = __webpack_require__(/*! ./ContentMessageForm */ "./src/client-public/ContentMessageForm.tsx");
 const AssistantToolCallMessageForm_1 = __webpack_require__(/*! ./AssistantToolCallMessageForm */ "./src/client-public/AssistantToolCallMessageForm.tsx");
@@ -1875,7 +1927,7 @@ const messageTypes = [
 ];
 function MessageForm(props) {
     var _a, _b, _c;
-    const { messages, message, onChange, onRemove, onMoveUp, onMoveDown, onAddResponse, } = props;
+    const { messages, message, onChange, onRemove, onMoveUp, onMoveDown, onAddResponse, onRegenerateAssistantMessage, isLoading, } = props;
     return React.createElement("div", { className: "item" },
         React.createElement("div", { className: "ui form" },
             React.createElement("div", { className: "two fields" },
@@ -1966,7 +2018,12 @@ function MessageForm(props) {
                     React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(message) },
                         React.createElement("i", { className: "arrow up icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(message) },
-                        React.createElement("i", { className: "arrow down icon" }))))),
+                        React.createElement("i", { className: "arrow down icon" })),
+                    message.messageType == "assistant" ?
+                        React.createElement("button", { className: classNames("ui primary icon button", isLoading ? "loading" : undefined), onClick: () => onRegenerateAssistantMessage(message) },
+                            "Regenerate ",
+                            React.createElement("i", { className: "redo icon" })) :
+                        undefined))),
         (0, ContentMessageForm_1.isContentMessage)(message) ?
             React.createElement(ContentMessageForm_1.ContentMessageForm, { message: message, onChange: (newMessage) => {
                     onChange(newMessage, message);
@@ -2014,7 +2071,7 @@ const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 const MessageForm_1 = __webpack_require__(/*! ./MessageForm */ "./src/client-public/MessageForm.tsx");
 function MessageListForm(props) {
-    const { messages, onChange, } = props;
+    const { messages, onChange, onRegenerateAssistantMessage, isLoading, } = props;
     return React.createElement("div", { className: "ui segment divided selection massive list" }, messages.map((m, index) => {
         return React.createElement(MessageForm_1.MessageForm, { messages: messages, key: m.uuid, message: m, onChange: (newMessage) => {
                 onChange(messages.map(m => {
@@ -2056,7 +2113,7 @@ function MessageListForm(props) {
                         };
                     })
                 ], messages);
-            } });
+            }, onRegenerateAssistantMessage: onRegenerateAssistantMessage, isLoading: isLoading });
     }));
 }
 exports.MessageListForm = MessageListForm;
@@ -2349,6 +2406,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.handleError = void 0;
 function handleError(error, err) {
     var _a, _b;
+    if (typeof err == "string") {
+        console.log(err);
+        error.push("negative", [
+            err
+        ]);
+        return;
+    }
     console.log(Object.getOwnPropertyNames(err));
     console.log(err);
     const propertyErrors = err === null || err === void 0 ? void 0 : err.propertyErrors;
@@ -2700,6 +2764,871 @@ const openAiApi = new api_openai_1.OpenAiApi({
     apiKey: (_a = localStorageUtil.getItem(localStorageUtil.LocalStorageKey.OPEN_AI_API_KEY)) !== null && _a !== void 0 ? _a : "",
 });
 ReactDOM.render(React.createElement(App_1.App, { openAiApi: openAiApi }), document.getElementById("app"));
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/FileEditPage.tsx":
+/*!***************************************************!*\
+  !*** ./src/client-public/prolog/FileEditPage.tsx ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FileEditPage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/client-public/prolog/data.ts");
+const ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+__webpack_require__(/*! ./file-edit-page.less */ "./src/client-public/prolog/file-edit-page.less");
+const QueryResultItem_1 = __webpack_require__(/*! ./QueryResultItem */ "./src/client-public/prolog/QueryResultItem.tsx");
+const swipl_wrapper_1 = __webpack_require__(/*! ./swipl-wrapper */ "./src/client-public/prolog/swipl-wrapper.ts");
+function FileEditPage(props) {
+    const {} = props;
+    const routeParams = reactRouter.useParams();
+    const [file, setFile,] = React.useState((0, data_1.loadFile)(routeParams.uuid));
+    const [swipl, setSwipl] = React.useState(undefined);
+    const [query, setQuery] = React.useState("");
+    const [queryResults, setQueryResults] = React.useState([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    const swiplErrors = React.useRef([]);
+    React.useEffect(() => {
+        if (swiplErrors.current.length > 0) {
+            error.push("negative", [...swiplErrors.current]);
+            swiplErrors.current.splice(0, swiplErrors.current.length);
+        }
+    }, [swiplErrors.current.length]);
+    React.useEffect(() => {
+        if (file == undefined) {
+            return;
+        }
+        const timer = setTimeout(() => {
+            (0, data_1.saveFile)(file);
+            const meta = (0, data_1.loadFilesMeta)().map((m) => {
+                return m.uuid == file.uuid ?
+                    {
+                        uuid: file.uuid,
+                        name: file.name,
+                        description: file.description,
+                    } :
+                    m;
+            });
+            (0, data_1.saveFilesMeta)(meta);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [file]);
+    if (file == undefined) {
+        return React.createElement("div", { className: "ui main container" },
+            "File ",
+            routeParams.uuid,
+            " not found");
+    }
+    return React.createElement("div", { className: "ui main container file-edit-page" },
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Title"),
+                    React.createElement("input", { placeholder: "Enter a File Title", value: file.name, onChange: (evt) => {
+                            setFile({
+                                ...file,
+                                name: evt.target.value,
+                            });
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Description"),
+                    React.createElement("input", { placeholder: "Enter a File Description", value: file.description, onChange: (evt) => {
+                            setFile({
+                                ...file,
+                                description: evt.target.value,
+                            });
+                        } })))),
+        React.createElement("div", { className: "ui form content-form", style: {} },
+            React.createElement("div", { className: "two fields content-form-split" },
+                React.createElement("div", { className: "field content-field" },
+                    React.createElement("label", null, "Content"),
+                    React.createElement("textarea", { className: "content", value: file.content, onChange: (evt) => {
+                            setFile({
+                                ...file,
+                                content: evt.target.value,
+                            });
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("div", { className: "ui form query-and-result-container" },
+                        React.createElement("div", { className: "field" },
+                            React.createElement("label", null, "Query"),
+                            React.createElement("textarea", { value: query, onChange: (evt) => {
+                                    setQuery(evt.target.value);
+                                } })),
+                        React.createElement("div", { className: "field ui buttons" },
+                            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : ""), onClick: () => {
+                                    if (isLoading) {
+                                        return;
+                                    }
+                                    setSwipl(undefined);
+                                    setIsLoading(true);
+                                    (0, swipl_wrapper_1.makeSwipl)()
+                                        .then(swipl => {
+                                        setIsLoading(false);
+                                        swipl.writeFile(`file.pl`, file.content);
+                                        const consultResult = swipl.query(`consult("file.pl").`).once();
+                                        if (consultResult.error) {
+                                            error.push("negative", [consultResult.error]);
+                                        }
+                                        else {
+                                            error.reset();
+                                        }
+                                        setSwipl(swipl);
+                                        setQueryResults(queryResults.map((queryResult) => {
+                                            if (queryResult.swiplQuery == undefined) {
+                                                return queryResult;
+                                            }
+                                            queryResult.swiplQuery.close();
+                                            return {
+                                                ...queryResult,
+                                                swiplQuery: undefined,
+                                            };
+                                        }));
+                                    })
+                                        .catch((err) => {
+                                        setIsLoading(false);
+                                        (0, error_handling_1.handleError)(error, err);
+                                    });
+                                } }, "Load Content"),
+                            React.createElement("button", { className: classNames("ui primary button", isLoading ? "loading" : "", swipl == undefined ? "disabled" : "", queryResults.length > 0 && queryResults[0].swiplQuery != undefined ? "disabled" : ""), onClick: () => {
+                                    if (isLoading) {
+                                        return;
+                                    }
+                                    if (swipl == undefined) {
+                                        return;
+                                    }
+                                    if (queryResults.length > 0 && queryResults[0].swiplQuery != undefined) {
+                                        return;
+                                    }
+                                    const swiplQuery = swipl.query(query);
+                                    const result = swiplQuery.next();
+                                    setQueryResults([
+                                        {
+                                            index: queryResults.length,
+                                            queryStr: query,
+                                            swiplQuery: swiplQuery.hasNext() ?
+                                                swiplQuery :
+                                                undefined,
+                                            resultSet: [
+                                                result,
+                                            ],
+                                        },
+                                        ...queryResults,
+                                    ]);
+                                } }, "Query")),
+                        React.createElement("div", { className: "field result-list-container" },
+                            React.createElement("label", null, "Results"),
+                            React.createElement("div", { className: "ui divided selection list result-list" }, queryResults.map((queryResult, index) => {
+                                return React.createElement(QueryResultItem_1.QueryResultItem, { key: queryResult.index, queryResult: queryResult, onChange: (newQueryResult) => {
+                                        setQueryResults([
+                                            ...queryResults.slice(0, index),
+                                            newQueryResult,
+                                            ...queryResults.slice(index + 1),
+                                        ]);
+                                    } });
+                            }))))))),
+        React.createElement("div", { className: "ui segment" },
+            React.createElement(ErrorMessage_1.ErrorMessage, { error: error })));
+}
+exports.FileEditPage = FileEditPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/FileListPage.tsx":
+/*!***************************************************!*\
+  !*** ./src/client-public/prolog/FileListPage.tsx ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.FileListPage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/client-public/prolog/data.ts");
+function FileListPage() {
+    const history = reactRouter.useHistory();
+    const [files, setFiles,] = React.useState((0, data_1.loadFilesMeta)());
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment divided selection massive list" }, files.map(meta => {
+            const displayName = meta.name.trim() == "" ?
+                `File ${meta.uuid}` :
+                meta.name;
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: () => {
+                    history.push(`/prolog/file/${meta.uuid}/edit`);
+                } },
+                React.createElement("div", { className: "extra right floated" },
+                    React.createElement("div", { className: "ui icon secondary button", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Copy ${displayName}?`)) {
+                                const existingFile = (0, data_1.loadFile)(meta.uuid);
+                                if (existingFile == undefined) {
+                                    alert(`Cannot find ${displayName} / ${meta.uuid}`);
+                                    return;
+                                }
+                                const newUuid = uuid.v4();
+                                const newFile = {
+                                    ...existingFile,
+                                    uuid: newUuid,
+                                    name: `Copy of ${displayName}`,
+                                };
+                                const newFiles = [
+                                    ...(0, data_1.loadFilesMeta)(),
+                                    {
+                                        ...meta,
+                                        uuid: newUuid,
+                                        name: `Copy of ${displayName}`,
+                                    },
+                                ];
+                                setFiles(newFiles);
+                                (0, data_1.saveFilesMeta)(newFiles);
+                                (0, data_1.saveFile)(newFile);
+                            }
+                        } },
+                        React.createElement("i", { className: "copy icon" })),
+                    React.createElement("div", { className: "ui icon red button", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Delete ${displayName}?`)) {
+                                const newFiles = (0, data_1.loadFilesMeta)()
+                                    .filter(m => m.uuid != meta.uuid);
+                                setFiles(newFiles);
+                                (0, data_1.saveFilesMeta)(newFiles);
+                                (0, data_1.deleteFile)(meta);
+                            }
+                        } },
+                        React.createElement("i", { className: "trash icon" }))),
+                React.createElement("div", { className: "content" },
+                    React.createElement("div", { className: "header" }, displayName),
+                    React.createElement("div", { className: "ui mini label" }, meta.uuid),
+                    meta.description.trim() == "" ?
+                        React.createElement("small", { className: "description" }, "There is no description for this file") :
+                        React.createElement("div", { className: "description" }, meta.description)));
+        })),
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const files = (0, data_1.loadFilesMeta)();
+                const { meta, file, } = (0, data_1.makeFile)();
+                const newFiles = [
+                    ...files,
+                    meta,
+                ];
+                (0, data_1.saveFilesMeta)(newFiles);
+                (0, data_1.saveFile)(file);
+                setFiles(newFiles);
+            } }, "Create File"));
+}
+exports.FileListPage = FileListPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/QueryResultItem.tsx":
+/*!******************************************************!*\
+  !*** ./src/client-public/prolog/QueryResultItem.tsx ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryResultItem = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const SWIPLResultView_1 = __webpack_require__(/*! ./SWIPLResultView */ "./src/client-public/prolog/SWIPLResultView.tsx");
+const QueryResultTableView_1 = __webpack_require__(/*! ./QueryResultTableView */ "./src/client-public/prolog/QueryResultTableView.tsx");
+const QueryResultJsonView_1 = __webpack_require__(/*! ./QueryResultJsonView */ "./src/client-public/prolog/QueryResultJsonView.tsx");
+const QueryResultListView_1 = __webpack_require__(/*! ./QueryResultListView */ "./src/client-public/prolog/QueryResultListView.tsx");
+function QueryResultItem(props) {
+    const { queryResult, onChange, } = props;
+    const [displayType, setDisplayType] = React.useState(SWIPLResultView_1.DisplayType.Table);
+    const [showJson, setShowJson] = React.useState(false);
+    const [showMenu, setShowMenu] = React.useState(false);
+    return React.createElement("div", { className: "item", key: queryResult.index },
+        React.createElement("div", { className: "right floated" },
+            React.createElement("div", { className: classNames("ui dropdown", "ui icon secondary", "button", showMenu ? "open" : ""), onClick: () => {
+                    setShowMenu(!showMenu);
+                } },
+                React.createElement("i", { className: "bars icon" }),
+                React.createElement("div", { className: classNames("left menu") },
+                    React.createElement("div", { className: "item", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            setShowMenu(false);
+                            setShowJson(!showJson);
+                        } }, showJson ? "Hide JSON" : "Show JSON"),
+                    React.createElement("div", { className: "header" }, "Display"),
+                    React.createElement("div", { className: "item", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            setShowMenu(false);
+                            setDisplayType(SWIPLResultView_1.DisplayType.List);
+                        } }, "Display List"),
+                    React.createElement("div", { className: "item", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            setShowMenu(false);
+                            setDisplayType(SWIPLResultView_1.DisplayType.Table);
+                        } }, "Display Table"),
+                    React.createElement("div", { className: "item", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            setShowMenu(false);
+                            setDisplayType(SWIPLResultView_1.DisplayType.Json);
+                        } }, "Display JSON")))),
+        React.createElement("div", { className: "content" },
+            React.createElement("div", { className: "header" }, queryResult.queryStr),
+            displayType == SWIPLResultView_1.DisplayType.Table ?
+                React.createElement(QueryResultTableView_1.QueryResultTableView, { queryResult: queryResult, showJson: showJson }) :
+                displayType == SWIPLResultView_1.DisplayType.Json ?
+                    React.createElement(QueryResultJsonView_1.QueryResultJsonView, { queryResult: queryResult, showJson: showJson }) :
+                    React.createElement(QueryResultListView_1.QueryResultListView, { queryResult: queryResult, showJson: showJson }),
+            queryResult.resultSet
+                .filter(result => result.error != undefined || result.output != undefined)
+                .map(result => {
+                return React.createElement("div", { key: result.index, className: "ui form" },
+                    result.error == undefined ?
+                        undefined :
+                        React.createElement("div", { className: "field" },
+                            React.createElement("label", null,
+                                "Error #",
+                                result.index),
+                            React.createElement("textarea", { readOnly: true, value: result.error })),
+                    result.output == undefined ?
+                        undefined :
+                        React.createElement("div", { className: "field" },
+                            React.createElement("label", null,
+                                "Output #",
+                                result.index),
+                            React.createElement("textarea", { readOnly: true, value: result.output })));
+            }),
+            queryResult.swiplQuery == undefined ?
+                undefined :
+                React.createElement("div", { className: "ui buttons" },
+                    React.createElement("button", { className: "ui primary button", onClick: () => {
+                            if (queryResult.swiplQuery == undefined) {
+                                return;
+                            }
+                            const result = queryResult.swiplQuery.next();
+                            onChange({
+                                ...queryResult,
+                                swiplQuery: queryResult.swiplQuery.hasNext() ?
+                                    queryResult.swiplQuery :
+                                    undefined,
+                                resultSet: [
+                                    ...queryResult.resultSet,
+                                    result,
+                                ],
+                            });
+                        } }, "Next"),
+                    React.createElement("button", { className: "ui primary button", onClick: () => {
+                            if (queryResult.swiplQuery == undefined) {
+                                return;
+                            }
+                            const arr = [];
+                            for (let i = 0; i < 10; ++i) {
+                                const result = queryResult.swiplQuery.next();
+                                arr.push(result);
+                                if (!queryResult.swiplQuery.hasNext()) {
+                                    break;
+                                }
+                            }
+                            onChange({
+                                ...queryResult,
+                                swiplQuery: queryResult.swiplQuery.hasNext() ?
+                                    queryResult.swiplQuery :
+                                    undefined,
+                                resultSet: [
+                                    ...queryResult.resultSet,
+                                    ...arr,
+                                ],
+                            });
+                        } }, "Next 10"),
+                    React.createElement("button", { className: "ui primary button", onClick: () => {
+                            if (queryResult.swiplQuery == undefined) {
+                                return;
+                            }
+                            queryResult.swiplQuery.close();
+                            onChange({
+                                ...queryResult,
+                                swiplQuery: undefined,
+                            });
+                        } }, "Close"))));
+}
+exports.QueryResultItem = QueryResultItem;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/QueryResultJsonView.tsx":
+/*!**********************************************************!*\
+  !*** ./src/client-public/prolog/QueryResultJsonView.tsx ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryResultJsonView = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function QueryResultJsonView(props) {
+    const { queryResult, showJson, } = props;
+    return React.createElement("div", { className: "description" },
+        React.createElement("textarea", { readOnly: true, value: JSON.stringify(queryResult.resultSet.map((result) => result.parsed), null, 2) }),
+        showJson ?
+            React.createElement("textarea", { readOnly: true, value: JSON.stringify(queryResult.resultSet.map(result => result.result), null, 2) }) :
+            undefined);
+}
+exports.QueryResultJsonView = QueryResultJsonView;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/QueryResultListView.tsx":
+/*!**********************************************************!*\
+  !*** ./src/client-public/prolog/QueryResultListView.tsx ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryResultListView = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const SWIPLResultListView_1 = __webpack_require__(/*! ./SWIPLResultListView */ "./src/client-public/prolog/SWIPLResultListView.tsx");
+function QueryResultListView(props) {
+    const { queryResult, showJson, } = props;
+    return React.createElement("table", { className: "ui celled selectable inverted table" },
+        React.createElement("thead", null,
+            React.createElement("tr", null,
+                React.createElement("th", null, "value"),
+                showJson ? React.createElement("th", null, "JSON") : undefined)),
+        React.createElement("tbody", null, queryResult.resultSet.map((result, index) => {
+            return React.createElement(SWIPLResultListView_1.SWIPLResultListView, { key: index, result: result, showJson: showJson });
+        })));
+}
+exports.QueryResultListView = QueryResultListView;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/QueryResultTableView.tsx":
+/*!***********************************************************!*\
+  !*** ./src/client-public/prolog/QueryResultTableView.tsx ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.QueryResultTableView = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const SWIPLResultTableView_1 = __webpack_require__(/*! ./SWIPLResultTableView */ "./src/client-public/prolog/SWIPLResultTableView.tsx");
+function QueryResultTableView(props) {
+    const { queryResult, showJson, } = props;
+    return React.createElement("table", { className: "ui celled selectable inverted table" },
+        React.createElement("thead", null,
+            React.createElement("tr", null,
+                (0, SWIPLResultTableView_1.getTableHeadings)({
+                    result: queryResult.resultSet[0],
+                })
+                    .map(heading => React.createElement("th", { key: heading }, heading)),
+                showJson ? React.createElement("th", null, "JSON") : undefined)),
+        React.createElement("tbody", null, queryResult.resultSet.map((result, index) => {
+            return React.createElement(SWIPLResultTableView_1.SWIPLResultTableView, { key: index, firstResult: queryResult.resultSet[0], result: result, showJson: showJson });
+        })));
+}
+exports.QueryResultTableView = QueryResultTableView;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/SWIPLResultListView.tsx":
+/*!**********************************************************!*\
+  !*** ./src/client-public/prolog/SWIPLResultListView.tsx ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SWIPLResultListView = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function ResultDescriptionView(props) {
+    const { result, } = props;
+    const parsed = result.parsed;
+    switch (parsed.type) {
+        case "error":
+            return React.createElement("td", null,
+                React.createElement("pre", { className: "swipl-error-message" }, parsed.message));
+        case "boolean":
+            return React.createElement("td", null, parsed.value ? "true" : "false");
+        case "bindings":
+            return React.createElement("td", null, Object.keys(parsed.bindings)
+                .map(key => `${key}=${parsed.bindings[key]}`)
+                .join(", "));
+        case "done":
+            return React.createElement("td", null, "-done-");
+        default:
+            return React.createElement("td", null, "-TODO-");
+    }
+}
+function SWIPLResultListView(props) {
+    const { result, showJson, } = props;
+    return React.createElement("tr", null,
+        React.createElement(ResultDescriptionView, { result: result }),
+        showJson ?
+            React.createElement("td", { className: "extra" }, JSON.stringify(result.result)) :
+            undefined);
+}
+exports.SWIPLResultListView = SWIPLResultListView;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/SWIPLResultTableView.tsx":
+/*!***********************************************************!*\
+  !*** ./src/client-public/prolog/SWIPLResultTableView.tsx ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.SWIPLResultTableView = exports.getTableHeadings = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+function ResultDescriptionView(props) {
+    const { firstResult, result, } = props;
+    const parsed = result.parsed;
+    switch (parsed.type) {
+        case "error":
+            return React.createElement("td", null,
+                React.createElement("pre", { className: "swipl-error-message" }, parsed.message));
+        case "boolean":
+            return React.createElement("td", null, parsed.value ? "true" : "false");
+        case "bindings":
+            return React.createElement(React.Fragment, null, Object.keys(parsed.bindings)
+                .map(key => React.createElement("td", { key: key }, parsed.bindings[key])));
+        case "done":
+            return React.createElement(React.Fragment, null, firstResult.parsed.type == "bindings" ?
+                Object
+                    .keys(firstResult.parsed.bindings)
+                    .map(key => React.createElement("td", { key: key }, "-done-"))
+                :
+                    undefined);
+        default:
+            return React.createElement("td", null, "-TODO-");
+    }
+}
+function getTableHeadings(props) {
+    const { result, } = props;
+    const parsed = result.parsed;
+    switch (parsed.type) {
+        case "error":
+            return ["error"];
+        case "boolean":
+            return ["value"];
+        case "bindings":
+            return Object.keys(parsed.bindings);
+        case "done":
+            return ["-done-"];
+        default:
+            return ["-TODO-"];
+    }
+}
+exports.getTableHeadings = getTableHeadings;
+function SWIPLResultTableView(props) {
+    const { firstResult, result, showJson, } = props;
+    return React.createElement("tr", null,
+        React.createElement(ResultDescriptionView, { firstResult: firstResult, result: result }),
+        showJson ?
+            React.createElement("td", null, JSON.stringify(result.result)) :
+            undefined);
+}
+exports.SWIPLResultTableView = SWIPLResultTableView;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/SWIPLResultView.tsx":
+/*!******************************************************!*\
+  !*** ./src/client-public/prolog/SWIPLResultView.tsx ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DisplayType = void 0;
+var DisplayType;
+(function (DisplayType) {
+    DisplayType["Table"] = "Table";
+    DisplayType["List"] = "List";
+    DisplayType["Json"] = "Json";
+})(DisplayType || (exports.DisplayType = DisplayType = {}));
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/data.ts":
+/*!******************************************!*\
+  !*** ./src/client-public/prolog/data.ts ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.saveFilesMeta = exports.loadFilesMeta = exports.deleteFile = exports.saveFile = exports.loadFile = exports.makeFile = exports.Key = void 0;
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
+var Key;
+(function (Key) {
+    Key["PL_FILE"] = "PL_FILE";
+    Key["PL_FILES_META"] = "PL_FILES_META";
+})(Key || (exports.Key = Key = {}));
+function makeFile() {
+    const file = {
+        uuid: uuid.v4(),
+        name: "",
+        description: "",
+        content: "",
+    };
+    var meta = {
+        uuid: file.uuid,
+        name: file.name,
+        description: file.description,
+    };
+    return {
+        file,
+        meta,
+    };
+}
+exports.makeFile = makeFile;
+function loadFile(uuid) {
+    const str = localStorageUtil.getItem(`${Key.PL_FILE}_${uuid}`);
+    if (str == undefined) {
+        return undefined;
+    }
+    return JSON.parse(str);
+}
+exports.loadFile = loadFile;
+function saveFile(file) {
+    return localStorageUtil.setItem(`${Key.PL_FILE}_${file.uuid}`, JSON.stringify(file));
+}
+exports.saveFile = saveFile;
+function deleteFile(file) {
+    return localStorageUtil.removeItem(`${Key.PL_FILE}_${file.uuid}`);
+}
+exports.deleteFile = deleteFile;
+function loadFilesMeta() {
+    var _a;
+    return JSON.parse((_a = localStorageUtil.getItem(Key.PL_FILES_META)) !== null && _a !== void 0 ? _a : "[]");
+}
+exports.loadFilesMeta = loadFilesMeta;
+function saveFilesMeta(filesMeta) {
+    return localStorageUtil.setItem(Key.PL_FILES_META, JSON.stringify(filesMeta));
+}
+exports.saveFilesMeta = saveFilesMeta;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/file-edit-page.less":
+/*!******************************************************!*\
+  !*** ./src/client-public/prolog/file-edit-page.less ***!
+  \******************************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/index.ts":
+/*!*******************************************!*\
+  !*** ./src/client-public/prolog/index.ts ***!
+  \*******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(__webpack_require__(/*! ./FileEditPage */ "./src/client-public/prolog/FileEditPage.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./FileListPage */ "./src/client-public/prolog/FileListPage.tsx"), exports);
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/swipl-wrapper.ts":
+/*!***************************************************!*\
+  !*** ./src/client-public/prolog/swipl-wrapper.ts ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.makeSwipl = exports.makeSwiplQuery = void 0;
+function parseResult(result, index) {
+    if ("error" in result && typeof result.message == "string") {
+        return {
+            type: "error",
+            message: result.message,
+        };
+    }
+    if ("value" in result && result.value.$tag == "bindings") {
+        const keys = Object.keys(result.value)
+            .filter(key => key != "$tag");
+        if (keys.length == 0) {
+            return {
+                type: "boolean",
+                value: true,
+            };
+        }
+        return {
+            type: "bindings",
+            bindings: Object.fromEntries(keys.map(key => [key, result.value[key]])),
+        };
+    }
+    if (result.done) {
+        if (index == 0) {
+            return {
+                type: "boolean",
+                value: false,
+            };
+        }
+        else {
+            return {
+                type: "done",
+            };
+        }
+    }
+    return {
+        type: "unknown"
+    };
+}
+function makeSwiplQuery(swiplWrapper, query) {
+    let closed = false;
+    let index = 0;
+    return {
+        close: () => {
+            query.close();
+            closed = true;
+        },
+        hasNext: () => !closed,
+        next: () => {
+            swiplWrapper.clearErrorBuffer();
+            swiplWrapper.clearOutputBuffer();
+            const result = query.next();
+            const error = swiplWrapper.getErrorBuffer();
+            const output = swiplWrapper.getOutputBuffer();
+            closed = result.done;
+            const myIndex = index++;
+            return {
+                index: myIndex,
+                result: result,
+                parsed: parseResult(result, myIndex),
+                error: error == "" ? undefined : error,
+                output: output == "" ? undefined : output,
+            };
+        },
+        once: () => {
+            swiplWrapper.clearErrorBuffer();
+            swiplWrapper.clearOutputBuffer();
+            const result = query.once();
+            const error = swiplWrapper.getErrorBuffer();
+            const output = swiplWrapper.getOutputBuffer();
+            closed = true;
+            const myIndex = index++;
+            return {
+                index: myIndex,
+                result: result,
+                parsed: parseResult(result, myIndex),
+                error: error == "" ? undefined : error,
+                output: output == "" ? undefined : output,
+            };
+        },
+    };
+}
+exports.makeSwiplQuery = makeSwiplQuery;
+async function makeSwipl() {
+    let errorBuffer = "";
+    let outputBuffer = "";
+    const swipl = await SWIPL({
+        arguments: ["-q"],
+        locateFile: (path) => `/client-public/dist/swipl/${path}`,
+        printErr: (err) => {
+            console.error(err);
+            errorBuffer += err + "\n";
+        },
+        print: (str) => {
+            console.log(str);
+            outputBuffer += str + "\n";
+        },
+    });
+    const result = {
+        writeFile: (path, data) => {
+            swipl.FS.writeFile(path, data);
+        },
+        query: () => {
+            throw new Error(`Not implemented`);
+        },
+        getErrorBuffer: () => errorBuffer,
+        getOutputBuffer: () => outputBuffer,
+        clearErrorBuffer: () => {
+            errorBuffer = "";
+        },
+        clearOutputBuffer: () => {
+            outputBuffer = "";
+        },
+    };
+    result.query = (queryStr) => makeSwiplQuery(result, swipl.prolog.query(queryStr));
+    return result;
+}
+exports.makeSwipl = makeSwipl;
 
 
 /***/ }),
@@ -3977,36 +4906,290 @@ exports.useError = useError;
 
 /***/ }),
 
-/***/ "./src/json-schema-editor/index.tsx":
-/*!******************************************!*\
-  !*** ./src/json-schema-editor/index.tsx ***!
-  \******************************************/
+/***/ "./src/json-schema-editor/EnumEditor.tsx":
+/*!***********************************************!*\
+  !*** ./src/json-schema-editor/EnumEditor.tsx ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanObject = exports.cleanProperty = exports.ObjectEditor = exports.PropertyEditor = exports.dataTypes = void 0;
+exports.EnumEditor = void 0;
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-exports.dataTypes = [
-    "string",
-    "number",
-    "boolean",
-    "integer",
-    "object",
-    "array",
-];
-function PropertyEditor(props) {
-    const { property, onChange, onRemove, onMoveUp, onMoveDown, hidePropertyName, hideRequired, hideControls, style, } = props;
+const EnumValueEditor_1 = __webpack_require__(/*! ./EnumValueEditor */ "./src/json-schema-editor/EnumValueEditor.tsx");
+function EnumEditor(props) {
+    const { values, onChange, style, name, } = props;
+    return React.createElement("div", { className: "fields", style: style },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null,
+                name,
+                " Values"),
+            values.map((value, index) => {
+                return React.createElement(EnumValueEditor_1.EnumValueEditor, { key: index, enumValue: value, onRemove: () => {
+                        const newValues = [...values];
+                        newValues.splice(index, 1);
+                        onChange(newValues, values);
+                    }, onChange: (newValue) => {
+                        const newValues = [...values];
+                        newValues.splice(index, 1, newValue);
+                        onChange(newValues, values);
+                    }, onMoveUp: () => {
+                        if (index == 0) {
+                            return;
+                        }
+                        const newValues = [...values];
+                        newValues.splice(index, 1);
+                        newValues.splice(index - 1, 0, value);
+                        onChange(newValues, values);
+                    }, onMoveDown: () => {
+                        if (index >= values.length) {
+                            return;
+                        }
+                        const newValues = [...values];
+                        newValues.splice(index, 1);
+                        newValues.splice(index + 1, 0, value);
+                        onChange(newValues, values);
+                    } });
+            })),
+        React.createElement("div", { className: "field button group", style: {
+                alignSelf: "flex-start",
+            } },
+            React.createElement("button", { className: "ui icon red button", onClick: () => onChange([
+                    ...values,
+                    {
+                        type: "string",
+                        stringValue: "",
+                        numberValue: "0",
+                        booleanValue: true,
+                        integerValue: "0",
+                    }
+                ], values) },
+                React.createElement("i", { className: "plus icon" }))));
+}
+exports.EnumEditor = EnumEditor;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/EnumValueEditor.tsx":
+/*!****************************************************!*\
+  !*** ./src/json-schema-editor/EnumValueEditor.tsx ***!
+  \****************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.EnumValueEditor = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/json-schema-editor/data.tsx");
+function EnumValueEditor(props) {
+    const { enumValue, onChange, onRemove, onMoveUp, onMoveDown, style, } = props;
     return React.createElement("div", { style: style },
-        React.createElement("div", { className: "five fields", style: {
+        React.createElement("div", { className: "three fields", style: {
+                paddingLeft: "32px"
+            } },
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Data Type"),
+                React.createElement("select", { value: enumValue.type, onChange: (evt) => {
+                        const type = evt.target.value;
+                        onChange({
+                            ...enumValue,
+                            type: type,
+                        }, enumValue);
+                    } }, data_1.enumDataTypes.map(s => {
+                    return React.createElement("option", { key: s, value: s }, s);
+                }))),
+            React.createElement("div", { className: "field" },
+                React.createElement("label", null, "Value"),
+                enumValue.type == "string" ?
+                    React.createElement("input", { type: "text", value: enumValue.stringValue, onChange: (evt) => {
+                            onChange({
+                                ...enumValue,
+                                stringValue: evt.target.value,
+                            }, enumValue);
+                        } })
+                    : undefined,
+                enumValue.type == "number" ?
+                    React.createElement("input", { type: "number", value: enumValue.numberValue, onChange: (evt) => {
+                            onChange({
+                                ...enumValue,
+                                numberValue: evt.target.value,
+                            }, enumValue);
+                        } })
+                    : undefined,
+                enumValue.type == "boolean" ?
+                    React.createElement("div", { className: "ui checkbox" },
+                        React.createElement("input", { type: "checkbox", checked: enumValue.booleanValue || false, onChange: (evt) => {
+                                onChange({
+                                    ...enumValue,
+                                    booleanValue: evt.target.checked,
+                                }, enumValue);
+                            } }),
+                        React.createElement("label", null))
+                    : undefined,
+                enumValue.type == "integer" ?
+                    React.createElement("input", { type: "number", value: enumValue.integerValue, onChange: (evt) => {
+                            onChange({
+                                ...enumValue,
+                                integerValue: evt.target.value,
+                            }, enumValue);
+                        } })
+                    : undefined),
+            React.createElement("div", { className: "field button group", style: {
+                    alignSelf: "flex-end",
+                } },
+                React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(enumValue) },
+                    React.createElement("i", { className: "trash icon" })),
+                React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(enumValue) },
+                    React.createElement("i", { className: "arrow up icon" })),
+                React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(enumValue) },
+                    React.createElement("i", { className: "arrow down icon" })))));
+}
+exports.EnumValueEditor = EnumValueEditor;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/ObjectEditor.tsx":
+/*!*************************************************!*\
+  !*** ./src/json-schema-editor/ObjectEditor.tsx ***!
+  \*************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ObjectEditorImpl = exports.ObjectEditor = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/json-schema-editor/data.tsx");
+const PropertyEditor_1 = __webpack_require__(/*! ./PropertyEditor */ "./src/json-schema-editor/PropertyEditor.tsx");
+function ObjectEditor(props) {
+    const [copiedProperty, setCopiedProperty] = React.useState(undefined);
+    return React.createElement(ObjectEditorImpl, { ...props, copiedProperty: copiedProperty, setCopiedProperty: setCopiedProperty });
+}
+exports.ObjectEditor = ObjectEditor;
+function ObjectEditorImpl(props) {
+    const { object, onChange, style, name, copiedProperty, setCopiedProperty, } = props;
+    return React.createElement("div", { className: "fields", style: style },
+        React.createElement("div", { className: "field" },
+            React.createElement("label", null,
+                name,
+                " Properties"),
+            object.properties.map((property, index) => {
+                return React.createElement(PropertyEditor_1.PropertyEditor, { key: index, property: property, onRemove: () => {
+                        const newProperties = [...object.properties];
+                        newProperties.splice(index, 1);
+                        onChange({
+                            ...object,
+                            required: (0, data_1.deriveRequired)(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onChange: (newProperty) => {
+                        const newProperties = [...object.properties];
+                        newProperties.splice(index, 1, newProperty);
+                        onChange({
+                            ...object,
+                            required: (0, data_1.deriveRequired)(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onMoveUp: () => {
+                        if (index == 0) {
+                            return;
+                        }
+                        const newProperties = [...object.properties];
+                        newProperties.splice(index, 1);
+                        newProperties.splice(index - 1, 0, property);
+                        onChange({
+                            ...object,
+                            required: (0, data_1.deriveRequired)(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onMoveDown: () => {
+                        if (index >= object.properties.length) {
+                            return;
+                        }
+                        const newProperties = [...object.properties];
+                        newProperties.splice(index, 1);
+                        newProperties.splice(index + 1, 0, property);
+                        onChange({
+                            ...object,
+                            required: (0, data_1.deriveRequired)(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, onPasteProperty: () => {
+                        if (copiedProperty == undefined) {
+                            return;
+                        }
+                        const newProperties = [...object.properties];
+                        newProperties.splice(index + 1, 0, { ...copiedProperty });
+                        onChange({
+                            ...object,
+                            required: (0, data_1.deriveRequired)(newProperties),
+                            properties: newProperties,
+                        }, object);
+                    }, copiedProperty: copiedProperty, setCopiedProperty: setCopiedProperty });
+            })),
+        React.createElement("div", { className: "field button group", style: {
+                alignSelf: "flex-start",
+            } },
+            React.createElement("button", { className: "ui icon red button", onClick: () => onChange({
+                    ...object,
+                    required: [
+                        ...object.required,
+                        `property_${object.properties.length}`,
+                    ],
+                    properties: [
+                        ...object.properties,
+                        {
+                            propertyName: `property_${object.properties.length}`,
+                            type: "string",
+                            propertyRequired: true,
+                            description: "",
+                        }
+                    ]
+                }, object) },
+                React.createElement("i", { className: "plus icon" }))));
+}
+exports.ObjectEditorImpl = ObjectEditorImpl;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/PropertyEditor.tsx":
+/*!***************************************************!*\
+  !*** ./src/json-schema-editor/PropertyEditor.tsx ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PropertyEditor = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/json-schema-editor/data.tsx");
+const EnumEditor_1 = __webpack_require__(/*! ./EnumEditor */ "./src/json-schema-editor/EnumEditor.tsx");
+const ObjectEditor_1 = __webpack_require__(/*! ./ObjectEditor */ "./src/json-schema-editor/ObjectEditor.tsx");
+function PropertyEditor(props) {
+    const { property, onChange, onRemove, onMoveUp, onMoveDown, onPasteProperty, copiedProperty, setCopiedProperty, hidePropertyName, hideRequired, hideControls, style, } = props;
+    const [showMenu, setShowMenu] = React.useState(false);
+    const [collapsed, setCollapsed] = React.useState(false);
+    return React.createElement("div", { style: style },
+        React.createElement("div", { className: "four fields", style: {
                 paddingLeft: "32px"
             } },
             (hidePropertyName !== null && hidePropertyName !== void 0 ? hidePropertyName : false) ?
                 undefined :
                 React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Property Name"),
+                    React.createElement("label", null,
+                        "Property Name ",
+                        property.propertyRequired ? "(*)" : ""),
                     React.createElement("input", { type: "text", value: property.propertyName, placeholder: "Property Name", onChange: (evt) => {
                             onChange({
                                 ...property,
@@ -4053,27 +5236,38 @@ function PropertyEditor(props) {
                                 }, property);
                             }
                         }
+                        else if (type == "enum") {
+                            if ("values" in property) {
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                }, property);
+                            }
+                            else {
+                                onChange({
+                                    ...property,
+                                    type: type,
+                                    values: [
+                                        {
+                                            type: "string",
+                                            stringValue: "",
+                                            numberValue: "0",
+                                            booleanValue: true,
+                                            integerValue: "0",
+                                        }
+                                    ],
+                                }, property);
+                            }
+                        }
                         else {
                             onChange({
                                 ...property,
                                 type: type,
                             }, property);
                         }
-                    } }, exports.dataTypes.map(s => {
+                    } }, data_1.dataTypes.map(s => {
                     return React.createElement("option", { key: s, value: s }, s);
                 }))),
-            (hideRequired !== null && hideRequired !== void 0 ? hideRequired : false) ?
-                undefined :
-                React.createElement("div", { className: "field" },
-                    React.createElement("label", null, "Required"),
-                    React.createElement("div", { className: "ui checkbox" },
-                        React.createElement("input", { type: "checkbox", checked: property.propertyRequired, onChange: (evt) => {
-                                onChange({
-                                    ...property,
-                                    propertyRequired: evt.target.checked,
-                                }, property);
-                            } }),
-                        React.createElement("label", null, "Required"))),
             React.createElement("div", { className: "field" },
                 React.createElement("label", null, "Description"),
                 React.createElement("input", { type: "text", value: property.description, placeholder: "Description", onChange: (evt) => {
@@ -4087,108 +5281,132 @@ function PropertyEditor(props) {
                 React.createElement("div", { className: "field button group", style: {
                         alignSelf: "flex-end",
                     } },
-                    React.createElement("button", { className: "ui icon red button", onClick: () => onRemove(property) },
-                        React.createElement("i", { className: "trash icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: () => onMoveUp(property) },
                         React.createElement("i", { className: "arrow up icon" })),
                     React.createElement("button", { className: "ui icon button", onClick: () => onMoveDown(property) },
-                        React.createElement("i", { className: "arrow down icon" })))),
-        property.type == "object" ?
-            React.createElement(ObjectEditor, { object: property, onChange: (objectProperty, oldObjectProperty) => {
+                        React.createElement("i", { className: "arrow down icon" })),
+                    React.createElement("div", { className: classNames("ui dropdown", "ui icon secondary", "button", showMenu ? "open" : ""), onClick: () => {
+                            setShowMenu(!showMenu);
+                        } },
+                        React.createElement("i", { className: "bars icon" }),
+                        React.createElement("div", { className: classNames("left menu") },
+                            React.createElement("div", { className: "item", onClick: (evt) => {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    setShowMenu(false);
+                                    setCopiedProperty(property);
+                                } }, "Copy Property"),
+                            React.createElement("div", { className: classNames("item", copiedProperty == undefined ? "disabled" : ""), onClick: (evt) => {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    if (copiedProperty == undefined) {
+                                        return;
+                                    }
+                                    setShowMenu(false);
+                                    onPasteProperty(property);
+                                } }, "Paste Property"),
+                            React.createElement("div", { className: classNames("item"), onClick: (evt) => {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    setShowMenu(false);
+                                    if (confirm(`Delete ${property.propertyName}?`)) {
+                                        onRemove(property);
+                                    }
+                                } }, "Delete Property"),
+                            (hideRequired !== null && hideRequired !== void 0 ? hideRequired : false) ?
+                                undefined :
+                                React.createElement("div", { className: classNames("item"), onClick: (evt) => {
+                                        evt.preventDefault();
+                                        evt.stopPropagation();
+                                        setShowMenu(false);
+                                        onChange({
+                                            ...property,
+                                            propertyRequired: !property.propertyRequired,
+                                        }, property);
+                                    } },
+                                    "Set ",
+                                    property.propertyRequired ? "Optional" : "Required"),
+                            React.createElement("div", { className: classNames("item"), onClick: (evt) => {
+                                    evt.preventDefault();
+                                    evt.stopPropagation();
+                                    setShowMenu(false);
+                                    setCollapsed(!collapsed);
+                                } }, collapsed ? "Expand" : "Collapse"))))),
+        !collapsed && property.type == "object" ?
+            React.createElement(ObjectEditor_1.ObjectEditorImpl, { object: property, onChange: (objectProperty, oldObjectProperty) => {
                     onChange(objectProperty, oldObjectProperty);
                 }, style: {
                     paddingLeft: "32px",
-                }, name: property.propertyName })
+                }, name: property.propertyName, copiedProperty: copiedProperty, setCopiedProperty: setCopiedProperty })
             : undefined,
-        property.type == "array" ?
+        !collapsed && property.type == "array" ?
             React.createElement(PropertyEditor, { property: property.items, onChange: (propertyItems) => {
                     onChange({
                         ...property,
                         items: propertyItems,
                     }, property);
-                }, onRemove: () => { }, onMoveUp: () => { }, onMoveDown: () => { }, hidePropertyName: true, hideRequired: true, hideControls: true, style: {
+                }, onRemove: () => { }, onMoveUp: () => { }, onMoveDown: () => { }, onPasteProperty: () => { }, copiedProperty: copiedProperty, setCopiedProperty: setCopiedProperty, hidePropertyName: true, hideRequired: true, hideControls: true, style: {
+                    paddingLeft: "32px",
+                } })
+            : undefined,
+        !collapsed && property.type == "enum" ?
+            React.createElement(EnumEditor_1.EnumEditor, { values: property.values, onChange: (values) => {
+                    onChange({
+                        ...property,
+                        values: values,
+                    }, property);
+                }, style: {
                     paddingLeft: "32px",
                 } })
             : undefined);
 }
 exports.PropertyEditor = PropertyEditor;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/data.tsx":
+/*!*****************************************!*\
+  !*** ./src/json-schema-editor/data.tsx ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.cleanObject = exports.cleanProperty = exports.deriveRequired = exports.enumDataTypes = exports.dataTypes = void 0;
+exports.dataTypes = [
+    "string",
+    "number",
+    "boolean",
+    "integer",
+    "object",
+    "array",
+    "enum",
+];
+exports.enumDataTypes = [
+    "string",
+    "number",
+    "boolean",
+    "integer",
+];
 function deriveRequired(properties) {
     return properties
         .filter(p => p.propertyRequired)
         .map(p => p.propertyName);
 }
-function ObjectEditor(props) {
-    const { object, onChange, style, name, } = props;
-    return React.createElement("div", { className: "fields", style: style },
-        React.createElement("div", { className: "field" },
-            React.createElement("label", null,
-                name,
-                " Properties"),
-            object.properties.map((property, index) => {
-                return React.createElement(PropertyEditor, { key: index, property: property, onRemove: () => {
-                        const newProperties = [...object.properties];
-                        newProperties.splice(index, 1);
-                        onChange({
-                            ...object,
-                            required: deriveRequired(newProperties),
-                            properties: newProperties,
-                        }, object);
-                    }, onChange: (newProperty) => {
-                        const newProperties = [...object.properties];
-                        newProperties.splice(index, 1, newProperty);
-                        onChange({
-                            ...object,
-                            required: deriveRequired(newProperties),
-                            properties: newProperties,
-                        }, object);
-                    }, onMoveUp: () => {
-                        if (index == 0) {
-                            return;
-                        }
-                        const newProperties = [...object.properties];
-                        newProperties.splice(index, 1);
-                        newProperties.splice(index - 1, 0, property);
-                        onChange({
-                            ...object,
-                            required: deriveRequired(newProperties),
-                            properties: newProperties,
-                        }, object);
-                    }, onMoveDown: () => {
-                        if (index >= object.properties.length) {
-                            return;
-                        }
-                        const newProperties = [...object.properties];
-                        newProperties.splice(index, 1);
-                        newProperties.splice(index + 1, 0, property);
-                        onChange({
-                            ...object,
-                            required: deriveRequired(newProperties),
-                            properties: newProperties,
-                        }, object);
-                    } });
-            })),
-        React.createElement("div", { className: "field button group", style: {
-                alignSelf: "flex-start",
-            } },
-            React.createElement("button", { className: "ui icon red button", onClick: () => onChange({
-                    ...object,
-                    required: [
-                        ...object.required,
-                        `property_${object.properties.length}`,
-                    ],
-                    properties: [
-                        ...object.properties,
-                        {
-                            propertyName: `property_${object.properties.length}`,
-                            type: "string",
-                            propertyRequired: true,
-                            description: "",
-                        }
-                    ]
-                }, object) },
-                React.createElement("i", { className: "plus icon" }))));
+exports.deriveRequired = deriveRequired;
+function cleanEnumValues(enumValues) {
+    return enumValues.map(v => {
+        switch (v.type) {
+            case "string": return v.stringValue;
+            case "number": return Number(v.numberValue);
+            case "boolean": return v.booleanValue;
+            case "integer": return Number(v.integerValue);
+        }
+    });
 }
-exports.ObjectEditor = ObjectEditor;
 function cleanProperty(property) {
     if (property.type == "object") {
         return {
@@ -4203,6 +5421,13 @@ function cleanProperty(property) {
             type: property.type,
             description: property.description,
             items: cleanProperty(property.items),
+        };
+    }
+    else if (property.type == "enum") {
+        return {
+            type: undefined,
+            description: property.description,
+            enum: cleanEnumValues(property.values),
         };
     }
     else {
@@ -4221,6 +5446,207 @@ function cleanObject(object) {
     };
 }
 exports.cleanObject = cleanObject;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/find-missing-properties.tsx":
+/*!************************************************************!*\
+  !*** ./src/json-schema-editor/find-missing-properties.tsx ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.findMissingPropertiesInArray = exports.findMissingProperties = void 0;
+function findMissingProperties(obj, value, parentPathStr = "", parentPath = []) {
+    const result = [];
+    for (const p of obj.properties) {
+        const curPathStr = parentPathStr == "" ?
+            p.propertyName :
+            `${parentPathStr}.${p.propertyName}`;
+        const curPath = [...parentPath, p.propertyName];
+        const hasValue = (value != undefined &&
+            Object.prototype.hasOwnProperty.call(value, p.propertyName) &&
+            value[p.propertyName] != undefined);
+        if (hasValue) {
+            if (p.type == "object") {
+                result.push(...findMissingProperties(p, value[p.propertyName], curPathStr, curPath));
+            }
+            else if (p.type == "array") {
+                const maybeArr = value[p.propertyName];
+                if (maybeArr instanceof Array) {
+                    result.push(...findMissingPropertiesInArray(p, maybeArr, curPathStr, curPath));
+                }
+                else {
+                    //Wrong data type...
+                    result.push(...findMissingPropertiesInArray(p, [0], curPathStr, curPath));
+                }
+            }
+        }
+        else {
+            result.push({
+                pathStr: curPathStr,
+                path: curPath,
+                property: p,
+            });
+        }
+    }
+    return result;
+}
+exports.findMissingProperties = findMissingProperties;
+function findMissingPropertiesInArray(p, arr, parentPathStr, parentPath) {
+    const result = [];
+    if (p.items.type == "object") {
+        for (let i = 0; i < arr.length; ++i) {
+            result.push(...findMissingProperties(p.items, arr[i], `${parentPathStr}.${i}`, [...parentPath, i.toString()]));
+        }
+    }
+    else if (p.items.type == "array") {
+        for (let i = 0; i < arr.length; ++i) {
+            const maybeArr = arr[i];
+            if (maybeArr instanceof Array) {
+                result.push(...findMissingPropertiesInArray(p.items, maybeArr, `${parentPathStr}.${i}`, [...parentPath, i.toString()]));
+            }
+            else {
+                //Wrong data type...
+                result.push(...findMissingPropertiesInArray(p.items, [0], `${parentPathStr}.${i}`, [...parentPath, i.toString()]));
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < arr.length; ++i) {
+            if (arr[i] == undefined) {
+                result.push({
+                    pathStr: `${parentPathStr}.${i}`,
+                    path: [...parentPath, i.toString()],
+                    property: p,
+                });
+            }
+        }
+    }
+    return result;
+}
+exports.findMissingPropertiesInArray = findMissingPropertiesInArray;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/find-present-properties.tsx":
+/*!************************************************************!*\
+  !*** ./src/json-schema-editor/find-present-properties.tsx ***!
+  \************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.findPresentPropertiesInArray = exports.findPresentProperties = void 0;
+function findPresentProperties(obj, value, parentPathStr = "", parentPath = []) {
+    const result = [];
+    for (const p of obj.properties) {
+        const curPathStr = parentPathStr == "" ?
+            p.propertyName :
+            `${parentPathStr}.${p.propertyName}`;
+        const curPath = [...parentPath, p.propertyName];
+        const hasValue = (value != undefined &&
+            Object.prototype.hasOwnProperty.call(value, p.propertyName) &&
+            value[p.propertyName] != undefined);
+        if (hasValue) {
+            result.push({
+                pathStr: curPathStr,
+                path: curPath,
+                property: p,
+            });
+            if (p.type == "object") {
+                result.push(...findPresentProperties(p, value[p.propertyName], curPathStr, curPath));
+            }
+            else if (p.type == "array") {
+                const maybeArr = value[p.propertyName];
+                if (maybeArr instanceof Array) {
+                    result.push(...findPresentPropertiesInArray(p, maybeArr, curPathStr, curPath));
+                }
+                else {
+                    //Wrong data type...
+                }
+            }
+        }
+        else {
+        }
+    }
+    return result;
+}
+exports.findPresentProperties = findPresentProperties;
+function findPresentPropertiesInArray(p, arr, parentPathStr, parentPath) {
+    const result = [];
+    if (p.items.type == "object") {
+        for (let i = 0; i < arr.length; ++i) {
+            result.push(...findPresentProperties(p.items, arr[i], `${parentPathStr}.${i}`, [...parentPath, i.toString()]));
+        }
+    }
+    else if (p.items.type == "array") {
+        for (let i = 0; i < arr.length; ++i) {
+            const maybeArr = arr[i];
+            if (maybeArr instanceof Array) {
+                result.push(...findPresentPropertiesInArray(p.items, maybeArr, `${parentPathStr}.${i}`, [...parentPath, i.toString()]));
+            }
+            else {
+                //Wrong data type...
+            }
+        }
+    }
+    else {
+        for (let i = 0; i < arr.length; ++i) {
+            if (arr[i] == undefined) {
+                result.push({
+                    pathStr: `${parentPathStr}.${i}`,
+                    path: [...parentPath, i.toString()],
+                    property: p,
+                });
+            }
+        }
+    }
+    return result;
+}
+exports.findPresentPropertiesInArray = findPresentPropertiesInArray;
+
+
+/***/ }),
+
+/***/ "./src/json-schema-editor/index.tsx":
+/*!******************************************!*\
+  !*** ./src/json-schema-editor/index.tsx ***!
+  \******************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(__webpack_require__(/*! ./data */ "./src/json-schema-editor/data.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./EnumEditor */ "./src/json-schema-editor/EnumEditor.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./EnumValueEditor */ "./src/json-schema-editor/EnumValueEditor.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./find-missing-properties */ "./src/json-schema-editor/find-missing-properties.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./find-present-properties */ "./src/json-schema-editor/find-present-properties.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./ObjectEditor */ "./src/json-schema-editor/ObjectEditor.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./PropertyEditor */ "./src/json-schema-editor/PropertyEditor.tsx"), exports);
 
 
 /***/ })

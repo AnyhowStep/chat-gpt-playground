@@ -1,6 +1,13 @@
 import { ErrorHook } from "./use-error";
 
-export function handleError (error : ErrorHook,err : any) {
+export function handleError (error : ErrorHook, err : any) {
+    if (typeof err == "string") {
+        console.log(err);
+        error.push("negative", [
+            err
+        ]);
+        return;
+    }
     console.log(Object.getOwnPropertyNames(err));
     console.log(err);
 

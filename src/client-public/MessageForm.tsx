@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Message, ToolCall, isAssistantToolCallMessage } from "./local-storage-util";
+import * as classNames from "classnames";
+import { AssistantMessage, Message, ToolCall, isAssistantToolCallMessage } from "./local-storage-util";
 import { ContentMessageForm, isContentMessage } from "./ContentMessageForm";
 import { AssistantToolCallMessageForm } from "./AssistantToolCallMessageForm";
 import { ToolResponseMessageForm } from "./ToolResponseMessageForm";
@@ -12,6 +13,8 @@ export interface MessageFormProps {
     onMoveUp : (message : Message) => void;
     onMoveDown : (message : Message) => void;
     onAddResponse : (toolCalls : ToolCall[]) => void;
+    onRegenerateAssistantMessage : (message : AssistantMessage) => void;
+    isLoading : boolean;
 }
 
 const messageTypes = [
@@ -31,6 +34,8 @@ export function MessageForm (props : MessageFormProps) {
         onMoveUp,
         onMoveDown,
         onAddResponse,
+        onRegenerateAssistantMessage,
+        isLoading,
     } = props;
     return <div className="item">
         <div className="ui form">
@@ -152,6 +157,19 @@ export function MessageForm (props : MessageFormProps) {
                     >
                         <i className="arrow down icon"></i>
                     </button>
+                    {
+                        message.messageType == "assistant" ?
+                        <button
+                            className={classNames(
+                                "ui primary icon button",
+                                isLoading ? "loading" : undefined,
+                            )}
+                            onClick={() => onRegenerateAssistantMessage(message)}
+                        >
+                            Regenerate <i className="redo icon"></i>
+                        </button> :
+                        undefined
+                    }
                 </div>
             </div>
         </div>

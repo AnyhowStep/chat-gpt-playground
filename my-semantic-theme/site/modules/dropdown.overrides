@@ -1,0 +1,8 @@
+.ui.dropdown .menu > .header {
+  margin: @menuHeaderMargin !important;
+  padding: @menuHeaderPadding;
+  color: @menuHeaderColor;
+  font-size: @menuHeaderFontSize;
+  font-weight: @menuHeaderFontWeight;
+  text-transform: @menuHeaderTextTransform;
+}

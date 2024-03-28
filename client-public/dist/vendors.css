@@ -21206,7 +21206,7 @@ ol.ui.list ol li,
   background: transparent;
   padding: 0.5em 0.5em;
   margin: 0em;
-  color: rgba(0, 0, 0, 0.4);
+  color: #fff;
   border-radius: 0.5em;
   transition: 0.1s color ease, 0.1s padding-left ease, 0.1s background-color ease;
 }
@@ -42610,6 +42610,9 @@ a.ui.card:hover,
 /* Unstackable */
 /* Site Theme */
 /*******************************
+    User Variable Overrides
+*******************************/
+/*******************************
              Mix-ins
 *******************************/
 /*------------------
@@ -42728,7 +42731,7 @@ a.ui.card:hover,
   margin: -0.21425em 0em 0em;
   font-family: 'Lato', 'Helvetica Neue', Arial, Helvetica, sans-serif;
   font-weight: bold;
-  color: rgba(0, 0, 0, 0.85);
+  color: #000;
 }
 /* Default Header Size */
 .ui.items > .item > .content > .header:not(.ui) {
@@ -42807,7 +42810,7 @@ a.ui.card:hover,
 }
 /* Header */
 .ui.items > .item > .content > a.header {
-  color: rgba(0, 0, 0, 0.85);
+  color: #000;
 }
 .ui.items > .item > .content > a.header:hover {
   color: #1e70bf;
@@ -47818,6 +47821,9 @@ body.dimmable > .dimmer {
 /* Pointing Upward */
 /* Site Theme */
 /*******************************
+    User Variable Overrides
+*******************************/
+/*******************************
              Mix-ins
 *******************************/
 /*------------------
@@ -47854,7 +47860,7 @@ body.dimmable > .dimmer {
   min-width: max-content;
   margin: 0em;
   padding: 0em 0em;
-  background: #FFFFFF;
+  background: #4c4c48;
   font-size: 1em;
   text-shadow: none;
   text-align: left;
@@ -47911,7 +47917,7 @@ body.dimmable > .dimmer {
   text-align: left;
   border-top: none;
   line-height: 1em;
-  color: #ffffff;
+  color: #fff;
   padding: 0.78571429rem 1.14285714rem !important;
   font-size: 1rem;
   text-transform: none;
@@ -47949,7 +47955,7 @@ body.dimmable > .dimmer {
 .ui.dropdown .menu > .header {
   margin: 1rem 0rem 0.75rem;
   padding: 0em 1.14285714rem;
-  color: rgba(0, 0, 0, 0.85);
+  color: #fff;
   font-size: 0.78571429em;
   font-weight: bold;
   text-transform: uppercase;
@@ -48462,7 +48468,7 @@ select.ui.dropdown {
 /* Menu Item Hover */
 .ui.dropdown .menu > .item:hover {
   background: rgba(0, 0, 0, 0.05);
-  color: rgba(0, 0, 0, 0.95);
+  color: #fff;
   z-index: 13;
 }
 /*--------------------
@@ -49084,6 +49090,14 @@ select.ui.dropdown {
   .dropdown.right:before { content: "\f0da"; }
   .dropdown.close:before { content: "\f00d"; }
 */
+.ui.dropdown .menu > .header {
+  margin: 1rem 0rem 0.75rem !important;
+  padding: 0em 1.14285714rem;
+  color: #fff;
+  font-size: 0.78571429em;
+  font-weight: bold;
+  text-transform: uppercase;
+}
 /*!
  * # Semantic UI - Video
  * http://github.com/semantic-org/semantic-ui/

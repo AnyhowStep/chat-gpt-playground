@@ -1,0 +1,98 @@
+@import 'node_modules/semantic-ui-less/themes/default/globals/site.variables';
+
+.file-edit-page .content-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-edit-page textarea.content {
+    min-height : initial!important;
+    max-height: none!important;
+    flex:1;
+}
+
+.file-edit-page .content-form {
+    flex : 1;
+    display : flex;
+    overflow : hidden;
+}
+
+.file-edit-page .content-form-split {
+    flex : 1;
+}
+
+.file-edit-page .query-and-result-container {
+    height : 100%;
+    display : flex;
+    flex-direction: column;
+}
+
+.file-edit-page .result-list-container {
+    flex : 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.file-edit-page .result-list {
+    overflow-y : scroll;
+    min-height: 300px;
+}
+
+.file-edit-page .terminal {
+    flex : 1;
+    max-height: initial!important;
+}
+
+.file-edit-page {
+    height : 100%;
+    display : flex!important;
+    flex-direction : column;
+    overflow: hidden;
+}
+
+@media only screen and (max-width: @largestMobileScreen) {
+    .file-edit-page {
+        height : initial;
+        min-height : 100%;
+        overflow: initial;
+    }
+
+    .file-edit-page .content-field {
+        display: initial!important;
+        flex-direction: initial!important;
+    }
+    
+    .file-edit-page textarea.content {
+        min-height : initial!important;
+        max-height: none!important;
+        flex:none!important;
+    }
+
+    .file-edit-page .content-form {
+        overflow: initial;
+    }
+
+    .file-edit-page .content-form-split {
+        flex : 1;
+        flex-direction: column!important;
+    }
+    
+    .file-edit-page .query-and-result-container {
+        height : initial;
+        display : initial;
+        flex-direction: initial;
+    }
+
+    .file-edit-page .result-list-container {
+        flex : initial;
+        overflow: initial;
+        display: initial;
+        flex-direction: initial;
+    }
+
+    .file-edit-page .result-list {
+        overflow-y : initial;
+    }
+
+}

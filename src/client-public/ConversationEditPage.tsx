@@ -216,45 +216,10 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     if (conversation == undefined) {
                         return;
                     }
-                    let tokenized = false;
-                    const newConversation : localStorageUtil.Conversation = {
-                        ...conversation,
-                        messages : conversation.messages.map(m => {
-                            if (m.tokenCount != undefined) {
-                                return m;
-                            }
-
-                            if (m.messageType == "tool_response") {
-                                tokenized = true;
-                                return {
-                                    ...m,
-                                    tokenCount : gptTokenizer.encode(JSON.stringify({
-                                        tool_call_id : m.tool_call_id,
-                                        name : m.name,
-                                        content : m.content,
-                                    })).length,
-                                };
-                            }
-
-                            if ("content" in m) {
-                                tokenized = true;
-                                return {
-                                    ...m,
-                                    tokenCount : gptTokenizer.encode(m.content).length,
-                                };
-                            }
-
-                            if ("tool_calls" in m) {
-                                tokenized = true;
-                                return {
-                                    ...m,
-                                    tokenCount : gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
-                                };
-                            }
-
-                            return m;
-                        }),
-                    };
+                    const {
+                        tokenized,
+                        newConversation,
+                    } = countTokens(conversation);
                     if (tokenized) {
                         setConversation(newConversation);
                     }
@@ -317,6 +282,41 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     messages : newMessages,
                 });
             }}
+            onRegenerateAssistantMessage={(message) => {
+                if (isLoading) {
+                    return;
+                }
+                const messageIndex = conversation.messages.findIndex(m => m.uuid == message.uuid);
+                const tmpConversation : localStorageUtil.Conversation = {
+                    ...conversation,
+                    messages : conversation.messages.slice(0, messageIndex),
+                };
+                setIsLoading(true);
+                submitConversation(props.openAiApi, tmpConversation, functionTools)
+                    .then(
+                        (newConversation) => {
+                            setIsLoading(false);
+                            const newMessage = newConversation.messages[newConversation.messages.length-1];
+                            setConversation({
+                                ...conversation,
+                                messages : conversation.messages.map(m => {
+                                    return m.uuid == message.uuid ?
+                                        {
+                                            ...newMessage,
+                                            uuid : message.uuid,
+                                        } :
+                                        m;
+                                }),
+                            });
+                            error.reset();
+                        },
+                        (err) => {
+                            setIsLoading(false);
+                            handleError(error, err);
+                        }
+                    );
+            }}
+            isLoading={isLoading}
         />
         <div className="ui segment">
             <ErrorMessage
@@ -401,4 +401,54 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             />}
         </div>
     </div>
+}
+
+export function countTokens (conversation : localStorageUtil.Conversation) : {
+    newConversation : localStorageUtil.Conversation,
+    tokenized : boolean,
+} {
+    let tokenized = false;
+    const newConversation : localStorageUtil.Conversation = {
+        ...conversation,
+        messages : conversation.messages.map(m => {
+            if (m.tokenCount != undefined) {
+                return m;
+            }
+
+            if (m.messageType == "tool_response") {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount : gptTokenizer.encode(JSON.stringify({
+                        tool_call_id : m.tool_call_id,
+                        name : m.name,
+                        content : m.content,
+                    })).length,
+                };
+            }
+
+            if ("content" in m) {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount : gptTokenizer.encode(m.content).length,
+                };
+            }
+
+            if ("tool_calls" in m) {
+                tokenized = true;
+                return {
+                    ...m,
+                    tokenCount : gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
+                };
+            }
+
+            return m;
+        }),
+    };
+
+    return {
+        tokenized,
+        newConversation,
+    };
 }
