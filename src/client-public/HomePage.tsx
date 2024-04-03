@@ -21,14 +21,14 @@ export const HomePage = (_props : HomePageProps) => {
             <h1 className="ui dividing header">Chat GPT Playground</h1>
 
             <p>
-                
+                Not meant for anyone to use seriously.
+                <br/>This is an exploratory project made without a real purpose.
+                <br/>Do not expect any of these features to be properly fleshed out.
             </p>
 
             <p>
                 
             </p>
-
-            <hr/>
 
             <hr/>
 

@@ -21,7 +21,10 @@ import { SelfDiscoverEditPage } from "./self-discover/SelfDiscoverEditPage";
 // import { GraphEditPage } from "./hierarchical-generation/GraphEditPage";
 // import { AgendaEditPage } from "./agenda/AgendaEditPage";
 // import { AgendaListPage } from "./agenda/AgendaListPage";
-import { FileEditPage, FileListPage } from "./prolog";
+import { FileEditPage } from "./prolog";
+import { ProjectListPage } from "./prolog/ProjectListPage";
+import { ProjectEditPage } from "./prolog/ProjectEditPage";
+import { TestsPage } from "./text-adventure";
 
 
 export interface Props {
@@ -114,7 +117,19 @@ export function App (_props : Props) {
                 <div className="item">
                     Prolog
                     <div className="menu">
-                        <Link className="ui item" to={`/prolog/file`}>Files</Link>
+                        <Link className="ui item" to={`/prolog/project`}>Projects</Link>
+                        <a className="ui item" href="https://lpn.swi-prolog.org/" target="_blank" rel="noopener noreferrer">
+                            Learn Prolog Now <i className="external alternate icon"></i>
+                        </a>
+                        <a className="ui item" href="https://www.metalevel.at/prolog" target="_blank" rel="noopener noreferrer">
+                            The Power of Prolog <i className="external alternate icon"></i>
+                        </a>
+                    </div>
+                </div>
+                <div className="item">
+                    Text Adventure
+                    <div className="menu">
+                        <Link className="ui item" to={`/text-adventure/tests`}>Tests</Link>
                     </div>
                 </div>
             </div>
@@ -143,8 +158,12 @@ export function App (_props : Props) {
                     <Route path="/graph/:uuid/edit" component={() => <GraphEditPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/graph" component={GraphListPage}/> */}
 
+                    <Route path="/prolog/project/:uuid/edit" component={ProjectEditPage}/>
+                    <Route path="/prolog/project" component={ProjectListPage}/>
+
                     <Route path="/prolog/file/:uuid/edit" component={FileEditPage}/>
-                    <Route path="/prolog/file" component={FileListPage}/>
+
+                    <Route path="/text-adventure/tests" component={TestsPage}/>
 
                     <Route path="/" component={HomePage}/>
                 </Switch>

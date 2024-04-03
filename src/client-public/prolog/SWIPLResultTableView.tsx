@@ -27,7 +27,7 @@ function ResultDescriptionView (props : ResultDescriptionViewProps) {
             return <>
                 {
                     Object.keys(parsed.bindings)
-                        .map(key => <td key={key}>{parsed.bindings[key]}</td>)
+                        .map(key => <td key={key}>{JSON.stringify(parsed.bindings[key])}</td>)
                 }
             </>;
         case "done":

@@ -1,5 +1,6 @@
 import * as  webpack from "webpack";
 import * as path from "path";
+import * as fs from "fs";
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 import * as CopyWebpackPlugin from "copy-webpack-plugin";
 
@@ -84,6 +85,21 @@ const clientPublicConfig = Object.keys(rawClientPublicConfig).reduce(
     {}
 );
 
+function findPlFilesRecursively (dirPath : string, prefix : string) : string[] {
+    const names = fs.readdirSync(dirPath);
+    const results = names
+        .filter(name => name.endsWith(".pl"))
+        .map(name => `${prefix}${name}`);
+
+    const subDirNames = names
+        .filter(name => fs.statSync(`${dirPath}/${name}`).isDirectory());
+    for (const subDirName of subDirNames) {
+        const subDirPath = `${dirPath}/${subDirName}`;
+        results.push(...findPlFilesRecursively(subDirPath, `${prefix}${subDirName}/`));
+    }
+    return results;
+}
+
 const config : webpack.Configuration = {
     cache : true,
     entry : {
@@ -126,6 +142,11 @@ const config : webpack.Configuration = {
     },
     plugins : [
         new webpack.DefinePlugin(clientPublicConfig),
+        new webpack.DefinePlugin({
+            TEXT_ADVENTURE_CONSTANTS : {
+                fileNames : JSON.stringify(findPlFilesRecursively("./src/client-public/text-adventure/", "")),
+            },
+        }),
         new MiniCssExtractPlugin({
             filename: '[name].css',
         }),
@@ -135,7 +156,20 @@ const config : webpack.Configuration = {
                 { from : "./node_modules/swipl-wasm/dist/swipl/swipl-web.wasm", to : "./swipl/swipl-web.wasm" },
                 { from : "./node_modules/swipl-wasm/dist/swipl/swipl-web.data", to : "./swipl/swipl-web.data" },
             ],
-        })
+        }),
+        new CopyWebpackPlugin({
+            patterns : [
+                {
+                    from : "**/*.pl",
+                    to : "./text-adventure/[path][name].pl",
+                    /*to : (args) => {
+                        console.log(args);
+                        return "./text-adventure/[path][name].pl";
+                    },*/
+                    context : "./src/client-public/text-adventure"
+                },
+            ],
+        }),
     ]
 };
 

@@ -19,6 +19,7 @@
 
 .file-edit-page .content-form-split {
     flex : 1;
+    overflow: hidden;
 }
 
 .file-edit-page .query-and-result-container {
@@ -70,12 +71,15 @@
     }
 
     .file-edit-page .content-form {
-        overflow: initial;
+        overflow: hidden;
+        max-width: 100%;
     }
 
     .file-edit-page .content-form-split {
         flex : 1;
         flex-direction: column!important;
+        overflow: hidden;
+        max-width: 100%;
     }
     
     .file-edit-page .query-and-result-container {
@@ -93,6 +97,7 @@
 
     .file-edit-page .result-list {
         overflow-y : initial;
+        overflow-x: scroll;
     }
 
 }

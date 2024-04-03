@@ -762,6 +762,9 @@ const SelfDiscoverEditPage_1 = __webpack_require__(/*! ./self-discover/SelfDisco
 // import { AgendaEditPage } from "./agenda/AgendaEditPage";
 // import { AgendaListPage } from "./agenda/AgendaListPage";
 const prolog_1 = __webpack_require__(/*! ./prolog */ "./src/client-public/prolog/index.ts");
+const ProjectListPage_1 = __webpack_require__(/*! ./prolog/ProjectListPage */ "./src/client-public/prolog/ProjectListPage.tsx");
+const ProjectEditPage_1 = __webpack_require__(/*! ./prolog/ProjectEditPage */ "./src/client-public/prolog/ProjectEditPage.tsx");
+const text_adventure_1 = __webpack_require__(/*! ./text-adventure */ "./src/client-public/text-adventure/index.ts");
 function App(_props) {
     const sidebar = (0, use_dropdown_1.useDropdown)({
         openClassName: "uncover visible",
@@ -790,7 +793,17 @@ function App(_props) {
             React.createElement("div", { className: "item" },
                 "Prolog",
                 React.createElement("div", { className: "menu" },
-                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/prolog/file` }, "Files")))),
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/prolog/project` }, "Projects"),
+                    React.createElement("a", { className: "ui item", href: "https://lpn.swi-prolog.org/", target: "_blank", rel: "noopener noreferrer" },
+                        "Learn Prolog Now ",
+                        React.createElement("i", { className: "external alternate icon" })),
+                    React.createElement("a", { className: "ui item", href: "https://www.metalevel.at/prolog", target: "_blank", rel: "noopener noreferrer" },
+                        "The Power of Prolog ",
+                        React.createElement("i", { className: "external alternate icon" })))),
+            React.createElement("div", { className: "item" },
+                "Text Adventure",
+                React.createElement("div", { className: "menu" },
+                    React.createElement(react_router_dom_1.Link, { className: "ui item", to: `/text-adventure/tests` }, "Tests")))),
         React.createElement("div", { className: "", style: { height: "100%" } },
             React.createElement(DefaultMenu_1.DefaultMenu, { sidebarHook: sidebar }),
             React.createElement(react_router_dom_1.Switch, null,
@@ -802,8 +815,10 @@ function App(_props) {
                 React.createElement(react_router_dom_1.Route, { path: "/conversation", component: ConversationListPage_1.ConversationListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/self-discover/:uuid/edit", component: () => React.createElement(SelfDiscoverEditPage_1.SelfDiscoverEditPage, { openAiApi: _props.openAiApi }) }),
                 React.createElement(react_router_dom_1.Route, { path: "/self-discover", component: SelfDiscoverListPage_1.SelfDiscoverListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/prolog/project/:uuid/edit", component: ProjectEditPage_1.ProjectEditPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/prolog/project", component: ProjectListPage_1.ProjectListPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/prolog/file/:uuid/edit", component: prolog_1.FileEditPage }),
-                React.createElement(react_router_dom_1.Route, { path: "/prolog/file", component: prolog_1.FileListPage }),
+                React.createElement(react_router_dom_1.Route, { path: "/text-adventure/tests", component: text_adventure_1.TestsPage }),
                 React.createElement(react_router_dom_1.Route, { path: "/", component: HomePage_1.HomePage })))));
 }
 exports.App = App;
@@ -1179,7 +1194,7 @@ async function submitConversation(openAiApi, conversation, functionTools) {
 exports.submitConversation = submitConversation;
 function ConversationEditPage(props) {
     const routeParams = reactRouter.useParams();
-    const [conversation, setConversation,] = React.useState(localStorageUtil.loadConversation(routeParams.uuid));
+    const [conversation, setConversation,] = React.useState(() => localStorageUtil.loadConversation(routeParams.uuid));
     const functionTools = React.useMemo(() => {
         return localStorageUtil.loadFunctionTools();
     }, []);
@@ -1601,7 +1616,7 @@ const FunctionToolForm_1 = __webpack_require__(/*! ./FunctionToolForm */ "./src/
 function FunctionToolEditPage() {
     const history = reactRouter.useHistory();
     const routeParams = reactRouter.useParams();
-    const [functionTool, setFunctionTool,] = React.useState(localStorageUtil.loadFunctionTools().find(f => f.uuid == routeParams.uuid));
+    const [functionTool, setFunctionTool,] = React.useState(() => localStorageUtil.loadFunctionTools().find(f => f.uuid == routeParams.uuid));
     if (functionTool == undefined) {
         return React.createElement("div", { className: "ui main container" },
             "Function Tool ",
@@ -1856,9 +1871,13 @@ const supportedLabel = (supported) => {
 const HomePage = (_props) => {
     return (React.createElement("div", { className: "ui main container" },
         React.createElement("h1", { className: "ui dividing header" }, "Chat GPT Playground"),
+        React.createElement("p", null,
+            "Not meant for anyone to use seriously.",
+            React.createElement("br", null),
+            "This is an exploratory project made without a real purpose.",
+            React.createElement("br", null),
+            "Do not expect any of these features to be properly fleshed out."),
         React.createElement("p", null),
-        React.createElement("p", null),
-        React.createElement("hr", null),
         React.createElement("hr", null),
         "Browser information.",
         React.createElement("table", { className: "ui celled unstackable table" },
@@ -2792,7 +2811,7 @@ const swipl_wrapper_1 = __webpack_require__(/*! ./swipl-wrapper */ "./src/client
 function FileEditPage(props) {
     const {} = props;
     const routeParams = reactRouter.useParams();
-    const [file, setFile,] = React.useState((0, data_1.loadFile)(routeParams.uuid));
+    const [file, setFile,] = React.useState(() => (0, data_1.loadFile)(routeParams.uuid));
     const [swipl, setSwipl] = React.useState(undefined);
     const [query, setQuery] = React.useState("");
     const [queryResults, setQueryResults] = React.useState([]);
@@ -2811,16 +2830,23 @@ function FileEditPage(props) {
         }
         const timer = setTimeout(() => {
             (0, data_1.saveFile)(file);
-            const meta = (0, data_1.loadFilesMeta)().map((m) => {
-                return m.uuid == file.uuid ?
-                    {
-                        uuid: file.uuid,
-                        name: file.name,
-                        description: file.description,
-                    } :
-                    m;
-            });
-            (0, data_1.saveFilesMeta)(meta);
+            const project = (0, data_1.loadProject)(file.projectUuid);
+            if (project == undefined) {
+                return;
+            }
+            const newProject = {
+                ...project,
+                fileMetas: project.fileMetas.map((m) => {
+                    return m.uuid == file.uuid ?
+                        {
+                            uuid: file.uuid,
+                            name: file.name,
+                            description: file.description,
+                        } :
+                        m;
+                }),
+            };
+            (0, data_1.saveProject)(newProject);
         }, 1000);
         return () => clearTimeout(timer);
     }, [file]);
@@ -2875,9 +2901,16 @@ function FileEditPage(props) {
                                     setIsLoading(true);
                                     (0, swipl_wrapper_1.makeSwipl)()
                                         .then(swipl => {
+                                        var _a, _b;
                                         setIsLoading(false);
-                                        swipl.writeFile(`file.pl`, file.content);
-                                        const consultResult = swipl.query(`consult("file.pl").`).once();
+                                        const project = (0, data_1.loadProject)(file.projectUuid);
+                                        if (project != undefined) {
+                                            for (const fileMeta of project.fileMetas) {
+                                                swipl.writeFile(`${fileMeta.name}.pl`, (_b = (_a = (0, data_1.loadFile)(fileMeta.uuid)) === null || _a === void 0 ? void 0 : _a.content) !== null && _b !== void 0 ? _b : "");
+                                            }
+                                        }
+                                        swipl.writeFile(`${file.name}.pl`, file.content);
+                                        const consultResult = swipl.query(`consult("${file.name}.pl").`).once();
                                         if (consultResult.error) {
                                             error.push("negative", [consultResult.error]);
                                         }
@@ -2946,26 +2979,70 @@ exports.FileEditPage = FileEditPage;
 
 /***/ }),
 
-/***/ "./src/client-public/prolog/FileListPage.tsx":
-/*!***************************************************!*\
-  !*** ./src/client-public/prolog/FileListPage.tsx ***!
-  \***************************************************/
+/***/ "./src/client-public/prolog/ProjectEditPage.tsx":
+/*!******************************************************!*\
+  !*** ./src/client-public/prolog/ProjectEditPage.tsx ***!
+  \******************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FileListPage = void 0;
+exports.ProjectEditPage = void 0;
 const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
 const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 const data_1 = __webpack_require__(/*! ./data */ "./src/client-public/prolog/data.ts");
-function FileListPage() {
+function ProjectEditPage() {
     const history = reactRouter.useHistory();
-    const [files, setFiles,] = React.useState((0, data_1.loadFilesMeta)());
+    const routeParams = reactRouter.useParams();
+    const [project, setProject,] = React.useState(() => (0, data_1.loadProject)(routeParams.uuid));
+    React.useEffect(() => {
+        if (project == undefined) {
+            return;
+        }
+        const timer = setTimeout(() => {
+            (0, data_1.saveProject)(project);
+            const meta = (0, data_1.loadProjectsMeta)().map((m) => {
+                return m.uuid == project.uuid ?
+                    {
+                        uuid: project.uuid,
+                        name: project.name,
+                        description: project.description,
+                    } :
+                    m;
+            });
+            (0, data_1.saveProjectsMeta)(meta);
+        }, 1000);
+        return () => clearTimeout(timer);
+    }, [project]);
+    if (project == undefined) {
+        return React.createElement("div", { className: "ui main container" },
+            "Project ",
+            routeParams.uuid,
+            " not found");
+    }
     return React.createElement("div", { className: "ui main container" },
-        React.createElement("div", { className: "ui segment divided selection massive list" }, files.map(meta => {
+        React.createElement("div", { className: "ui form" },
+            React.createElement("div", { className: "two fields" },
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Title"),
+                    React.createElement("input", { placeholder: "Enter a File Title", value: project.name, onChange: (evt) => {
+                            setProject({
+                                ...project,
+                                name: evt.target.value,
+                            });
+                        } })),
+                React.createElement("div", { className: "field" },
+                    React.createElement("label", null, "Description"),
+                    React.createElement("input", { placeholder: "Enter a File Description", value: project.description, onChange: (evt) => {
+                            setProject({
+                                ...project,
+                                description: evt.target.value,
+                            });
+                        } })))),
+        React.createElement("div", { className: "ui segment divided selection massive list" }, project.fileMetas.map(meta => {
             const displayName = meta.name.trim() == "" ?
                 `File ${meta.uuid}` :
                 meta.name;
@@ -2988,16 +3065,19 @@ function FileListPage() {
                                     uuid: newUuid,
                                     name: `Copy of ${displayName}`,
                                 };
-                                const newFiles = [
-                                    ...(0, data_1.loadFilesMeta)(),
-                                    {
-                                        ...meta,
-                                        uuid: newUuid,
-                                        name: `Copy of ${displayName}`,
-                                    },
-                                ];
-                                setFiles(newFiles);
-                                (0, data_1.saveFilesMeta)(newFiles);
+                                const newProject = {
+                                    ...project,
+                                    fileMetas: [
+                                        ...project.fileMetas,
+                                        {
+                                            ...meta,
+                                            uuid: newUuid,
+                                            name: `Copy of ${displayName}`,
+                                        },
+                                    ],
+                                };
+                                setProject(newProject);
+                                (0, data_1.saveProject)(newProject);
                                 (0, data_1.saveFile)(newFile);
                             }
                         } },
@@ -3006,10 +3086,13 @@ function FileListPage() {
                             evt.preventDefault();
                             evt.stopPropagation();
                             if (confirm(`Delete ${displayName}?`)) {
-                                const newFiles = (0, data_1.loadFilesMeta)()
-                                    .filter(m => m.uuid != meta.uuid);
-                                setFiles(newFiles);
-                                (0, data_1.saveFilesMeta)(newFiles);
+                                const newProject = {
+                                    ...project,
+                                    fileMetas: project.fileMetas
+                                        .filter(m => m.uuid != meta.uuid),
+                                };
+                                setProject(newProject);
+                                (0, data_1.saveProject)(newProject);
                                 (0, data_1.deleteFile)(meta);
                             }
                         } },
@@ -3022,18 +3105,128 @@ function FileListPage() {
                         React.createElement("div", { className: "description" }, meta.description)));
         })),
         React.createElement("button", { className: "ui primary button", onClick: () => {
-                const files = (0, data_1.loadFilesMeta)();
-                const { meta, file, } = (0, data_1.makeFile)();
-                const newFiles = [
-                    ...files,
-                    meta,
-                ];
-                (0, data_1.saveFilesMeta)(newFiles);
+                const { meta, file, } = (0, data_1.makeFile)(project.uuid);
+                const newProject = {
+                    ...project,
+                    fileMetas: [
+                        ...project.fileMetas,
+                        meta,
+                    ],
+                };
+                (0, data_1.saveProject)(newProject);
                 (0, data_1.saveFile)(file);
-                setFiles(newFiles);
+                setProject(newProject);
             } }, "Create File"));
 }
-exports.FileListPage = FileListPage;
+exports.ProjectEditPage = ProjectEditPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/prolog/ProjectListPage.tsx":
+/*!******************************************************!*\
+  !*** ./src/client-public/prolog/ProjectListPage.tsx ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProjectListPage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const reactRouter = __webpack_require__(/*! react-router-dom */ "./node_modules/react-router-dom/esm/react-router-dom.js");
+const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
+const data_1 = __webpack_require__(/*! ./data */ "./src/client-public/prolog/data.ts");
+function ProjectListPage() {
+    const history = reactRouter.useHistory();
+    const [projects, setProjects,] = React.useState((0, data_1.loadProjectsMeta)());
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement("div", { className: "ui segment divided selection massive list" }, projects.map(meta => {
+            const displayName = meta.name.trim() == "" ?
+                `Project ${meta.uuid}` :
+                meta.name;
+            return React.createElement("div", { className: "item", key: meta.uuid, onClick: () => {
+                    history.push(`/prolog/project/${meta.uuid}/edit`);
+                } },
+                React.createElement("div", { className: "extra right floated" },
+                    React.createElement("div", { className: "ui icon secondary button", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Copy ${displayName}?`)) {
+                                const existingProject = (0, data_1.loadProject)(meta.uuid);
+                                if (existingProject == undefined) {
+                                    alert(`Cannot find ${displayName} / ${meta.uuid}`);
+                                    return;
+                                }
+                                const newUuid = uuid.v4();
+                                const newProject = {
+                                    ...existingProject,
+                                    uuid: newUuid,
+                                    name: `Copy of ${displayName}`,
+                                    fileMetas: existingProject.fileMetas.map((existingMeta) => {
+                                        var _a;
+                                        const existingFile = (_a = (0, data_1.loadFile)(existingMeta.uuid)) !== null && _a !== void 0 ? _a : (0, data_1.makeFile)(newProject.uuid).file;
+                                        const newUuid = uuid.v4();
+                                        const file = {
+                                            ...existingFile,
+                                            projectUuid: newProject.uuid,
+                                            uuid: newUuid,
+                                        };
+                                        const meta = {
+                                            ...existingMeta,
+                                            uuid: newUuid,
+                                        };
+                                        (0, data_1.saveFile)(file);
+                                        return meta;
+                                    }),
+                                };
+                                const newProjects = [
+                                    ...(0, data_1.loadProjectsMeta)(),
+                                    {
+                                        ...meta,
+                                        uuid: newUuid,
+                                        name: `Copy of ${displayName}`,
+                                    },
+                                ];
+                                setProjects(newProjects);
+                                (0, data_1.saveProjectsMeta)(newProjects);
+                                (0, data_1.saveProject)(newProject);
+                            }
+                        } },
+                        React.createElement("i", { className: "copy icon" })),
+                    React.createElement("div", { className: "ui icon red button", onClick: (evt) => {
+                            evt.preventDefault();
+                            evt.stopPropagation();
+                            if (confirm(`Delete ${displayName}?`)) {
+                                const newProjects = (0, data_1.loadProjectsMeta)()
+                                    .filter(m => m.uuid != meta.uuid);
+                                setProjects(newProjects);
+                                (0, data_1.saveProjectsMeta)(newProjects);
+                                (0, data_1.deleteProject)(meta);
+                            }
+                        } },
+                        React.createElement("i", { className: "trash icon" }))),
+                React.createElement("div", { className: "content" },
+                    React.createElement("div", { className: "header" }, displayName),
+                    React.createElement("div", { className: "ui mini label" }, meta.uuid),
+                    meta.description.trim() == "" ?
+                        React.createElement("small", { className: "description" }, "There is no description for this project") :
+                        React.createElement("div", { className: "description" }, meta.description)));
+        })),
+        React.createElement("button", { className: "ui primary button", onClick: () => {
+                const projects = (0, data_1.loadProjectsMeta)();
+                const { meta, project, } = (0, data_1.makeProject)();
+                const newProjects = [
+                    ...projects,
+                    meta,
+                ];
+                (0, data_1.saveProjectsMeta)(newProjects);
+                (0, data_1.saveProject)(project);
+                setProjects(newProjects);
+            } }, "Create Project"));
+}
+exports.ProjectListPage = ProjectListPage;
 
 
 /***/ }),
@@ -3216,7 +3409,7 @@ const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const SWIPLResultListView_1 = __webpack_require__(/*! ./SWIPLResultListView */ "./src/client-public/prolog/SWIPLResultListView.tsx");
 function QueryResultListView(props) {
     const { queryResult, showJson, } = props;
-    return React.createElement("table", { className: "ui celled selectable inverted table" },
+    return React.createElement("table", { className: "ui celled selectable unstackable inverted table" },
         React.createElement("thead", null,
             React.createElement("tr", null,
                 React.createElement("th", null, "value"),
@@ -3245,7 +3438,7 @@ const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 const SWIPLResultTableView_1 = __webpack_require__(/*! ./SWIPLResultTableView */ "./src/client-public/prolog/SWIPLResultTableView.tsx");
 function QueryResultTableView(props) {
     const { queryResult, showJson, } = props;
-    return React.createElement("table", { className: "ui celled selectable inverted table" },
+    return React.createElement("table", { className: "ui celled selectable unstackable inverted table" },
         React.createElement("thead", null,
             React.createElement("tr", null,
                 (0, SWIPLResultTableView_1.getTableHeadings)({
@@ -3285,7 +3478,7 @@ function ResultDescriptionView(props) {
             return React.createElement("td", null, parsed.value ? "true" : "false");
         case "bindings":
             return React.createElement("td", null, Object.keys(parsed.bindings)
-                .map(key => `${key}=${parsed.bindings[key]}`)
+                .map(key => `${key}=${JSON.stringify(parsed.bindings[key])}`)
                 .join(", "));
         case "done":
             return React.createElement("td", null, "-done-");
@@ -3329,7 +3522,7 @@ function ResultDescriptionView(props) {
             return React.createElement("td", null, parsed.value ? "true" : "false");
         case "bindings":
             return React.createElement(React.Fragment, null, Object.keys(parsed.bindings)
-                .map(key => React.createElement("td", { key: key }, parsed.bindings[key])));
+                .map(key => React.createElement("td", { key: key }, JSON.stringify(parsed.bindings[key]))));
         case "done":
             return React.createElement(React.Fragment, null, firstResult.parsed.type == "bindings" ?
                 Object
@@ -3402,16 +3595,62 @@ var DisplayType;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.saveFilesMeta = exports.loadFilesMeta = exports.deleteFile = exports.saveFile = exports.loadFile = exports.makeFile = exports.Key = void 0;
+exports.deleteFile = exports.saveFile = exports.loadFile = exports.makeFile = exports.saveProjectsMeta = exports.loadProjectsMeta = exports.deleteProject = exports.saveProject = exports.loadProject = exports.makeProject = exports.Key = void 0;
 const uuid = __webpack_require__(/*! uuid */ "./node_modules/uuid/dist/esm-browser/index.js");
 const localStorageUtil = __webpack_require__(/*! ../local-storage-util */ "./src/client-public/local-storage-util.ts");
 var Key;
 (function (Key) {
+    Key["PL_PROJECT"] = "PL_PROJECT";
+    Key["PL_PROJECTS_META"] = "PL_PROJECTS_META";
     Key["PL_FILE"] = "PL_FILE";
     Key["PL_FILES_META"] = "PL_FILES_META";
 })(Key || (exports.Key = Key = {}));
-function makeFile() {
+function makeProject() {
+    const project = {
+        uuid: uuid.v4(),
+        name: "",
+        description: "",
+        fileMetas: [],
+    };
+    var meta = {
+        uuid: project.uuid,
+        name: project.name,
+        description: project.description,
+    };
+    return {
+        project,
+        meta,
+    };
+}
+exports.makeProject = makeProject;
+function loadProject(uuid) {
+    const str = localStorageUtil.getItem(`${Key.PL_PROJECT}_${uuid}`);
+    if (str == undefined) {
+        return undefined;
+    }
+    return JSON.parse(str);
+}
+exports.loadProject = loadProject;
+function saveProject(file) {
+    return localStorageUtil.setItem(`${Key.PL_PROJECT}_${file.uuid}`, JSON.stringify(file));
+}
+exports.saveProject = saveProject;
+function deleteProject(file) {
+    return localStorageUtil.removeItem(`${Key.PL_PROJECT}_${file.uuid}`);
+}
+exports.deleteProject = deleteProject;
+function loadProjectsMeta() {
+    var _a;
+    return JSON.parse((_a = localStorageUtil.getItem(Key.PL_PROJECTS_META)) !== null && _a !== void 0 ? _a : "[]");
+}
+exports.loadProjectsMeta = loadProjectsMeta;
+function saveProjectsMeta(filesMeta) {
+    return localStorageUtil.setItem(Key.PL_PROJECTS_META, JSON.stringify(filesMeta));
+}
+exports.saveProjectsMeta = saveProjectsMeta;
+function makeFile(projectUuid) {
     const file = {
+        projectUuid,
         uuid: uuid.v4(),
         name: "",
         description: "",
@@ -3444,15 +3683,15 @@ function deleteFile(file) {
     return localStorageUtil.removeItem(`${Key.PL_FILE}_${file.uuid}`);
 }
 exports.deleteFile = deleteFile;
-function loadFilesMeta() {
-    var _a;
-    return JSON.parse((_a = localStorageUtil.getItem(Key.PL_FILES_META)) !== null && _a !== void 0 ? _a : "[]");
-}
-exports.loadFilesMeta = loadFilesMeta;
-function saveFilesMeta(filesMeta) {
-    return localStorageUtil.setItem(Key.PL_FILES_META, JSON.stringify(filesMeta));
-}
-exports.saveFilesMeta = saveFilesMeta;
+// export function loadFilesMeta () : FileMeta[] {
+//     return JSON.parse(localStorageUtil.getItem(Key.PL_FILES_META) ?? "[]");
+// }
+// export function saveFilesMeta (filesMeta : FileMeta[]) {
+//     return localStorageUtil.setItem(
+//         Key.PL_FILES_META,
+//         JSON.stringify(filesMeta)
+//     );
+// }
 
 
 /***/ }),
@@ -3496,7 +3735,8 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(__webpack_require__(/*! ./FileEditPage */ "./src/client-public/prolog/FileEditPage.tsx"), exports);
-__exportStar(__webpack_require__(/*! ./FileListPage */ "./src/client-public/prolog/FileListPage.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./ProjectEditPage */ "./src/client-public/prolog/ProjectEditPage.tsx"), exports);
+__exportStar(__webpack_require__(/*! ./ProjectListPage */ "./src/client-public/prolog/ProjectListPage.tsx"), exports);
 
 
 /***/ }),
@@ -3598,7 +3838,7 @@ async function makeSwipl() {
     let errorBuffer = "";
     let outputBuffer = "";
     const swipl = await SWIPL({
-        arguments: ["-q"],
+        arguments: [],
         locateFile: (path) => `${window.location.pathname}client-public/dist/swipl/${path}`,
         printErr: (err) => {
             console.error(err);
@@ -3611,8 +3851,20 @@ async function makeSwipl() {
     });
     const result = {
         writeFile: (path, data) => {
+            const parts = path.split("/");
+            parts.pop();
+            for (let i = 1; i <= parts.length; ++i) {
+                const subPath = parts.slice(0, i).join("/");
+                const analyzePathResult = swipl.FS.analyzePath(subPath);
+                if (!analyzePathResult.exists) {
+                    swipl.FS.mkdir(subPath);
+                }
+            }
             swipl.FS.writeFile(path, data);
         },
+        readFile: ((path, opts) => {
+            return swipl.FS.readFile(path, opts);
+        }),
         query: () => {
             throw new Error(`Not implemented`);
         },
@@ -4733,6 +4985,564 @@ function SelfDiscoverTaskTab(props) {
             } }, "Add Task"));
 }
 exports.SelfDiscoverTaskTab = SelfDiscoverTaskTab;
+
+
+/***/ }),
+
+/***/ "./src/client-public/text-adventure/NoEnterCoverage.tsx":
+/*!**************************************************************!*\
+  !*** ./src/client-public/text-adventure/NoEnterCoverage.tsx ***!
+  \**************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NoEnterCoverage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+function NoEnterCoverage(props) {
+    const { file, } = props;
+    const lines = file.lines
+        .filter(line => {
+        return line.terms.some(term => term.enterCount == 0);
+    });
+    if (lines.length == 0) {
+        return React.createElement(React.Fragment, null);
+    }
+    return React.createElement(React.Fragment, null,
+        "No Enter Coverage",
+        React.createElement("table", { className: "ui celled selectable unstackable inverted table" },
+            React.createElement("tbody", null, lines
+                .map(line => {
+                return React.createElement("tr", { key: line.lineNumber },
+                    React.createElement("td", null,
+                        "L",
+                        line.lineNumber),
+                    React.createElement("td", null, line.terms
+                        .map((term, index) => {
+                        return React.createElement("div", { key: index, className: classNames("ui mini label", term.enterCount == 0 ?
+                                "red" :
+                                "green") }, "\u00A0");
+                    })),
+                    React.createElement("td", null,
+                        React.createElement("code", null,
+                            React.createElement("pre", { style: { display: "inline" } }, line.content))));
+            }))));
+}
+exports.NoEnterCoverage = NoEnterCoverage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/text-adventure/NoSuccessCoverage.tsx":
+/*!****************************************************************!*\
+  !*** ./src/client-public/text-adventure/NoSuccessCoverage.tsx ***!
+  \****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.NoSuccessCoverage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const classNames = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+function NoSuccessCoverage(props) {
+    const { file, } = props;
+    const lines = file.lines
+        .filter(line => {
+        return !/^\s*false$/.test(line.content) &&
+            line.terms.some(term => term.enterCount > 0 && term.successCount == 0);
+    });
+    if (lines.length == 0) {
+        return React.createElement(React.Fragment, null);
+    }
+    return React.createElement(React.Fragment, null,
+        "No Success Coverage",
+        React.createElement("table", { className: "ui celled selectable unstackable inverted table" },
+            React.createElement("tbody", null, lines
+                .map(line => {
+                return React.createElement("tr", { key: line.lineNumber },
+                    React.createElement("td", null,
+                        "L",
+                        line.lineNumber),
+                    React.createElement("td", null, line.terms
+                        .map((term, index) => {
+                        return React.createElement("div", { key: index, className: classNames("ui mini label", term.successCount == 0 ?
+                                "red" :
+                                "green") }, "\u00A0");
+                    })),
+                    React.createElement("td", null,
+                        React.createElement("code", null,
+                            React.createElement("pre", { style: { display: "inline" } }, line.content))));
+            }))));
+}
+exports.NoSuccessCoverage = NoSuccessCoverage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/text-adventure/TestsPage.tsx":
+/*!********************************************************!*\
+  !*** ./src/client-public/text-adventure/TestsPage.tsx ***!
+  \********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.TestsPage = void 0;
+const React = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+const swipl_wrapper_1 = __webpack_require__(/*! ../prolog/swipl-wrapper */ "./src/client-public/prolog/swipl-wrapper.ts");
+const use_error_1 = __webpack_require__(/*! ../use-error */ "./src/client-public/use-error.ts");
+const error_handling_1 = __webpack_require__(/*! ../error-handling */ "./src/client-public/error-handling.ts");
+const ErrorMessage_1 = __webpack_require__(/*! ../ErrorMessage */ "./src/client-public/ErrorMessage.tsx");
+const coverage_1 = __webpack_require__(/*! ./coverage */ "./src/client-public/text-adventure/coverage.ts");
+const NoEnterCoverage_1 = __webpack_require__(/*! ./NoEnterCoverage */ "./src/client-public/text-adventure/NoEnterCoverage.tsx");
+const NoSuccessCoverage_1 = __webpack_require__(/*! ./NoSuccessCoverage */ "./src/client-public/text-adventure/NoSuccessCoverage.tsx");
+function TestsPage() {
+    console.log(Object({"fileNames":["game.pl","globals.pl","test-assert-uniq.pl","test-close-door.pl","test-complex-location.pl","test-door.pl","test-enclosed-by.pl","test-go-through-door.pl","test-in-location.pl","test-nested-some-file.pl","test-open-door.pl","test-simulate-unlock-item.pl","test-take-item.pl","nested/multi-file-a.pl","nested/nested-2/multi-file-b.pl","nested/nested-2/multi-file-c.pl","nested/nested-2/some-file.pl","nested-3/test-multi-file.pl","nested-3/nested-4/test-some-file-again.pl"]}));
+    const [isLoading, setIsLoading] = React.useState(false);
+    const error = (0, use_error_1.useError)();
+    const [coverage, setCoverage] = React.useState(undefined);
+    const [results, setResults] = React.useState([]);
+    const [testDuration, setTestDuration] = React.useState(0);
+    React.useEffect(() => {
+        const f = async () => {
+            try {
+                const startTime = new Date().getTime();
+                setIsLoading(true);
+                error.reset();
+                const files = await Promise.all(["game.pl","globals.pl","test-assert-uniq.pl","test-close-door.pl","test-complex-location.pl","test-door.pl","test-enclosed-by.pl","test-go-through-door.pl","test-in-location.pl","test-nested-some-file.pl","test-open-door.pl","test-simulate-unlock-item.pl","test-take-item.pl","nested/multi-file-a.pl","nested/nested-2/multi-file-b.pl","nested/nested-2/multi-file-c.pl","nested/nested-2/some-file.pl","nested-3/test-multi-file.pl","nested-3/nested-4/test-some-file-again.pl"]
+                    .map(fileName => [
+                    fileName,
+                    `${window.location.pathname}client-public/dist/text-adventure/${fileName}`,
+                ])
+                    .map(([fileName, filePath]) => fetch(filePath)
+                    .then((res) => res.text())
+                    .then((text) => {
+                    return {
+                        fileName,
+                        text,
+                    };
+                })));
+                const tests = [];
+                files.map(file => {
+                    const regex = /:-\s+begin_tests\((\w+)/g;
+                    for (let m = regex.exec(file.text); m != undefined; m = regex.exec(file.text)) {
+                        tests.push({
+                            fileName: file.fileName,
+                            testName: m[1]
+                        });
+                    }
+                });
+                const testFileNames = [...new Set(tests.map(test => test.fileName))];
+                console.log(`testFileNames`, testFileNames);
+                console.log(`tests`, tests);
+                const covFiles = [];
+                const results = [];
+                {
+                    const swipl = await (0, swipl_wrapper_1.makeSwipl)();
+                    for (const file of files) {
+                        swipl.writeFile(file.fileName, file.text);
+                    }
+                    {
+                        const consultResult = swipl.query(`consult("./globals.pl").`).once();
+                        if (consultResult.error) {
+                            error.push("negative", [consultResult.error]);
+                        }
+                    }
+                    for (const fileName of testFileNames) {
+                        {
+                            const consultResult = swipl.query(`consult(${JSON.stringify(fileName)}).`).once();
+                            if (consultResult.error) {
+                                error.push("negative", [consultResult.error]);
+                                //continue;
+                            }
+                        }
+                    }
+                    for (const test of tests) {
+                        console.log(`Running test for ${test.fileName}/${test.testName}`);
+                        swipl.query(`game:retractAllDynamicFacts().`).once();
+                        const runTestsResult = swipl.query(`coverage(run_tests(${test.testName})).`).once();
+                        console.log(`runTestsResult`, runTestsResult);
+                        results.push({
+                            ...runTestsResult,
+                            index: results.length,
+                            fileName: test.fileName,
+                            testName: test.testName,
+                        });
+                    }
+                    const showResult = swipl.query(`show_coverage([annotate(true)]).`).once();
+                    if (showResult.output != undefined) {
+                        const regex = /\s+(\S+?\.pl\.cov)/g;
+                        let m = null;
+                        while (m = regex.exec(showResult.output)) {
+                            if (m[1].includes("test-")) {
+                                continue;
+                            }
+                            const covFileContent = swipl.readFile(m[1], { encoding: "utf8" });
+                            //console.log(`covFile ${m[1]}`);
+                            //console.log(covFileContent);
+                            covFiles.push({
+                                path: m[1],
+                                content: covFileContent,
+                            });
+                        }
+                    }
+                    results.sort((a, b) => {
+                        if (a.error == undefined) {
+                            return 0;
+                        }
+                        if (b.error == undefined) {
+                            return 0;
+                        }
+                        const aVal = a.error.includes("ERROR") ?
+                            0 :
+                            a.error.includes("FAILED") ?
+                                1 :
+                                a.error.includes("Warning") ?
+                                    2 :
+                                    3;
+                        const bVal = b.error.includes("ERROR") ?
+                            0 :
+                            b.error.includes("FAILED") ?
+                                1 :
+                                b.error.includes("Warning") ?
+                                    2 :
+                                    3;
+                        return aVal - bVal;
+                    });
+                    const coverage = (0, coverage_1.calculateCoverage)(covFiles);
+                    setCoverage(coverage);
+                    setResults(results);
+                    setIsLoading(false);
+                    setTestDuration(new Date().getTime() - startTime);
+                }
+                // for (const filePath of TEXT_ADVENTURE_CONSTANTS.fileNames) {
+                //     const parts = filePath.split("/");
+                //     const lastPart = parts[parts.length-1];
+                //     if (!lastPart.startsWith("test-")) {
+                //         continue;
+                //     }
+                //     if (!lastPart.endsWith(".pl")) {
+                //         continue;
+                //     }
+                //     const swipl = await makeSwipl();
+                //     for (const file of files) {
+                //         swipl.writeFile(
+                //             file.fileName,
+                //             file.text
+                //         );
+                //     }
+                //     {
+                //         const consultResult = swipl.query(`consult("./globals.pl").`).once();
+                //         if (consultResult.error) {
+                //             error.push("negative", [consultResult.error]);
+                //             continue;
+                //         }
+                //     }
+                //     {
+                //         const consultResult = swipl.query(`consult(${JSON.stringify(filePath)}).`).once();
+                //         if (consultResult.error) {
+                //             error.push("negative", [consultResult.error]);
+                //             //continue;
+                //         }
+                //     }
+                //     console.log(`Running test for ${filePath}`);
+                //     const runTestsResult = swipl.query(`coverage(run_tests).`).once();
+                //     console.log(`runTestsResult`, runTestsResult);
+                //     const showResult = swipl.query(`show_coverage([annotate(true)]).`).once();
+                //     if (showResult.output != undefined) {
+                //         const regex = /\s+(\S+?\.pl\.cov)/g;
+                //         let m : RegExpExecArray|null = null;
+                //         while (m = regex.exec(showResult.output)) {
+                //             if (m[1].includes("test-")) {
+                //                 continue;
+                //             }
+                //             const covFileContent = swipl.readFile(m[1], { encoding:"utf8" });
+                //             //console.log(`covFile ${m[1]}`);
+                //             //console.log(covFileContent);
+                //             covFiles.push({
+                //                 path : m[1],
+                //                 content : covFileContent,
+                //             });
+                //         }
+                //     }
+                //     results.push({
+                //         ...runTestsResult,
+                //         index : results.length,
+                //         fileName: filePath,
+                //     });
+                // }
+                // results.sort((a, b) => {
+                //     if (a.error == undefined) {
+                //         return 0;
+                //     }
+                //     if (b.error == undefined) {
+                //         return 0;
+                //     }
+                //     const aVal = a.error.includes("ERROR") ?
+                //         0 :
+                //         a.error.includes("FAILED") ?
+                //         1 :
+                //         a.error.includes("Warning") ?
+                //         2 :
+                //         3;
+                //     const bVal = b.error.includes("ERROR") ?
+                //         0 :
+                //         b.error.includes("FAILED") ?
+                //         1 :
+                //         b.error.includes("Warning") ?
+                //         2 :
+                //         3;
+                //     return aVal - bVal;
+                // });
+                // const coverage = calculateCoverage(covFiles);
+                // setCoverage(coverage);
+                // setResults(results);
+                // setIsLoading(false);
+                // setTestDuration(new Date().getTime() - startTime);
+            }
+            catch (err) {
+                setIsLoading(false);
+                (0, error_handling_1.handleError)(error, err);
+            }
+        };
+        f();
+    }, []);
+    return React.createElement("div", { className: "ui main container" },
+        React.createElement(ErrorMessage_1.ErrorMessage, { error: error }),
+        React.createElement("h3", null,
+            "Test Duration: ",
+            testDuration / 1000,
+            "s"),
+        coverage == undefined ?
+            undefined :
+            React.createElement("div", { className: "ui segment divided selection list" }, coverage.files.map(file => {
+                return React.createElement("div", { key: file.path },
+                    React.createElement("h3", { className: "header" },
+                        file.path,
+                        " (",
+                        file.coverCount,
+                        "/",
+                        file.lineCount,
+                        ")"),
+                    React.createElement("div", { className: "description" },
+                        React.createElement(NoEnterCoverage_1.NoEnterCoverage, { file: file }),
+                        React.createElement(NoSuccessCoverage_1.NoSuccessCoverage, { file: file })));
+            })),
+        React.createElement("div", { className: "ui segment divided selection massive list" },
+            isLoading ?
+                React.createElement("div", { className: "ui active inline loader" }) :
+                undefined,
+            results.map((result) => {
+                return React.createElement("div", { key: result.fileName, className: "item" },
+                    React.createElement("div", { className: "header" }, result.fileName),
+                    React.createElement("div", { className: "ui form" },
+                        result.error == undefined ?
+                            undefined :
+                            React.createElement("div", { className: "field" },
+                                React.createElement("label", null,
+                                    "Output (",
+                                    result.error.includes("ERROR") ?
+                                        "ERROR" :
+                                        result.error.includes("FAILED") ?
+                                            "FAILED" :
+                                            result.error.includes("Warning") ?
+                                                "Warning" :
+                                                "Passed",
+                                    ")"),
+                                React.createElement("textarea", { readOnly: true, value: result.error })),
+                        result.output == undefined ?
+                            undefined :
+                            React.createElement("div", { className: "field" },
+                                React.createElement("label", null, "Output"),
+                                React.createElement("textarea", { readOnly: true, value: result.output }))));
+            })));
+}
+exports.TestsPage = TestsPage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/text-adventure/coverage.ts":
+/*!******************************************************!*\
+  !*** ./src/client-public/text-adventure/coverage.ts ***!
+  \******************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.calculateCoverage = void 0;
+function parseTermCoverage(countStr) {
+    if (countStr == "###") {
+        return {
+            enterCount: 0,
+            successCount: 0,
+            failCount: 0,
+        };
+    }
+    if (countStr.startsWith("++")) {
+        const count = Number(countStr.substring(2).replace(/,/g, ""));
+        return {
+            enterCount: count,
+            successCount: count,
+            failCount: 0,
+        };
+    }
+    if (countStr.startsWith("--")) {
+        const count = Number(countStr.substring(2).replace(/,/g, ""));
+        return {
+            enterCount: count,
+            successCount: 0,
+            failCount: count,
+        };
+    }
+    const successFailMatch = /\+((\d|,)+)\-((\d|,)+)/.exec(countStr);
+    if (successFailMatch != undefined) {
+        const successCount = Number(successFailMatch[1].replace(/,/g, ""));
+        const failCount = Number(successFailMatch[2].replace(/,/g, ""));
+        return {
+            enterCount: successCount + failCount,
+            successCount,
+            failCount,
+        };
+    }
+    const enterSuccessMatch = /\+((\d|,)+)\*((\d|,)+)/.exec(countStr);
+    if (enterSuccessMatch != undefined) {
+        const enterCount = Number(enterSuccessMatch[1].replace(/,/g, ""));
+        const successCount = Number(enterSuccessMatch[2].replace(/,/g, ""));
+        return {
+            enterCount,
+            successCount,
+            failCount: enterCount - successCount,
+        };
+    }
+    throw new Error(`Unknown countStr: ${countStr}`);
+}
+function calculateCoverage(files) {
+    var _a, _b;
+    const path2Data = new Map();
+    for (const file of files) {
+        const coverage = (_a = path2Data.get(file.path)) !== null && _a !== void 0 ? _a : {
+            path: file.path,
+            lines: new Map(),
+        };
+        path2Data.set(file.path, coverage);
+        const rawLines = file.content.split("\n");
+        const lines = rawLines
+            .map((line, index) => {
+            const match = /^\s+(\d+)\s(\S+)\s+/.exec(line);
+            if (match == undefined) {
+                return undefined;
+            }
+            const lineNumber = Number(match[1]);
+            const countStr = match[2];
+            let content = line.substring(Math.min(13, match[0].length));
+            const terms = [];
+            terms.push(parseTermCoverage(countStr));
+            // if (lineNumber == 78) {
+            //     //11184
+            //     console.log("WEIRD", lineNumber, content, content.length, content.codePointAt(0));
+            // }
+            let nxtIndex = index;
+            while (/^\s*\S$/.test(content) && content.codePointAt(content.length - 1) == 11184) {
+                ++nxtIndex;
+                const nxtLine = rawLines[nxtIndex];
+                const nxtMatch = /^\s+(\S+)\s+/.exec(nxtLine);
+                if (nxtMatch == undefined) {
+                    break;
+                }
+                const nxtCountStr = nxtMatch[1];
+                content = nxtLine.substring(Math.min(13, nxtMatch[0].length));
+                terms.push(parseTermCoverage(nxtCountStr));
+            }
+            return {
+                lineNumber,
+                content,
+                terms,
+            };
+        })
+            .filter((line) => {
+            return line != undefined;
+        });
+        for (const line of lines) {
+            const merge = (_b = coverage.lines.get(line.lineNumber)) !== null && _b !== void 0 ? _b : {
+                lineNumber: line.lineNumber,
+                content: line.content,
+                terms: [],
+            };
+            coverage.lines.set(line.lineNumber, merge);
+            for (let i = 0; i < line.terms.length; ++i) {
+                const lineTerm = line.terms[i];
+                if (i < merge.terms.length) {
+                    const mergeTerm = merge.terms[i];
+                    mergeTerm.enterCount += lineTerm.enterCount;
+                    mergeTerm.successCount += lineTerm.successCount;
+                    mergeTerm.failCount += lineTerm.failCount;
+                }
+                else {
+                    merge.terms.push({
+                        ...lineTerm,
+                    });
+                }
+            }
+        }
+    }
+    const result = {
+        files: [],
+    };
+    for (const data of path2Data.values()) {
+        const lines = [...data.lines.values()]
+            .sort((a, b) => {
+            return a.lineNumber - b.lineNumber;
+        });
+        const fileCoverage = {
+            path: data.path,
+            lines,
+            lineCount: lines.length,
+            coverCount: lines.filter(line => line.terms.every(term => term.enterCount > 0)).length,
+        };
+        result.files.push(fileCoverage);
+    }
+    return result;
+}
+exports.calculateCoverage = calculateCoverage;
+
+
+/***/ }),
+
+/***/ "./src/client-public/text-adventure/index.ts":
+/*!***************************************************!*\
+  !*** ./src/client-public/text-adventure/index.ts ***!
+  \***************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(__webpack_require__(/*! ./TestsPage */ "./src/client-public/text-adventure/TestsPage.tsx"), exports);
 
 
 /***/ }),

@@ -13,7 +13,7 @@ export function QueryResultListView (props : QueryResultListViewProps) {
         showJson,
     } = props;
 
-    return <table className="ui celled selectable inverted table">
+    return <table className="ui celled selectable unstackable inverted table">
         <thead>
             <tr>
                 <th>value</th>

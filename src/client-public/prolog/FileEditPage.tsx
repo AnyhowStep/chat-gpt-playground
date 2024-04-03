@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as reactRouter from "react-router-dom";
 import * as classNames from "classnames";
-import { FileMeta, loadFile, loadFilesMeta, saveFile, saveFilesMeta } from "./data";
+import { FileMeta, Project, loadFile, loadProject, saveFile, saveProject } from "./data";
 import { ErrorMessage } from "../ErrorMessage";
 import { handleError } from "../error-handling";
 import { useError } from "../use-error";
@@ -19,7 +19,7 @@ export function FileEditPage (props : FileEditPageProps) {
     const [
         file,
         setFile,
-    ] = React.useState(loadFile(routeParams.uuid));
+    ] = React.useState(() => loadFile(routeParams.uuid));
     const [swipl, setSwipl] = React.useState<SwiplWrapper|undefined>(undefined);
 
     const [query, setQuery] = React.useState("");
@@ -53,16 +53,23 @@ export function FileEditPage (props : FileEditPageProps) {
             }
             const timer = setTimeout(() => {
                 saveFile(file);
-                const meta = loadFilesMeta().map((m) : FileMeta => {
-                    return m.uuid == file.uuid ?
-                        {
-                            uuid : file.uuid,
-                            name : file.name,
-                            description : file.description,
-                        } :
-                        m
-                });
-                saveFilesMeta(meta);
+                const project = loadProject(file.projectUuid);
+                if (project == undefined) {
+                    return;
+                }
+                const newProject : Project = {
+                    ...project,
+                    fileMetas : project.fileMetas.map((m) : FileMeta => {
+                        return m.uuid == file.uuid ?
+                            {
+                                uuid : file.uuid,
+                                name : file.name,
+                                description : file.description,
+                            } :
+                            m
+                    }),
+                };
+                saveProject(newProject);
             }, 1000);
             return () => clearTimeout(timer);
         },
@@ -154,8 +161,17 @@ export function FileEditPage (props : FileEditPageProps) {
                                     makeSwipl()
                                         .then(swipl => {
                                             setIsLoading(false);
-                                            swipl.writeFile(`file.pl`, file.content);
-                                            const consultResult = swipl.query(`consult("file.pl").`).once();
+                                            const project = loadProject(file.projectUuid);
+                                            if (project != undefined) {
+                                                for (const fileMeta of project.fileMetas) {
+                                                    swipl.writeFile(
+                                                        `${fileMeta.name}.pl`,
+                                                        loadFile(fileMeta.uuid)?.content ?? ""
+                                                    );
+                                                }
+                                            }
+                                            swipl.writeFile(`${file.name}.pl`, file.content);
+                                            const consultResult = swipl.query(`consult("${file.name}.pl").`).once();
                                             if (consultResult.error) {
                                                 error.push("negative", [consultResult.error]);
                                             } else {

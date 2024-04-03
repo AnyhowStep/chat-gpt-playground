@@ -170,7 +170,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
     const [
         conversation,
         setConversation,
-    ] = React.useState(localStorageUtil.loadConversation(routeParams.uuid));
+    ] = React.useState(() => localStorageUtil.loadConversation(routeParams.uuid));
     const functionTools = React.useMemo(() => {
         return localStorageUtil.loadFunctionTools();
     }, []);

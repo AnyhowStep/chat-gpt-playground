@@ -9,7 +9,7 @@ export function FunctionToolEditPage () {
     const [
         functionTool,
         setFunctionTool,
-    ] = React.useState(localStorageUtil.loadFunctionTools().find(f => f.uuid == routeParams.uuid));
+    ] = React.useState(() => localStorageUtil.loadFunctionTools().find(f => f.uuid == routeParams.uuid));
 
     if (functionTool == undefined) {
         return <div className="ui main container">

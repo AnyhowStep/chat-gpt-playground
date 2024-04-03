@@ -1,5 +1,12 @@
+export interface ReadFile {
+    (path : string, opts : { encoding: "utf8"; flags?: string | undefined }) : string;
+    (path : string, opts : { encoding: "binary"; flags?: string | undefined }) : Uint8Array;
+    (path : string, opts? : { encoding?: "binary"|"utf8"; flags?: string | undefined }) : string|Uint8Array;
+}
+
 export interface SwiplWrapper {
-    writeFile : (path : string, data : string) => void,
+    writeFile : (path : string, data : string|ArrayBufferView) => void,
+    readFile : ReadFile;
     query : (queryStr : string) => SwiplQueryWrapper,
 
     getErrorBuffer : () => string;
@@ -154,7 +161,7 @@ export async function makeSwipl () : Promise<SwiplWrapper> {
     let outputBuffer = "";
 
     const swipl = await SWIPL({
-        arguments : ["-q"],
+        arguments : [],
         locateFile : (path) => `${window.location.pathname}client-public/dist/swipl/${path}`,
         printErr : (err) => {
             console.error(err);
@@ -167,9 +174,23 @@ export async function makeSwipl () : Promise<SwiplWrapper> {
     });
 
     const result : SwiplWrapper = {
-        writeFile : (path : string, data : string) => {
+        writeFile : (path : string, data : string|ArrayBufferView) => {
+            const parts = path.split("/");
+            parts.pop();
+
+            for (let i=1; i<=parts.length; ++i) {
+                const subPath = parts.slice(0, i).join("/");
+                const analyzePathResult = (swipl.FS as any).analyzePath(subPath);
+                if (!analyzePathResult.exists) {
+                    swipl.FS.mkdir(subPath);
+                }
+            }
+
             swipl.FS.writeFile(path, data);
         },
+        readFile : ((path : string, opts? : { encoding?: "binary"|"utf8"; flags?: string | undefined }) : string|Uint8Array => {
+            return swipl.FS.readFile(path, opts);
+        }) as ReadFile,
         query : () => {
             throw new Error(`Not implemented`);
         },
