@@ -145,7 +145,7 @@ export const chatCompleteRequestBody = tm.object({
     stop : tm.array(tm.string()).optional(),
     max_tokens : tm.range({
         gtEq : 1,
-        ltEq : 2048,
+        ltEq : 4096,
     }).optional(),
     presence_penalty : tm.range({
         gtEq : -2.0,
