@@ -23,6 +23,24 @@ export interface ContentMessageFormProps {
 
 export function ContentMessageForm (props : ContentMessageFormProps) {
     return <div className="ui form">
+        {
+            props.message.role == "assistant" ?
+            <textarea
+                style={{
+                    minHeight : "8em",
+                    maxHeight : "48em",
+                }}
+                value={props.message.reasoning_content ?? ""}
+                onChange={(evt) => {
+                    props.onChange({
+                        ...props.message,
+                        reasoning_content : evt.target.value,
+                        tokenCount : undefined,
+                    } as AssistantMessage, props.message);
+                }}
+            /> :
+            undefined
+        }
         <textarea
             style={{
                 minHeight : "8em",

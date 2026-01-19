@@ -7,6 +7,7 @@ import * as CopyWebpackPlugin from "copy-webpack-plugin";
 if (process.env.WATCH === "TRUE") {
     console.log("WEBPACK SHOULD WATCH");
 }
+process.env.WEBPACK_MODE = process.env.WEBPACK_MODE ?? "development";
 console.log("WEBPACK_MODE", process.env.WEBPACK_MODE);
 const rules : webpack.RuleSetRule[] = [
     {
@@ -56,7 +57,7 @@ const rules : webpack.RuleSetRule[] = [
         use: 'file-loader?name=/fonts/[name].  [ext]&mimetype=application/font-otf'
     },
     {
-        test: /\/gpt-tokenizer\/.+?\.js$/,
+        test: /gpt-tokenizer/,
         use: [{
             loader: "babel-loader",
             options: {

@@ -1,6 +1,7 @@
 import * as uuid from "uuid";
 import { RawChatRequestConfig } from "./ChatRequestConfigUx";
 import { FunctionTool } from "./FunctionToolForm";
+import { AxiosRequestConfig } from "axios";
 
 export function localStorageSupported () {
     return (
@@ -49,11 +50,13 @@ export function kbUsed () : number {
 }
 
 export enum LocalStorageKey {
+    API_CONFIGURATIONS = "API_CONFIGURATIONS",
     OPEN_AI_API_KEY = "OPEN_AI_API_KEY",
     FUNCTION_TOOLS = "FUNCTION_TOOLS",
     CONVERSATIONS_META = "CONVERSATIONS_META",
     CONVERSATION = "CONVERSATION",
     MODELS = "MODELS",
+    API_MODELS = "API_MODELS",
     SELF_DISCOVERS_META = "SELF_DISCOVERS_META",
     SELF_DISCOVER = "SELF_DISCOVER",
 }
@@ -103,6 +106,7 @@ export interface UserMessage extends MessageBase {
 export interface AssistantMessage extends MessageBase {
     messageType : "assistant",
     role : "assistant",
+    reasoning_content? : string|null|undefined,
     content : string,
 }
 
@@ -118,6 +122,8 @@ export interface ToolCall {
 export interface AssistantToolCallMessage extends MessageBase {
     messageType : "assistant_tool_call",
     role : "assistant",
+    reasoning_content? : string|null|undefined,
+    content? : string|null|undefined,
     tool_calls : ToolCall[],
 }
 
@@ -250,7 +256,7 @@ export function makeConversation (customUuid : string|undefined = undefined) : {
     conversation : Conversation,
     meta : ConversationMeta,
 } {
-    const models = loadModels().filter(model => model.id.startsWith("gpt"));
+    // const models = loadModels().filter(model => model.id.startsWith("gpt"));
     const meta : ConversationMeta = {
         uuid : customUuid ?? uuid.v4(),
         name : "",
@@ -262,10 +268,10 @@ export function makeConversation (customUuid : string|undefined = undefined) : {
         name : meta.name,
         description : meta.description,
         rawChatRequestConfig : {
-            model : models.length > 0 ?
-                models[0].id :
-                "",
-            temperature  :1,
+            apiConfigurationUuid : "",
+            apiConfiguration2Model : {},
+            model : "",
+            temperature  : 1,
             max_tokens : 256,
             stop : "",
             top_p : 1,
@@ -341,6 +347,8 @@ export function loadConversation (uuid : string) : Conversation|undefined {
         ?? {
             type : "text",
         };
+    result.rawChatRequestConfig.apiConfigurationUuid ??= loadApiConfigurations()[0].uuid;
+    result.rawChatRequestConfig.apiConfiguration2Model ??= {};
     return result;
 }
 
@@ -437,7 +445,7 @@ export function deleteSelfDiscover (self_discover_id : Pick<SelfDiscover, "uuid"
     );
 }
 
-interface Model {
+export interface Model {
     id : string,
     object : "model",
     created : number,
@@ -458,4 +466,106 @@ export function saveModels (models : Model[]) {
         LocalStorageKey.MODELS,
         JSON.stringify(models)
     );
+}
+
+export function loadApiModels (apiConfigurationUuid : string) : Model[] {
+    const str = getItem(`${LocalStorageKey.API_MODELS}_${apiConfigurationUuid}`);
+    if (str == undefined) {
+        return [];
+    }
+    const result = JSON.parse(str) as Model[];
+    return result
+        .sort((a, b) => {
+            return b.created - a.created;
+        });
+}
+
+export function saveApiModels (apiConfigurationUuid : string, models : Model[]) {
+    return setItem(
+        `${LocalStorageKey.API_MODELS}_${apiConfigurationUuid}`,
+        JSON.stringify(models)
+    );
+}
+
+export interface ApiConfiguration {
+    uuid : string;
+    name : string,
+
+    /**
+     * e.g.
+     * - http://127.0.0.1:8080
+     * - https://api.openai.com
+     */
+    domain : string,
+
+    /**
+     * e.g.
+     * - /
+     */
+    root : string,
+
+    apiKey : string,
+}
+
+const defaultApiConfigurations : ApiConfiguration[] = [
+    {
+        uuid : "0728b24c-ea4a-11f0-8de9-0242ac120002",
+        name : "OpenAI",
+        domain : "https://api.openai.com",
+        root : "/",
+        apiKey : "",
+    },
+    {
+        uuid : "0dcdf8a0-ea4a-11f0-8de9-0242ac120002",
+        name : "llama-server",
+        domain : "http://127.0.0.1:8080",
+        root : "/v1",
+        apiKey : "",
+    }
+];
+function loadApiConfigurationsImpl () : ApiConfiguration[] {
+    const str = getItem(LocalStorageKey.API_CONFIGURATIONS);
+    if (str == undefined) {
+        return JSON.parse(JSON.stringify(defaultApiConfigurations));
+    }
+    const result = JSON.parse(str) as ApiConfiguration[];
+    if (result.length == 0) {
+        return JSON.parse(JSON.stringify(defaultApiConfigurations));
+    }
+    return result;
+}
+
+export function loadApiConfigurations() {
+    return loadApiConfigurationsImpl()
+        .sort((a, b) => {
+            const nameCmp = a.name.localeCompare(b.name);
+            if (nameCmp != 0) {
+                return nameCmp;
+            }
+            return a.uuid.localeCompare(b.uuid);
+        });
+}
+
+export function saveApiConfigurations (apiConfigurations : ApiConfiguration[]) {
+    return setItem(
+        LocalStorageKey.API_CONFIGURATIONS,
+        JSON.stringify(apiConfigurations)
+    );
+}
+
+export function toAxiosRequestConfig (apiConfiguration : ApiConfiguration) : AxiosRequestConfig {
+    if (!apiConfiguration.apiKey) {
+        return {
+            baseURL: apiConfiguration.domain + apiConfiguration.root,
+            headers : {
+            },
+        }
+    }
+
+    return {
+        baseURL: apiConfiguration.domain + apiConfiguration.root,
+        headers : {
+            Authorization : `Bearer ${apiConfiguration.apiKey}`,
+        },
+    }
 }

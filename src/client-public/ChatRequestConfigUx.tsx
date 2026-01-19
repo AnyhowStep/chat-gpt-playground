@@ -1,9 +1,14 @@
 import * as React from "react";
 import * as localStorageUtil from "./local-storage-util";
 import { ErrorMessage } from "./ErrorMessage";
+// import { OpenAiApi } from "../api-openai";
+import { Model, toAxiosRequestConfig } from "./local-storage-util";
+import * as openai from "../openai-openapi";
 //import * as openAiMapper from "../api-openai-mapper";
 
 export interface RawChatRequestConfig {
+    apiConfigurationUuid : string
+    apiConfiguration2Model : Record<string, string|undefined>,
     model : string,
     temperature : number,
     max_tokens : number,
@@ -14,11 +19,21 @@ export interface RawChatRequestConfig {
     response_format : {
         type : typeof responseFormatTypes[number],
     },
+    reasoning_effort? : openai.ReasoningEffort|undefined,
+    parallel_tool_calls? : boolean|undefined,
 }
 
 export const responseFormatTypes = [
     "text",
     "json_object",
+] as const;
+
+export const reasoningEffortTypes = [
+    'minimal',
+    'low',
+    'medium',
+    'high',
+    ''
 ] as const;
 
 export interface ChatRequestConfigUxProps {
@@ -33,17 +48,105 @@ export function ChatRequestConfigUx (props : ChatRequestConfigUxProps) {
         onConfigChange,
     } = props;
     const [
+        apiConfigurations,
+        //setApiConfigurations,
+    ] = React.useState(() => localStorageUtil.loadApiConfigurations());
+    const [
         models,
-        //setModels,
-    ] = React.useState(() => {
-        return localStorageUtil.loadModels().filter(model => model.id.startsWith("gpt"));
-    });
+        setModels,
+    ] = React.useState([] as Model[]);
+
+    React.useEffect(
+        () => {
+            const uuid = config.apiConfigurationUuid;
+            const apiConfiguration = apiConfigurations.find(i => i.uuid == uuid);
+
+            if (apiConfiguration == undefined) {
+                onConfigChange({
+                    ...config,
+                    apiConfigurationUuid : apiConfigurations[0].uuid,
+                });
+                return;
+            }
+
+            setModels(localStorageUtil.loadApiModels(uuid));
+            let cancelled = false;
+
+            openai.getModels()
+                .listModels(toAxiosRequestConfig(apiConfiguration))
+                .then(response => {
+                    if (cancelled) {
+                        return;
+                    }
+                    localStorageUtil.saveApiModels(uuid, response.data.data);
+                    setModels(localStorageUtil.loadApiModels(uuid));
+                });
+
+            return () => {
+                cancelled = true;
+            }
+        },
+        [config.apiConfigurationUuid]
+    );
+
+    React.useEffect(
+        () => {
+            if (models.length == 0) {
+                console.log("Model length 0")
+                return;
+            }
+            
+            const apiConfigurationId = config.apiConfigurationUuid;
+            const apiConfiguration = apiConfigurations.find(i => i.uuid == apiConfigurationId);
+
+            if (apiConfiguration == undefined) {
+                console.log("No api config")
+                return;
+            }
+
+            const modelId = config.apiConfiguration2Model[apiConfigurationId];
+            const model = models.find(i => i.id == modelId);
+            console.log("model", model, config.apiConfiguration2Model)
+            if (model == undefined) {
+                console.log("Updating model")
+                onConfigChange({
+                    ...config,
+                    apiConfiguration2Model : {
+                        ...config.apiConfiguration2Model,
+                        [apiConfigurationId] : models[0].id,
+                    },
+                });
+            }
+        },
+        [config.apiConfigurationUuid, config.apiConfiguration2Model, models]
+    );
 
     return <div className="ui form">
         <div className="field">
+            <label>API</label>
+            <select
+                value={config.apiConfigurationUuid}
+                onChange={(evt) => {
+                    onConfigChange({
+                        ...config,
+                        apiConfigurationUuid : evt.target.value,
+                    });
+                }}
+            >
+                <option key={"none"} value={""} disabled>
+                    Select an API
+                </option>
+                {apiConfigurations.map(item => {
+                    return <option key={item.uuid} value={item.uuid}>
+                        {item.name} - {item.domain}{item.root} - {item.uuid}
+                    </option>
+                })}
+            </select>
+        </div>
+        <div className="field">
             <label>Model</label>
             <select
-                value={config.model}
+                value={config.apiConfiguration2Model[config.apiConfigurationUuid]}
                 onChange={(evt) => {
                     onConfigChange({
                         ...config,
@@ -220,6 +323,64 @@ export function ChatRequestConfigUx (props : ChatRequestConfigUxProps) {
                     });
                 }}
             />
+        </div>
+        <div className="field">
+            <label
+                data-tooltip=""
+                data-position="top left"
+                data-inverted
+            >
+                Reasoning Efort <i className="question circle icon"></i>
+            </label>
+            <select
+                value={config.reasoning_effort ?? ""}
+                onChange={(evt) => {
+                    onConfigChange({
+                        ...config,
+                        reasoning_effort : evt.target.value != "" && reasoningEffortTypes.includes(evt.target.value as any) ?
+                            evt.target.value as openai.ReasoningEffort :
+                            undefined,
+                    });
+                }}
+            >
+                {reasoningEffortTypes.map(str => {
+                    return <option key={str} value={str}>
+                        {str == "" ? "default" : str}
+                    </option>
+                })}
+            </select>
+        </div>
+        <div className="field">
+            <label
+                data-tooltip=""
+                data-position="top left"
+                data-inverted
+            >
+                Parallel Tool Calls <i className="question circle icon"></i>
+            </label>
+            <select
+                value={
+                    config.parallel_tool_calls == undefined ?
+                    "" :
+                    config.parallel_tool_calls ?
+                    "true" :
+                    "false"
+                }
+                onChange={(evt) => {
+                    onConfigChange({
+                        ...config,
+                        parallel_tool_calls : evt.target.value == "" ?
+                            undefined :
+                            evt.target.value == "true"
+                    });
+                }}
+            >
+                {["true", "false", ""].map(str => {
+                    return <option key={str} value={str}>
+                        {str == "" ? "default" : str}
+                    </option>
+                })}
+            </select>
         </div>
     </div>
 }

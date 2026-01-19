@@ -18,7 +18,6 @@ export interface SelfDiscoverImplementTabProps {
 
 export function SelfDiscoverImplementTab (props : SelfDiscoverImplementTabProps) {
     const {
-        openAiApi,
         active,
         selfDiscover,
         setSelfDiscover,
@@ -98,7 +97,7 @@ export function SelfDiscoverImplementTab (props : SelfDiscoverImplementTabProps)
                 setIsLoading(true);
 
                 try {
-                    const conversationB = await submitConversation(openAiApi, conversationA, []);
+                    const conversationB = await submitConversation(conversationA, []);
 
                     setIsLoading(false);
 

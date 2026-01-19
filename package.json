@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "webpack-public-dev": "WEBPACK_MODE=development webpack --config ./webpack-public.config.ts --mode=development"
+    "orval-openai": "./node_modules/.bin/orval --config ./orval.openai.config.js",
+    "webpack-public-dev": "webpack --config ./webpack-public.config.ts --mode=development"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +16,7 @@
     "@types/react-router-dom": "5.1.3",
     "@types/uuid": "8.3.0",
     "@types/webpack": "4.41.7",
-    "babel-loader": "^8.3.0",
+    "babel-loader": "^8.4.1",
     "babel-preset-expo": "^8.5.1",
     "classnames": "2.2.6",
     "copy-webpack-plugin": "^6.4.1",

@@ -7,7 +7,7 @@ import {HomePage} from "./HomePage";
 //import { Conversation, Story } from "./route";
 import { OpenAiApi } from "../api-openai";
 import { DefaultMenu } from "./DefaultMenu";
-import { ApiKeyPage } from "./ApiKeyPage";
+// import { ApiKeyPage } from "./ApiKeyPage";
 import { FunctionToolListPage } from "./FunctionToolListPage";
 import { FunctionToolEditPage } from "./FunctionToolEditPage";
 import { ConversationListPage } from "./ConversationListPage";
@@ -25,6 +25,8 @@ import { FileEditPage } from "./prolog";
 import { ProjectListPage } from "./prolog/ProjectListPage";
 import { ProjectEditPage } from "./prolog/ProjectEditPage";
 import { TestsPage } from "./text-adventure";
+import { ApiConfigurationListPage } from "./ApiConfigurationListPage";
+import { ApiConfigurationEditPage } from "./ApiConfigurationEditPage";
 
 
 export interface Props {
@@ -99,7 +101,7 @@ export function App (_props : Props) {
                 <div className="item">
                     Settings
                     <div className="menu">
-                        <Link className="ui item" to={`/api-key`}>API Key</Link>
+                        <Link className="ui item" to={`/api-configuration`}>API Configurations</Link>
                         <Link className="ui item" to={`/function-tool`}>Function Tools</Link>
                         <Link className="ui item" to={`/model`}>Models</Link>
                         <Link className="ui item" to={`/conversation`}>Conversations</Link>
@@ -141,11 +143,12 @@ export function App (_props : Props) {
                     {/* <Route path="/story" component={storyComponent.current}/>
                     <Route path="/conversation" component={conversationComponent.current}/> */}
 
-                    <Route path="/api-key" component={ApiKeyPage}/>
+                    <Route path="/api-configuration/:uuid/edit" component={ApiConfigurationEditPage}/>
+                    <Route path="/api-configuration" component={ApiConfigurationListPage}/>
                     <Route path="/function-tool/:uuid/edit" component={FunctionToolEditPage}/>
                     <Route path="/function-tool" component={FunctionToolListPage}/>
                     <Route path="/model" component={() => <ModelListPage openAiApi={_props.openAiApi}/>}/>
-                    <Route path="/conversation/:uuid/edit" component={() => <ConversationEditPage openAiApi={_props.openAiApi}/>}/>
+                    <Route path="/conversation/:uuid/edit" component={() => <ConversationEditPage/>}/>
                     <Route path="/conversation" component={ConversationListPage}/>
                     <Route path="/self-discover/:uuid/edit" component={() => <SelfDiscoverEditPage openAiApi={_props.openAiApi}/>}/>
                     <Route path="/self-discover" component={SelfDiscoverListPage}/>

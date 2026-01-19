@@ -14,6 +14,23 @@ export function FunctionToolListPage () {
         <FunctionToolList
             functionTools={functionTools}
             editOnClick={true}
+            rightFloatedContent={item =>
+                <>
+                    <div className="ui icon red button" onClick={(evt) => {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        if (confirm(`Delete ${item.name}(${item.uuid})?`)) {
+                            setFunctionTools(_ => {
+                                const result = localStorageUtil.loadFunctionTools().filter(i => i.uuid != item.uuid);
+                                localStorageUtil.saveFunctionTools(result);
+                                return result;
+                            });
+                        }
+                    }}>
+                        <i className="trash icon"></i>
+                    </div>
+                </>
+            }
         />
         <button className="ui primary button" onClick={() => {
             const functionTools = localStorageUtil.loadFunctionTools();

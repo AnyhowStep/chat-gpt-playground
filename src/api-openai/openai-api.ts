@@ -20,6 +20,9 @@ export class OpenAiApi {
         const myArgs : AxiosApiArgs = {
             ...args,
             onInjectHeader : () => {
+                if (!args.apiKey) {
+                    return {};
+                }
                 return {
                     Authorization : `Bearer ${args.apiKey}`,
                 };

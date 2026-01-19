@@ -26,7 +26,8 @@ export const toolResponseChatMessage = tm.object({
 export const assistantToolCallChatMessage = tm.object({
     role : tm.literal("assistant"),
 
-    //content : tm.null(),
+    reasoning_content : tm.string().orNull().orUndefined().optional(),
+    content : tm.string().orNull().orUndefined(),
     tool_calls : tm.array(tm.object({
         id : tm.string(),
         type : tm.literal("function"),
@@ -40,6 +41,7 @@ export const assistantToolCallChatMessage = tm.object({
 export const assistantContentChatMessage = tm.object({
     role : tm.literal("assistant"),
 
+    reasoning_content : tm.string().orNull().orUndefined().optional(),
     /**
      * The contents of the message.
      * content is required for all messages except assistant messages with function calls.
@@ -159,6 +161,7 @@ export const chatCompleteRequestBody = tm.object({
     response_format : tm.object({
         type : tm.literal("text", "json_object"),
     }).optional(),
+    reasoning_effort : tm.string().orNull(),
 
     /**
      * A unique identifier representing your end-user, which can help OpenAI to monitor and detect abuse.

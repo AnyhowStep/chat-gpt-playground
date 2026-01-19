@@ -111,7 +111,7 @@ export function SelfDiscoverTaskForm (props : SelfDiscoverTaskFormProps) {
                                     setIsLoading(true);
 
                                     try {
-                                        const conversationB = await submitConversation(executeConfig.openAiApi, conversationA, []);
+                                        const conversationB = await submitConversation(conversationA, []);
 
                                         setIsLoading(false);
 

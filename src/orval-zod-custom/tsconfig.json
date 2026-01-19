@@ -1,0 +1,14 @@
+{
+    "extends" : "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../dist/orval-zod-custom",
+        "declarationDir": "../../dist/orval-zod-custom",
+        "esModuleInterop": true,
+        "types": []
+    },
+    "references" : [
+    ],
+    "include" : [
+        "./**/*.ts"
+    ]
+}

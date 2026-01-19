@@ -3,7 +3,6 @@ import * as reactRouter from "react-router-dom";
 import * as uuid from "uuid";
 import * as classNames from "classnames";
 import * as gptTokenizer from "gpt-tokenizer";
-import { OpenAiApi } from "../api-openai";
 import * as localStorageUtil from "./local-storage-util";
 import { ChatRequestConfigUx } from "./ChatRequestConfigUx";
 import { FunctionToolList } from "./FunctionToolList";
@@ -14,8 +13,10 @@ import { cleanObject } from "../json-schema-editor";
 import { useError } from "./use-error";
 import { ErrorMessage } from "./ErrorMessage";
 import { handleError } from "./error-handling";
+import * as openai from "../openai-openapi";
+import { ChatCompletionResponseMessage, CreateChatCompletionResponseChoicesItem } from "../openai-openapi";
 
-function toMessage (m : ChatMessage) : localStorageUtil.Message {
+function toMessage (m : ChatMessage|ChatCompletionResponseMessage) : localStorageUtil.Message {
     switch (m.role) {
         case "system": {
             return {
@@ -39,14 +40,17 @@ function toMessage (m : ChatMessage) : localStorageUtil.Message {
                     uuid : uuid.v4(),
                     messageType : "assistant_tool_call",
                     role : m.role,
-                    tool_calls : m.tool_calls,
+                    reasoning_content : (m as any).reasoning_content,
+                    content : m.content,
+                    tool_calls : m.tool_calls as localStorageUtil.ToolCall[],
                 };
             } else {
                 return {
                     uuid : uuid.v4(),
                     messageType : "assistant",
                     role : m.role,
-                    content : m.content,
+                    reasoning_content : (m as any).reasoning_content,
+                    content : m.content as string,
                 };
             }
         }
@@ -115,14 +119,16 @@ function parseMessages (messages : localStorageUtil.Message[]) {
 }
 
 export async function submitConversation (
-    openAiApi : OpenAiApi,
     conversation : localStorageUtil.Conversation,
     functionTools : FunctionTool[],
 ) : Promise<localStorageUtil.Conversation> {
     const parsedStop = parseStop(conversation.rawChatRequestConfig.stop);
-    const response = await openAiApi.chat.complete()
-        .setBody({
-            model : conversation.rawChatRequestConfig.model,
+    console.log("conversation.rawChatRequestConfig", conversation.rawChatRequestConfig);
+    const response = await openai.getChat().createChatCompletion(
+        {
+            model : conversation.rawChatRequestConfig.apiConfiguration2Model[
+                conversation.rawChatRequestConfig.apiConfigurationUuid
+            ]!,
             messages : parseMessages(conversation.messages),
 
             tools : parseFunctionTools(conversation, functionTools),
@@ -145,27 +151,135 @@ export async function submitConversation (
             logit_bias : undefined,
             response_format : conversation.rawChatRequestConfig.response_format,
             user : undefined,
-        })
-        .send();
-    if (response.responseBody.choices.length != 1) {
-        console.error(response.responseBody);
-        throw new Error(`Expected 1 choice, found ${response.responseBody.choices.length}`);
+
+            reasoning_effort : conversation.rawChatRequestConfig.reasoning_effort ?? null,
+            parallel_tool_calls : conversation.rawChatRequestConfig.parallel_tool_calls,
+        },
+        localStorageUtil.toAxiosRequestConfig(
+            localStorageUtil.loadApiConfigurations().find(i => i.uuid == conversation.rawChatRequestConfig.apiConfigurationUuid)!
+        )
+    );
+    // const response = await openAiApi.chat.complete()
+    //     .setBody({
+    //         model : conversation.rawChatRequestConfig.model,
+    //         messages : parseMessages(conversation.messages),
+
+    //         tools : parseFunctionTools(conversation, functionTools),
+    //         tool_choice : undefined,
+
+    //         temperature : conversation.rawChatRequestConfig.temperature,
+    //         top_p : conversation.rawChatRequestConfig.top_p,
+
+    //         /**
+    //          * How many chat completion choices to generate for each input message.
+    //          * Note that you will be charged based on the number of generated tokens across all of the choices.
+    //          * Keep n as 1 to minimize costs.
+    //          */
+    //         n : undefined,
+    //         stream : false,
+    //         stop : parsedStop,
+    //         max_tokens : conversation.rawChatRequestConfig.max_tokens,
+    //         presence_penalty : conversation.rawChatRequestConfig.presence_penalty,
+    //         frequency_penalty : conversation.rawChatRequestConfig.frequency_penalty,
+    //         logit_bias : undefined,
+    //         response_format : conversation.rawChatRequestConfig.response_format,
+    //         user : undefined,
+    //     })
+    //     .send();
+    if (response.data.choices.length != 1) {
+        console.error(response.data);
+        throw new Error(`Expected 1 choice, found ${response.data.choices.length}`);
     }
-    const choice = response.responseBody.choices[0];
+    const choice = response.data.choices[0];
     return {
         ...conversation,
         messages : [
             ...conversation.messages,
-            toMessage(choice.message),
+            toMessage((choice as CreateChatCompletionResponseChoicesItem).message),
         ],
     };
 }
 
-export interface ConversationEditPageProps {
-    openAiApi : OpenAiApi,
+export async function submitConversation2 (
+    conversation : localStorageUtil.Conversation,
+    functionTools : FunctionTool[],
+) : Promise<localStorageUtil.Message> {
+    const parsedStop = parseStop(conversation.rawChatRequestConfig.stop);
+    console.log("conversation.rawChatRequestConfig", conversation.rawChatRequestConfig);
+    const response = await openai.getChat().createChatCompletion(
+        {
+            model : conversation.rawChatRequestConfig.apiConfiguration2Model[
+                conversation.rawChatRequestConfig.apiConfigurationUuid
+            ]!,
+            messages : parseMessages(conversation.messages),
+
+            tools : parseFunctionTools(conversation, functionTools),
+            tool_choice : undefined,
+
+            temperature : conversation.rawChatRequestConfig.temperature,
+            top_p : conversation.rawChatRequestConfig.top_p,
+
+            /**
+             * How many chat completion choices to generate for each input message.
+             * Note that you will be charged based on the number of generated tokens across all of the choices.
+             * Keep n as 1 to minimize costs.
+             */
+            n : undefined,
+            stream : false,
+            stop : parsedStop,
+            max_tokens : conversation.rawChatRequestConfig.max_tokens,
+            presence_penalty : conversation.rawChatRequestConfig.presence_penalty,
+            frequency_penalty : conversation.rawChatRequestConfig.frequency_penalty,
+            logit_bias : undefined,
+            response_format : conversation.rawChatRequestConfig.response_format,
+            user : undefined,
+
+            reasoning_effort : conversation.rawChatRequestConfig.reasoning_effort ?? null,
+            parallel_tool_calls : conversation.rawChatRequestConfig.parallel_tool_calls,
+        },
+        localStorageUtil.toAxiosRequestConfig(
+            localStorageUtil.loadApiConfigurations().find(i => i.uuid == conversation.rawChatRequestConfig.apiConfigurationUuid)!
+        )
+    );
+    // const response = await openAiApi.chat.complete()
+    //     .setBody({
+    //         model : conversation.rawChatRequestConfig.model,
+    //         messages : parseMessages(conversation.messages),
+
+    //         tools : parseFunctionTools(conversation, functionTools),
+    //         tool_choice : undefined,
+
+    //         temperature : conversation.rawChatRequestConfig.temperature,
+    //         top_p : conversation.rawChatRequestConfig.top_p,
+
+    //         /**
+    //          * How many chat completion choices to generate for each input message.
+    //          * Note that you will be charged based on the number of generated tokens across all of the choices.
+    //          * Keep n as 1 to minimize costs.
+    //          */
+    //         n : undefined,
+    //         stream : false,
+    //         stop : parsedStop,
+    //         max_tokens : conversation.rawChatRequestConfig.max_tokens,
+    //         presence_penalty : conversation.rawChatRequestConfig.presence_penalty,
+    //         frequency_penalty : conversation.rawChatRequestConfig.frequency_penalty,
+    //         logit_bias : undefined,
+    //         response_format : conversation.rawChatRequestConfig.response_format,
+    //         user : undefined,
+    //     })
+    //     .send();
+    if (response.data.choices.length != 1) {
+        console.error(response.data);
+        throw new Error(`Expected 1 choice, found ${response.data.choices.length}`);
+    }
+    const choice = response.data.choices[0];
+    return toMessage((choice as CreateChatCompletionResponseChoicesItem).message);
 }
 
-export function ConversationEditPage (props : ConversationEditPageProps) {
+export interface ConversationEditPageProps {
+}
+
+export function ConversationEditPage (_props : ConversationEditPageProps) {
     const routeParams = reactRouter.useParams() as { uuid : string };
     const [
         conversation,
@@ -197,7 +311,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                             lastMessage : lastMessage == undefined ?
                                 "" :
                                 "content" in lastMessage ?
-                                lastMessage.content.substring(0, 100) :
+                                (lastMessage.content ?? "").substring(0, 100) :
                                 lastMessage.messageType,
                         } :
                         m
@@ -213,16 +327,20 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
         () => {
             const timeout = setTimeout(
                 () => {
-                    if (conversation == undefined) {
-                        return;
-                    }
-                    const {
-                        tokenized,
-                        newConversation,
-                    } = countTokens(conversation);
-                    if (tokenized) {
-                        setConversation(newConversation);
-                    }
+                    setConversation(conversation => {
+                        if (conversation == undefined) {
+                            return undefined;
+                        }
+
+                        const {
+                            tokenized,
+                            newConversation,
+                        } = countTokens(conversation);
+                        if (tokenized) {
+                            return newConversation;
+                        }
+                        return conversation;
+                    });
                 },
                 500
             );
@@ -246,10 +364,13 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                         placeholder="Enter a Conversation Title"
                         value={conversation.name}
                         onChange={(evt) => {
-                            setConversation({
-                                ...conversation,
-                                name : evt.target.value,
-                            });
+                            if (evt.target?.value != null) {
+                                const value = evt.target.value;
+                                setConversation(conversation => ({
+                                    ...conversation!,
+                                    name : value,
+                                }));
+                            }
                         }}
                     />
                 </div>
@@ -259,10 +380,10 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                         placeholder="Enter a Conversation Description"
                         value={conversation.description}
                         onChange={(evt) => {
-                            setConversation({
-                                ...conversation,
+                            setConversation(conversation => ({
+                                ...conversation!,
                                 description : evt.target.value,
-                            });
+                            }));
                         }}
                     />
                 </div>
@@ -277,10 +398,10 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
         <MessageListForm
             messages={conversation.messages}
             onChange={(newMessages) => {
-                setConversation({
-                    ...conversation,
+                setConversation(conversation => ({
+                    ...conversation!,
                     messages : newMessages,
-                });
+                }));
             }}
             onRegenerateAssistantMessage={(message) => {
                 if (isLoading) {
@@ -292,14 +413,14 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     messages : conversation.messages.slice(0, messageIndex),
                 };
                 setIsLoading(true);
-                submitConversation(props.openAiApi, tmpConversation, functionTools)
+                submitConversation(tmpConversation, functionTools)
                     .then(
                         (newConversation) => {
                             setIsLoading(false);
                             const newMessage = newConversation.messages[newConversation.messages.length-1];
-                            setConversation({
-                                ...conversation,
-                                messages : conversation.messages.map(m => {
+                            setConversation(conversation => ({
+                                ...conversation!,
+                                messages : conversation!.messages.map(m => {
                                     return m.uuid == message.uuid ?
                                         {
                                             ...newMessage,
@@ -307,7 +428,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                                         } :
                                         m;
                                 }),
-                            });
+                            }));
                             error.reset();
                         },
                         (err) => {
@@ -323,10 +444,10 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                 error={error}
             />
             <button className="ui primary button" onClick={() => {
-                setConversation({
-                    ...conversation,
+                setConversation(conversation => ({
+                    ...conversation!,
                     messages : [
-                        ...conversation.messages,
+                        ...conversation!.messages,
                         {
                             uuid : uuid.v4(),
                             messageType : "user",
@@ -334,7 +455,7 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                             content : "",
                         }
                     ],
-                });
+                }));
             }}>
                 Add Message
             </button>
@@ -346,11 +467,19 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                     return;
                 }
                 setIsLoading(true);
-                submitConversation(props.openAiApi, conversation, functionTools)
+                submitConversation2(conversation, functionTools)
                     .then(
-                        (newConversation) => {
+                        (responseMessage) => {
                             setIsLoading(false);
-                            setConversation(newConversation);
+                            setConversation(conversation => {
+                                return {
+                                    ...conversation!,
+                                    messages : [
+                                        ...conversation!.messages,
+                                        responseMessage,
+                                    ],
+                                }
+                            });
                             error.reset();
                         },
                         (err) => {
@@ -366,10 +495,10 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
             <ChatRequestConfigUx
                 config={conversation.rawChatRequestConfig}
                 onConfigChange={(rawChatRequestConfig) => {
-                    setConversation({
-                        ...conversation,
+                    setConversation(conversation => ({
+                        ...conversation!,
                         rawChatRequestConfig,
-                    });
+                    }));
                 }}
             />
         </div>
@@ -386,13 +515,13 @@ export function ConversationEditPage (props : ConversationEditPageProps) {
                                 false
                             }
                             onChange={(evt) => {
-                                setConversation({
-                                    ...conversation,
+                                setConversation(conversation => ({
+                                    ...conversation!,
                                     usedFunctions : {
-                                        ...conversation.usedFunctions,
+                                        ...conversation!.usedFunctions,
                                         [f.uuid] : evt.target.checked
                                     },
-                                });
+                                }));
                             }}
                         />
                         <label></label>
@@ -427,19 +556,22 @@ export function countTokens (conversation : localStorageUtil.Conversation) : {
                 };
             }
 
+            let tokenCount : number|undefined = undefined;
+
             if ("content" in m) {
                 tokenized = true;
-                return {
-                    ...m,
-                    tokenCount : gptTokenizer.encode(m.content).length,
-                };
+                tokenCount = (tokenCount ?? 0) + gptTokenizer.encode((m.content ?? "")).length;
             }
 
             if ("tool_calls" in m) {
                 tokenized = true;
+                tokenCount = (tokenCount ?? 0) + gptTokenizer.encode(JSON.stringify(m.tool_calls)).length;
+            }
+            
+            if (tokenCount != undefined) {
                 return {
                     ...m,
-                    tokenCount : gptTokenizer.encode(JSON.stringify(m.tool_calls)).length,
+                    tokenCount,
                 };
             }
 

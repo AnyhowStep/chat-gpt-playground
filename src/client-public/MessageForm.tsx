@@ -53,7 +53,7 @@ export function MessageForm (props : MessageFormProps) {
                                         messageType,
                                         role : "system",
                                         content : "content" in message ?
-                                            message.content :
+                                            message.content ?? "" :
                                             "",
                                         tokenCount : undefined,
                                     }, message);
@@ -65,7 +65,7 @@ export function MessageForm (props : MessageFormProps) {
                                         messageType,
                                         role : "user",
                                         content : "content" in message ?
-                                            message.content :
+                                            message.content ?? "" :
                                             "",
                                         tokenCount : undefined,
                                     }, message);
@@ -77,7 +77,7 @@ export function MessageForm (props : MessageFormProps) {
                                         messageType,
                                         role : "assistant",
                                         content : "content" in message ?
-                                            message.content :
+                                            message.content ?? "" :
                                             "",
                                         tokenCount : undefined,
                                     }, message);
@@ -107,7 +107,7 @@ export function MessageForm (props : MessageFormProps) {
                                             message.name :
                                             "",
                                         content : "content" in message ?
-                                            message.content :
+                                            message.content ?? "" :
                                             "",
                                         tokenCount : undefined,
                                     }, message);

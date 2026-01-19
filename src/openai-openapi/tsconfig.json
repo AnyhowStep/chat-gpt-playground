@@ -1,0 +1,17 @@
+{
+    "extends" : "../../tsconfig-base.json",
+    "compilerOptions": {
+        "outDir": "../../dist/openai-openapi",
+        "declarationDir": "../../dist/openai-openapi",
+        "types": [],
+        "lib": ["DOM", "ES2021"],
+        "noUnusedLocals": false,
+        "noUnusedParameters": false
+    },
+    "references" : [
+    ],
+    "include" : [
+        "./**/*.ts",
+        "./**/*.d.ts"
+    ]
+}

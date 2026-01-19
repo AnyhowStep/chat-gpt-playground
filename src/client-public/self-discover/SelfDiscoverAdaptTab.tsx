@@ -18,7 +18,6 @@ export interface SelfDiscoverAdaptTabProps {
 
 export function SelfDiscoverAdaptTab (props : SelfDiscoverAdaptTabProps) {
     const {
-        openAiApi,
         active,
         selfDiscover,
         setSelfDiscover,
@@ -98,7 +97,7 @@ export function SelfDiscoverAdaptTab (props : SelfDiscoverAdaptTabProps) {
                 setIsLoading(true);
 
                 try {
-                    const conversationB = await submitConversation(openAiApi, conversationA, []);
+                    const conversationB = await submitConversation(conversationA, []);
                     const conversationC : Conversation = {
                         ...conversationB,
                         rawChatRequestConfig : {
@@ -117,7 +116,7 @@ export function SelfDiscoverAdaptTab (props : SelfDiscoverAdaptTabProps) {
                             },
                         ]
                     };
-                    const conversationD = await submitConversation(openAiApi, conversationC, []);
+                    const conversationD = await submitConversation(conversationC, []);
 
                     setIsLoading(false);
 
