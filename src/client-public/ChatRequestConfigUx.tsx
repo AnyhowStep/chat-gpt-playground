@@ -330,7 +330,7 @@ export function ChatRequestConfigUx (props : ChatRequestConfigUxProps) {
                 data-position="top left"
                 data-inverted
             >
-                Reasoning Efort <i className="question circle icon"></i>
+                Reasoning Effort <i className="question circle icon"></i>
             </label>
             <select
                 value={config.reasoning_effort ?? ""}

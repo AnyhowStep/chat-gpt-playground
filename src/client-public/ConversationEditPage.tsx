@@ -113,6 +113,7 @@ function parseFunctionTools (
 }
 
 function parseMessages (messages : localStorageUtil.Message[]) {
+    console.log("messages", messages)
     return messages.map((m, i) => {
         return chatMessageMapper(`parseMessages[${i}]`, m);
     });

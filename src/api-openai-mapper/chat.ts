@@ -66,8 +66,8 @@ export const contentChatMessage = tm.object({
  */
 export const chatMessage = tm.or(
     contentChatMessage,
-    assistantContentChatMessage,
     assistantToolCallChatMessage,
+    assistantContentChatMessage,
     toolResponseChatMessage,
 );
 

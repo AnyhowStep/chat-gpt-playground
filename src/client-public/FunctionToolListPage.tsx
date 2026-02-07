@@ -16,6 +16,27 @@ export function FunctionToolListPage () {
             editOnClick={true}
             rightFloatedContent={item =>
                 <>
+                    <div className="ui icon button" onClick={(evt) => {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        setFunctionTools(_ => {
+                            const arr = localStorageUtil.loadFunctionTools();
+                            const index = arr.findIndex(i => i.uuid == item.uuid);
+                            if (index <= 0) {
+                                return arr;
+                            }
+                            const result = [
+                                ...arr.slice(0, index-1),
+                                arr[index],
+                                arr[index-1],
+                                ...arr.slice(index+1),
+                            ];
+                            localStorageUtil.saveFunctionTools(result);
+                            return result;
+                        });
+                    }}>
+                        <i className="arrow up icon"></i>
+                    </div>
                     <div className="ui icon red button" onClick={(evt) => {
                         evt.preventDefault();
                         evt.stopPropagation();

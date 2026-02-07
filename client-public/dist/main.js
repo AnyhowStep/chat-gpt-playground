@@ -218,7 +218,7 @@ exports.contentChatMessage = tm.object({
 /**
  * https://platform.openai.com/docs/guides/chat/introduction
  */
-exports.chatMessage = tm.or(exports.contentChatMessage, exports.assistantContentChatMessage, exports.assistantToolCallChatMessage, exports.toolResponseChatMessage);
+exports.chatMessage = tm.or(exports.contentChatMessage, exports.assistantToolCallChatMessage, exports.assistantContentChatMessage, exports.toolResponseChatMessage);
 exports.tools = tm.array(tm.object({
     type: tm.literal("function"),
     function: tm.object({
@@ -1258,7 +1258,7 @@ function ChatRequestConfigUx(props) {
                 } })),
         React.createElement("div", { className: "field" },
             React.createElement("label", { "data-tooltip": "", "data-position": "top left", "data-inverted": true },
-                "Reasoning Efort ",
+                "Reasoning Effort ",
                 React.createElement("i", { className: "question circle icon" })),
             React.createElement("select", { value: (_a = config.reasoning_effort) !== null && _a !== void 0 ? _a : "", onChange: (evt) => {
                     onConfigChange({
@@ -1466,6 +1466,7 @@ function parseFunctionTools(conversation, functionTools) {
         (0, api_openai_mapper_1.tools)("parseFunctionTools", result);
 }
 function parseMessages(messages) {
+    console.log("messages", messages);
     return messages.map((m, i) => {
         return (0, api_openai_mapper_1.chatMessage)(`parseMessages[${i}]`, m);
     });
@@ -2247,6 +2248,26 @@ function FunctionToolListPage() {
     const [functionTools, setFunctionTools,] = React.useState(localStorageUtil.loadFunctionTools());
     return React.createElement("div", { className: "ui main container" },
         React.createElement(FunctionToolList_1.FunctionToolList, { functionTools: functionTools, editOnClick: true, rightFloatedContent: item => React.createElement(React.Fragment, null,
+                React.createElement("div", { className: "ui icon button", onClick: (evt) => {
+                        evt.preventDefault();
+                        evt.stopPropagation();
+                        setFunctionTools(_ => {
+                            const arr = localStorageUtil.loadFunctionTools();
+                            const index = arr.findIndex(i => i.uuid == item.uuid);
+                            if (index <= 0) {
+                                return arr;
+                            }
+                            const result = [
+                                ...arr.slice(0, index - 1),
+                                arr[index],
+                                arr[index - 1],
+                                ...arr.slice(index + 1),
+                            ];
+                            localStorageUtil.saveFunctionTools(result);
+                            return result;
+                        });
+                    } },
+                    React.createElement("i", { className: "arrow up icon" })),
                 React.createElement("div", { className: "ui icon red button", onClick: (evt) => {
                         evt.preventDefault();
                         evt.stopPropagation();
